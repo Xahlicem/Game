@@ -8,6 +8,7 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
+import com.xahlicem.game.helpers.Input;
 import com.xahlicem.game.helpers.Screen;
 
 public class Game extends Canvas implements Runnable {
@@ -23,7 +24,7 @@ public class Game extends Canvas implements Runnable {
 	private Thread thread;
 	private Frame frame;
 	private boolean running;
-
+	private Input input;
 	private Screen screen;
 
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
@@ -34,8 +35,12 @@ public class Game extends Canvas implements Runnable {
 		setPreferredSize(size);
 
 		screen = new Screen(WIDTH, HEIGHT);
-
 		frame = new Frame(this);
+		input = new Input();
+		
+		addKeyListener(input);
+		addMouseListener(input);
+		addMouseMotionListener(input);
 	}
 
 	public static void main(String[] args) {
@@ -98,8 +103,24 @@ public class Game extends Canvas implements Runnable {
 	}
 
 	private void tick() {
-		x -= 2;
-		y--;
+		int i = 2;
+		
+		if (input.isKeyPressed(Input.KEY_SHIFT)) i = 4;
+		
+		if (input.isKeyPressed(Input.KEY_UP)) y -= i;
+		if (input.isKeyPressed(Input.KEY_DOWN)) y += i;
+		if (input.isKeyPressed(Input.KEY_LEFT)) x -= i;
+		if (input.isKeyPressed(Input.KEY_RIGHT)) x += i;
+		
+		int pointX = input.getPoint()[0];
+		int pointY = input.getPoint()[1];
+		pointX = (pointX / SCALE) + x >> 4;
+		pointY = (pointY / SCALE) + y >> 4;
+
+		pointX = (128 + pointX) % 64;
+		pointY = (128 + pointY) % 64;
+		
+		System.out.println(pointX + ", " + pointY);
 	}
 
 	int x = 0, y = 0;
