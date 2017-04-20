@@ -8,8 +8,6 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
-import javax.swing.JFrame;
-
 import com.xahlicem.game.helpers.Screen;
 
 public class Game extends Canvas implements Runnable {
@@ -23,7 +21,7 @@ public class Game extends Canvas implements Runnable {
 	public static final String TITLE = "Game";
 
 	private Thread thread;
-	private JFrame frame;
+	private Frame frame;
 	private boolean running;
 
 	private Screen screen;
@@ -37,18 +35,12 @@ public class Game extends Canvas implements Runnable {
 
 		screen = new Screen(WIDTH, HEIGHT);
 
-		frame = new JFrame();
+		frame = new Frame(this);
 	}
 
 	public static void main(String[] args) {
 		Game game = new Game();
-		game.frame.setResizable(false);
-		game.frame.setTitle(TITLE);
-		game.frame.add(game);
-		game.frame.pack();
-		game.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		game.frame.setLocationRelativeTo(null);
-		game.frame.setVisible(true);
+		game.frame.init();
 
 		game.start();
 	}
@@ -90,13 +82,13 @@ public class Game extends Canvas implements Runnable {
 
 	}
 
-	private synchronized void start() {
+	public synchronized void start() {
 		running = true;
 		thread = new Thread(this, "Display");
 		thread.start();
 	}
 
-	private synchronized void stop() {
+	public synchronized void stop() {
 		running = false;
 		try {
 			thread.join();
