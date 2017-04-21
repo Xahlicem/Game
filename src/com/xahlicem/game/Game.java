@@ -8,8 +8,8 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
+import com.xahlicem.game.graphics.Screen;
 import com.xahlicem.game.helpers.Input;
-import com.xahlicem.game.helpers.Screen;
 
 public class Game extends Canvas implements Runnable {
 	private static final double TPS = 30D;

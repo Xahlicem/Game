@@ -1,4 +1,4 @@
-package com.xahlicem.game.helpers;
+package com.xahlicem.game.graphics;
 
 import java.util.Random;
 
