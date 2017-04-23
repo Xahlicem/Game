@@ -37,7 +37,7 @@ public class Screen {
 				if (x < 0 || x >= width) break;
 				//int tileIndex = (x >> 4) + (y >> 4) * 64;
 				int tileIndex = ((xOffset >> 4) & MAP_SIZE_MASK) + ((yOffset >> 4) & MAP_SIZE_MASK) * MAP_SIZE;
-				pixels[x + y * width] = tiles[tileIndex];
+				pixels[x + y * width] = Sprite.GRASS.pixels[(xOffset&15) + (yOffset&15)*16];//tiles[tileIndex];
 			}
 
 		}
