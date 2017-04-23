@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.util.Arrays;
 
 import com.xahlicem.game.graphics.Screen;
 import com.xahlicem.game.helpers.Input;
@@ -16,7 +17,7 @@ public class Game extends Canvas implements Runnable {
 
 	public static final int WIDTH = 300;
 	public static final int HEIGHT = WIDTH / 16 * 9;
-	public static final int SCALE = 3;
+	public static final int SCALE = 4;
 	public static final String TITLE = "Game";
 
 	private Thread thread;
@@ -27,6 +28,7 @@ public class Game extends Canvas implements Runnable {
 
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 	private int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+	private int[] backPixels;
 
 	public Game() {
 		Dimension size = new Dimension(WIDTH * SCALE, HEIGHT * SCALE);
@@ -125,6 +127,7 @@ public class Game extends Canvas implements Runnable {
 		pointY = (pointY / SCALE) + y >> 4;
 		
 		if (input.isKeyPressed(Input.KEY_PRESS))System.out.println((pointX&7) + ", " + (pointY&7));
+		x++;
 	}
 
 	int x = 0, y = 0;
@@ -136,8 +139,10 @@ public class Game extends Canvas implements Runnable {
 		//	return;
 		//}
 
-		screen.clear();
+		//screen.clear();
 		screen.draw(x, y, pixels);
+		if (Arrays.equals(pixels, backPixels)) return;
+		backPixels = Arrays.copyOf(pixels, pixels.length);
 		//for (int i = 0; i < pixels.length; i++) {
 		//	pixels[i] = screen.pixels[i];
 		//}
@@ -146,7 +151,7 @@ public class Game extends Canvas implements Runnable {
 		Graphics g = getGraphics();
 		//g.setColor(Color.BLACK);
 		//g.fillRect(0, 0, getWidth(), getHeight());
-		g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
+		g.drawImage(image, 0, 0, getWidth(), getHeight(), this);
 		g.dispose();
 
 		//strategy.show();
