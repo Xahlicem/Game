@@ -1,10 +1,8 @@
 package com.xahlicem.game;
 
 import java.awt.Canvas;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
@@ -12,7 +10,7 @@ import com.xahlicem.game.graphics.Screen;
 import com.xahlicem.game.helpers.Input;
 
 public class Game extends Canvas implements Runnable {
-	private static final double TPS = 30D;
+	private static final double TPS = 60D;
 	private static final double NSPT = 1_000_000_000D / TPS;
 	private static final long serialVersionUID = 3929185344600372879L;
 
@@ -33,6 +31,8 @@ public class Game extends Canvas implements Runnable {
 	public Game() {
 		Dimension size = new Dimension(WIDTH * SCALE, HEIGHT * SCALE);
 		setPreferredSize(size);
+		setFocusable(true);
+		requestFocus();
 
 		screen = new Screen(WIDTH, HEIGHT);
 		frame = new Frame(this);
@@ -62,6 +62,13 @@ public class Game extends Canvas implements Runnable {
 			now = System.nanoTime();
 			delta += (double) (now - lastTime) / NSPT;
 			lastTime = now;
+			
+			if (delta < 1)
+				try {
+					Thread.sleep(5);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 
 			while (delta >= 1) {
 				tick();
@@ -73,7 +80,7 @@ public class Game extends Canvas implements Runnable {
 			if (draw) {
 				draw();
 				fps++;
-				// draw = false;
+				draw = false;
 			}
 
 			if (System.currentTimeMillis() - timer > 1000) {
@@ -116,34 +123,32 @@ public class Game extends Canvas implements Runnable {
 		int pointY = input.getPoint()[1];
 		pointX = (pointX / SCALE) + x >> 4;
 		pointY = (pointY / SCALE) + y >> 4;
-
-		pointX = (128 + pointX) % 64;
-		pointY = (128 + pointY) % 64;
 		
-		System.out.println(pointX + ", " + pointY);
+		if (input.isKeyPressed(Input.KEY_PRESS))System.out.println((pointX&7) + ", " + (pointY&7));
 	}
 
 	int x = 0, y = 0;
 
 	private void draw() {
-		BufferStrategy strategy = getBufferStrategy();
-		if (strategy == null) {
-			createBufferStrategy(3);
-			return;
-		}
+		//BufferStrategy strategy = getBufferStrategy();
+		//if (strategy == null) {
+		//	createBufferStrategy(3);
+		//	return;
+		//}
 
-		//screen.clear();
-		screen.draw(x, y);
-		for (int i = 0; i < pixels.length; i++) {
-			pixels[i] = screen.pixels[i];
-		}
+		screen.clear();
+		screen.draw(x, y, pixels);
+		//for (int i = 0; i < pixels.length; i++) {
+		//	pixels[i] = screen.pixels[i];
+		//}
 
-		Graphics g = strategy.getDrawGraphics();
-		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, getWidth(), getHeight());
+		//Graphics g = strategy.getDrawGraphics();
+		Graphics g = getGraphics();
+		//g.setColor(Color.BLACK);
+		//g.fillRect(0, 0, getWidth(), getHeight());
 		g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 		g.dispose();
 
-		strategy.show();
+		//strategy.show();
 	}
 }
