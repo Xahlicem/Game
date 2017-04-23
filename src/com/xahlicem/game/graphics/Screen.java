@@ -3,7 +3,7 @@ package com.xahlicem.game.graphics;
 import java.util.Random;
 
 public class Screen {
-	private static final int MAP_SIZE = 64;
+	private static final int MAP_SIZE = 8;
 	private static final int MAP_SIZE_MASK = MAP_SIZE - 1;
 	private int width, height;
 
@@ -27,7 +27,7 @@ public class Screen {
 			pixels[i] = 0;
 	}
 
-	public void draw(int camX, int camY) {
+	public void draw(int camX, int camY, int[] pixels) {
 
 		for (int y = 0; y < height; y++) {
 			int yOffset = y + camY;
@@ -37,7 +37,8 @@ public class Screen {
 				if (x < 0 || x >= width) break;
 				//int tileIndex = (x >> 4) + (y >> 4) * 64;
 				int tileIndex = ((xOffset >> 4) & MAP_SIZE_MASK) + ((yOffset >> 4) & MAP_SIZE_MASK) * MAP_SIZE;
-				pixels[x + y * width] = Sprite.GRASS.pixels[(xOffset&15) + (yOffset&15)*16];//tiles[tileIndex];
+				if ((tiles[tileIndex]&1) == 0)pixels[x + y * width] = Sprite.GRASS.pixels[(xOffset&15) + (yOffset&15)*16];//tiles[tileIndex];
+				else pixels[x + y * width] = Sprite.WATER.pixels[(xOffset&15) + (yOffset&15)*16];
 			}
 
 		}
