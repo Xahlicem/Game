@@ -52,8 +52,6 @@ public class Input implements KeyListener, MouseInputListener {
 		}
 		if (pressed) keys |= bit;
 		else keys &= ~bit;
-
-		System.out.println(keys + " " + pressed);
 	}
 
 	@Override
