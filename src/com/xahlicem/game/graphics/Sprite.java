@@ -17,14 +17,15 @@ public class Sprite {
 	public Sprite(int size, int x, int y, SpriteSheet sheet) {
 		this.size = size;
 		this.sheet = sheet;
-		pixels = new int[size*size];
+		pixels = new int[size * size];
 		load(x * size, y * size, pixels);
 	}
 
 	public Sprite(int size, int pixelColor) {
 		this.size = size;
-		pixels = new int[size*size];
-		for (int i = 0; i < pixels.length; i++) pixels[i] = pixelColor;
+		pixels = new int[size * size];
+		for (int i = 0; i < pixels.length; i++)
+			pixels[i] = pixelColor;
 	}
 
 	protected void load(int xPos, int yPos, int[] pixels) {

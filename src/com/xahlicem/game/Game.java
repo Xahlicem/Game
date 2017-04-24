@@ -41,11 +41,11 @@ public class Game extends Canvas implements Runnable {
 		screen = new Screen(WIDTH, HEIGHT, pixels);
 		frame = new Frame(this);
 		input = new Input();
-		
+
 		addKeyListener(input);
 		addMouseListener(input);
 		addMouseMotionListener(input);
-		
+
 		level = new Level(8, 8);
 	}
 
@@ -68,13 +68,12 @@ public class Game extends Canvas implements Runnable {
 			now = System.nanoTime();
 			delta += (double) (now - lastTime) / NSPT;
 			lastTime = now;
-			
-			if (delta < 1)
-				try {
-					Thread.sleep(5);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+
+			if (delta < 1) try {
+				Thread.sleep(5);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
 			while (delta >= 1) {
 				tick();
@@ -118,47 +117,47 @@ public class Game extends Canvas implements Runnable {
 	private void tick() {
 		level.tick();
 		int i = 2;
-		
+
 		if (input.isKeyPressed(Input.KEY_SHIFT)) i = 4;
-		
+
 		if (input.isKeyPressed(Input.KEY_UP)) y -= i;
 		if (input.isKeyPressed(Input.KEY_DOWN)) y += i;
 		if (input.isKeyPressed(Input.KEY_LEFT)) x -= i;
 		if (input.isKeyPressed(Input.KEY_RIGHT)) x += i;
-		
+
 		int pointX = input.getPoint()[0];
 		int pointY = input.getPoint()[1];
 		pointX = (pointX / SCALE) + x >> 4;
 		pointY = (pointY / SCALE) + y >> 4;
-		
-		if (input.isKeyPressed(Input.KEY_PRESS))System.out.println((pointX&7) + ", " + (pointY&7));
+
+		if (input.isKeyPressed(Input.KEY_PRESS)) System.out.println((pointX & 7) + ", " + (pointY & 7));
 	}
 
 	int x = 0, y = 0;
 
 	private void draw() {
-		//BufferStrategy strategy = getBufferStrategy();
-		//if (strategy == null) {
-		//	createBufferStrategy(3);
-		//	return;
-		//}
+		// BufferStrategy strategy = getBufferStrategy();
+		// if (strategy == null) {
+		// createBufferStrategy(3);
+		// return;
+		// }
 
 		screen.clear();
 		level.draw(x, y, screen);
-		//screen.draw(x, y, pixels);
+		// screen.draw(x, y, pixels);
 		if (Arrays.equals(pixels, backPixels)) return;
 		backPixels = Arrays.copyOf(pixels, pixels.length);
-		//for (int i = 0; i < pixels.length; i++) {
-		//	pixels[i] = screen.pixels[i];
-		//}
+		// for (int i = 0; i < pixels.length; i++) {
+		// pixels[i] = screen.pixels[i];
+		// }
 
-		//Graphics g = strategy.getDrawGraphics();
+		// Graphics g = strategy.getDrawGraphics();
 		Graphics g = getGraphics();
-		//g.setColor(Color.BLACK);
-		//g.fillRect(0, 0, getWidth(), getHeight());
+		// g.setColor(Color.BLACK);
+		// g.fillRect(0, 0, getWidth(), getHeight());
 		g.drawImage(image, 0, 0, getWidth(), getHeight(), this);
 		g.dispose();
 
-		//strategy.show();
+		// strategy.show();
 	}
 }

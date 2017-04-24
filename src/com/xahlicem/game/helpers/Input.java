@@ -7,9 +7,9 @@ import java.awt.event.MouseEvent;
 import javax.swing.event.MouseInputListener;
 
 public class Input implements KeyListener, MouseInputListener {
-	public static final int KEY_UP = 	0b000001;
-	public static final int KEY_DOWN = 	0b000010;
-	public static final int KEY_LEFT = 	0b000100;
+	public static final int KEY_UP = 0b000001;
+	public static final int KEY_DOWN = 0b000010;
+	public static final int KEY_LEFT = 0b000100;
 	public static final int KEY_RIGHT = 0b001000;
 	public static final int KEY_SHIFT = 0b010000;
 	public static final int KEY_PRESS = 0b100000;

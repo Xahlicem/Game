@@ -37,7 +37,8 @@ public class Level {
 	}
 
 	public void tick() {
-		for (Tile tile:Tile.animated) tile.tick();
+		for (Tile tile : Tile.animated)
+			tile.tick();
 	}
 
 	public void draw(int xScroll, int yScroll, Screen screen) {
@@ -50,6 +51,7 @@ public class Level {
 	public Tile getTile(int x, int y) {
 		return getTile(x + y * width);
 	}
+
 	public Tile getTile(int i) {
 		switch (tiles[i]) {
 			case 0:

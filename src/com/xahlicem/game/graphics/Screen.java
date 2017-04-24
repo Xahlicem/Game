@@ -5,7 +5,7 @@ import java.util.Arrays;
 public class Screen {
 	public int width;
 	public int height;
-	
+
 	private int xOffset, yOffset;
 
 	public int[] pixels;
@@ -15,7 +15,7 @@ public class Screen {
 		this.height = height;
 		pixels = new int[width * height];
 	}
-	
+
 	public Screen(int width, int height, int[] pixels) {
 		this.width = width;
 		this.height = height;
@@ -23,11 +23,11 @@ public class Screen {
 	}
 
 	public void clear() {
-		//for (int i = 0; i < pixels.length; i++)
-		//	pixels[i] = 0;
+		// for (int i = 0; i < pixels.length; i++)
+		// pixels[i] = 0;
 		Arrays.fill(pixels, 0);
 	}
-	
+
 	public void drawSprite(int xPos, int yPos, Sprite sprite) {
 		xPos -= xOffset;
 		yPos -= yOffset;
@@ -36,11 +36,11 @@ public class Screen {
 			for (int x = 0; x < sprite.size; x++) {
 				int xa = x + xPos;
 				if (xa < 0 || xa >= width || ya < 0 || ya >= height) continue;
-				pixels[xa + ya * width] = sprite.pixels[x+y*sprite.size];
+				pixels[xa + ya * width] = sprite.pixels[x + y * sprite.size];
 			}
 		}
 	}
-	
+
 	public void setOffset(int x, int y) {
 		xOffset = x;
 		yOffset = y;

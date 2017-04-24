@@ -4,9 +4,9 @@ import javax.swing.JFrame;
 
 public class Frame extends JFrame {
 	private static final long serialVersionUID = -5902218571111718013L;
-	
+
 	private Game game;
-	
+
 	public Frame(Game game) {
 		this.game = game;
 	}
@@ -20,7 +20,7 @@ public class Frame extends JFrame {
 		setLocationRelativeTo(null);
 		setVisible(true);
 	}
-	
+
 	@Override
 	public void dispose() {
 		game.stop();

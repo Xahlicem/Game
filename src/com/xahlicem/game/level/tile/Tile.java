@@ -10,7 +10,7 @@ public class Tile {
 
 	protected Sprite sprite;
 	protected boolean solid = false;
-	
+
 	public static List<Tile> animated = new ArrayList<Tile>();
 
 	public static final Tile NULL = new Tile(Sprite.NULL);

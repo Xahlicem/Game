@@ -17,7 +17,7 @@ public class RandomAnimatedTile extends AnimatedTile {
 		super(delay, sprites);
 		this.chance = chance;
 	}
-	
+
 	public RandomAnimatedTile(int chance, int delay, AnimatedSprite sprites) {
 		super(delay, sprites);
 		this.chance = chance;
