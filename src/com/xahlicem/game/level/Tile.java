@@ -11,6 +11,8 @@ public class Tile {
 	
 	public static final Tile NULL = new Tile(Sprite.NULL);
 	public static final Tile DIRT = new Tile(Sprite.DIRT);
+	public static final Tile GRASS = new Tile(Sprite.GRASS);
+	public static final Tile WATER = new Tile(Sprite.WATER);
 	
 	public Tile(Sprite sprite) {
 		this.sprite = sprite;
