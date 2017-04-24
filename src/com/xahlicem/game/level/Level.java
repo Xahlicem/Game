@@ -4,6 +4,7 @@ import java.util.Random;
 
 import com.xahlicem.game.graphics.Screen;
 import com.xahlicem.game.level.tile.AnimatedTile;
+import com.xahlicem.game.level.tile.RandomAnimatedTile;
 import com.xahlicem.game.level.tile.Tile;
 
 public class Level {
@@ -38,8 +39,8 @@ public class Level {
 	}
 
 	public void tick() {
-		AnimatedTile.WATER.tick();
-		AnimatedTile.GRASS.tick();
+		Tile.WATER.tick();
+		Tile.GRASS.tick();
 	}
 
 	public void draw(int xScroll, int yScroll, Screen screen) {
@@ -55,11 +56,11 @@ public class Level {
 	public Tile getTile(int i) {
 		switch (tiles[i]) {
 			case 0:
-				return AnimatedTile.GRASS;
+				return Tile.DIRT;
 			case 1:
-				return AnimatedTile.GRASS;
+				return Tile.GRASS;
 			case 2:
-				return AnimatedTile.WATER;
+				return Tile.WATER;
 			default:
 				return Tile.NULL;
 		}

@@ -1,5 +1,6 @@
 package com.xahlicem.game.level.tile;
 
+import com.xahlicem.game.graphics.AnimatedSprite;
 import com.xahlicem.game.graphics.Screen;
 import com.xahlicem.game.graphics.Sprite;
 
@@ -10,8 +11,8 @@ public class Tile {
 
 	public static final Tile NULL = new Tile(Sprite.NULL);
 	public static final Tile DIRT = new Tile(Sprite.DIRT);
-	public static final Tile GRASS = new Tile(Sprite.GRASS);
-	public static final Tile WATER = new Tile(Sprite.WATER, true);
+	public static final Tile GRASS = new AnimatedTile(new int[] { 150, 30, 45, 15 }, AnimatedSprite.GRASS);
+	public static final Tile WATER = new AnimatedTile(15, AnimatedSprite.WATER);
 
 	public Tile(Sprite sprite) {
 		this.sprite = sprite;
@@ -22,8 +23,7 @@ public class Tile {
 		this.solid = solid;
 	}
 
-	public Tile tick() {
-		return this;
+	public void tick() {
 	}
 
 	public void draw(int x, int y, Screen screen) {
