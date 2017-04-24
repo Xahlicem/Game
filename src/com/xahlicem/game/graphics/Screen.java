@@ -31,10 +31,10 @@ public class Screen {
 
 		for (int y = 0; y < height; y++) {
 			int yOffset = y + camY;
-			if (y < 0 || y >= height) break;
+			if (y < 0 || y >= height) continue;
 			for (int x = 0; x < width; x++) {
 				int xOffset = x + camX;
-				if (x < 0 || x >= width) break;
+				if (x < 0 || x >= width) continue;
 				//int tileIndex = (x >> 4) + (y >> 4) * 64;
 				int tileIndex = ((xOffset >> 4) & MAP_SIZE_MASK) + ((yOffset >> 4) & MAP_SIZE_MASK) * MAP_SIZE;
 				if ((tiles[tileIndex]&2) == 2)pixels[x + y * width] = Sprite.DIRT.pixels[(xOffset&15) + (yOffset&15)*16];//tiles[tileIndex];
