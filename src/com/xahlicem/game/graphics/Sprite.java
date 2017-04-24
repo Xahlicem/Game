@@ -20,6 +20,7 @@ public class Sprite {
 
 	public Sprite(int size, int pixelColor) {
 		this.size = size;
+		pixels = new int[size*size];
 		for (int i = 0; i < pixels.length; i++) pixels[i] = pixelColor;
 	}
 
