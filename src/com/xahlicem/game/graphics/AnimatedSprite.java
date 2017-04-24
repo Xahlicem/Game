@@ -5,9 +5,6 @@ public class AnimatedSprite extends Sprite {
 	public final int frames;
 	protected Sprite[] sprites;
 
-	public static final AnimatedSprite GRASS = new AnimatedSprite(4, 16, 1, 0, SpriteSheet.TILES);
-	public static final AnimatedSprite WATER = new AnimatedSprite(4, 16, 2, 0, SpriteSheet.TILES);
-
 	public AnimatedSprite(int frames, int size, int x, int y, SpriteSheet sheet) {
 		super(size, x, y, sheet);
 		this.frames = frames;
