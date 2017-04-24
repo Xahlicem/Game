@@ -12,7 +12,7 @@ public class RandomAnimatedTile extends AnimatedTile {
 	protected final int chance;
 	protected boolean active = false;
 
-	public static final RandomAnimatedTile RGRASS = new RandomAnimatedTile(10, new int[] { 5, 30, 45, 15 }, AnimatedSprite.GRASS);
+	public static final RandomAnimatedTile R_GRASS = new RandomAnimatedTile(10, new int[] { 5, 30, 45, 15 }, AnimatedSprite.GRASS);
 
 	public RandomAnimatedTile(int chance, int[] delay, AnimatedSprite sprites) {
 		super(delay, sprites);
