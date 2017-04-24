@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 import com.xahlicem.game.graphics.Screen;
 import com.xahlicem.game.helpers.Input;
+import com.xahlicem.game.level.Level;
 
 public class Game extends Canvas implements Runnable {
 	private static final double TPS = 60D;
@@ -25,6 +26,7 @@ public class Game extends Canvas implements Runnable {
 	private boolean running;
 	private Input input;
 	private Screen screen;
+	private Level level;
 
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 	private int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
@@ -36,13 +38,15 @@ public class Game extends Canvas implements Runnable {
 		setFocusable(true);
 		requestFocus();
 
-		screen = new Screen(WIDTH, HEIGHT);
+		screen = new Screen(WIDTH, HEIGHT, pixels);
 		frame = new Frame(this);
 		input = new Input();
 		
 		addKeyListener(input);
 		addMouseListener(input);
 		addMouseMotionListener(input);
+		
+		level = new Level(8, 8);
 	}
 
 	public static void main(String[] args) {
@@ -112,6 +116,7 @@ public class Game extends Canvas implements Runnable {
 	}
 
 	private void tick() {
+		level.tick();
 		int i = 2;
 		
 		if (input.isKeyPressed(Input.KEY_SHIFT)) i = 4;
@@ -127,7 +132,6 @@ public class Game extends Canvas implements Runnable {
 		pointY = (pointY / SCALE) + y >> 4;
 		
 		if (input.isKeyPressed(Input.KEY_PRESS))System.out.println((pointX&7) + ", " + (pointY&7));
-		x++;
 	}
 
 	int x = 0, y = 0;
@@ -139,8 +143,9 @@ public class Game extends Canvas implements Runnable {
 		//	return;
 		//}
 
-		//screen.clear();
-		screen.draw(x, y, pixels);
+		screen.clear();
+		level.draw(x, y, screen);
+		//screen.draw(x, y, pixels);
 		if (Arrays.equals(pixels, backPixels)) return;
 		backPixels = Arrays.copyOf(pixels, pixels.length);
 		//for (int i = 0; i < pixels.length; i++) {
