@@ -8,6 +8,7 @@ public class AnimatedTile extends Tile {
 	protected int delayIndex = 0;
 	protected int ticks = 0;
 	protected AnimatedSprite sprites;
+	protected int currentFrame = 0;
 
 	public AnimatedTile(int[] delay, AnimatedSprite sprites) {
 		super(sprites);
@@ -26,7 +27,12 @@ public class AnimatedTile extends Tile {
 		if (ticks == delay[delayIndex]) {
 			delayIndex = (++delayIndex) % delay.length;
 			ticks = 0;
-			sprites.nextFrame();
+			nextFrame();
 		}
+	}
+
+	public void nextFrame() {
+		currentFrame = (++currentFrame) % sprites.frames;
+		sprite = sprites.getFrame(currentFrame);
 	}
 }
