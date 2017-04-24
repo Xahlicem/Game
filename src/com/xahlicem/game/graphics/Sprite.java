@@ -4,7 +4,7 @@ public class Sprite {
 
 	public final int size;
 	public int[] pixels;
-	private SpriteSheet sheet;
+	protected SpriteSheet sheet;
 
 	public static final Sprite NULL = new Sprite(16, 0xFF66FF);
 	public static final Sprite DIRT = new Sprite(16, 0, 0, SpriteSheet.TILES);
