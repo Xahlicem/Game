@@ -32,14 +32,12 @@ public class Level {
 	private void generateLevel() {
 		for (int y = 0; y < height; y++)
 			for (int x = 0; x < width; x++) {
-				tiles[x + y * width] = R.nextInt(5);
+				tiles[x + y * width] = R.nextInt(10);
 			}
 	}
 
 	public void tick() {
-		Tile.WATER.tick();
-		Tile.GRASS.tick();
-		Tile.R_GRASS.tick();
+		for (Tile tile:Tile.animated) tile.tick();
 	}
 
 	public void draw(int xScroll, int yScroll, Screen screen) {
@@ -55,13 +53,17 @@ public class Level {
 	public Tile getTile(int i) {
 		switch (tiles[i]) {
 			case 0:
-				return Tile.GRASS;
+				return Tile.GRASS_GROWN;
 			case 1:
-				return Tile.GRASS;
+				return Tile.R_GRASS_GROWN;
 			case 2:
-				return Tile.R_GRASS;
+				return Tile.GRASS_TALL;
 			case 3:
-				return Tile.WATER;
+				return Tile.R_GRASS_TALL;
+			case 4:
+				return Tile.FLOWERS;
+			case 5:
+				return Tile.R_FLOWERS;
 			default:
 				return Tile.GRASS;
 		}
