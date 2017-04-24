@@ -9,6 +9,9 @@ public class Tile {
 	protected Sprite sprite;
 	protected boolean solid = false;
 	
+	public static final Tile NULL = new Tile(Sprite.NULL);
+	public static final Tile DIRT = new Tile(Sprite.DIRT);
+	
 	public Tile(Sprite sprite) {
 		this.sprite = sprite;
 	}
