@@ -3,8 +3,6 @@ package com.xahlicem.game.level;
 import java.util.Random;
 
 import com.xahlicem.game.graphics.Screen;
-import com.xahlicem.game.level.tile.AnimatedTile;
-import com.xahlicem.game.level.tile.RandomAnimatedTile;
 import com.xahlicem.game.level.tile.Tile;
 
 public class Level {
@@ -34,13 +32,14 @@ public class Level {
 	private void generateLevel() {
 		for (int y = 0; y < height; y++)
 			for (int x = 0; x < width; x++) {
-				tiles[x + y * width] = R.nextInt(3);
+				tiles[x + y * width] = R.nextInt(5);
 			}
 	}
 
 	public void tick() {
 		Tile.WATER.tick();
 		Tile.GRASS.tick();
+		Tile.R_GRASS.tick();
 	}
 
 	public void draw(int xScroll, int yScroll, Screen screen) {
@@ -56,13 +55,15 @@ public class Level {
 	public Tile getTile(int i) {
 		switch (tiles[i]) {
 			case 0:
-				return Tile.DIRT;
+				return Tile.GRASS;
 			case 1:
 				return Tile.GRASS;
 			case 2:
+				return Tile.R_GRASS;
+			case 3:
 				return Tile.WATER;
 			default:
-				return Tile.NULL;
+				return Tile.GRASS;
 		}
 	}
 }
