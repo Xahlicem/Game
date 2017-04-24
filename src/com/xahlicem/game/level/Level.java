@@ -3,6 +3,8 @@ package com.xahlicem.game.level;
 import java.util.Random;
 
 import com.xahlicem.game.graphics.Screen;
+import com.xahlicem.game.level.tile.AnimatedTile;
+import com.xahlicem.game.level.tile.Tile;
 
 public class Level {
 

@@ -1,4 +1,4 @@
-package com.xahlicem.game.level;
+package com.xahlicem.game.level.tile;
 
 import com.xahlicem.game.graphics.AnimatedSprite;
 
