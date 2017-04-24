@@ -5,9 +5,9 @@ import com.xahlicem.game.graphics.Sprite;
 
 public class Tile {
 
-	private int x, y;
-	private Sprite sprite;
-	private boolean solid = false;
+	protected int x, y;
+	protected Sprite sprite;
+	protected boolean solid = false;
 	
 	public Tile(Sprite sprite) {
 		this.sprite = sprite;
@@ -19,7 +19,7 @@ public class Tile {
 	}
 	
 	public void draw(int x, int y, Screen screen) {
-		
+		//TODO
 	}
 	
 	public boolean solid() {
