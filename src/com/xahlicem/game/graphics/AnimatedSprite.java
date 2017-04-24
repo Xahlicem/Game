@@ -4,7 +4,6 @@ public class AnimatedSprite extends Sprite {
 
 	protected int frames;
 	protected int currentFrame = 0;
-	protected boolean increase = true;
 	protected int[][] sprites;
 
 	public static final AnimatedSprite GRASS = new AnimatedSprite(4, 16, 1, 0, SpriteSheet.TILES);
@@ -26,9 +25,6 @@ public class AnimatedSprite extends Sprite {
 	}
 
 	public void nextFrame() {
-		//if (increase) currentFrame++;
-		//else currentFrame--;
-		//if (currentFrame >= frames - 1 || currentFrame <= 0) increase = !increase;
 		currentFrame = (++currentFrame) % frames;
 		pixels = sprites[currentFrame];
 	}
