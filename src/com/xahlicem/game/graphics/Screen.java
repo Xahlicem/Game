@@ -44,4 +44,13 @@ public class Screen {
 
 		}
 	}
+	
+	public void drawSprite(int xPos, int yPos, Sprite sprite) {
+		for (int y = 0; y < sprite.size; y++) {
+			int ya = y + yPos;
+			for (int x = 0; x < sprite.size; x++) {
+				int xa = x + xPos;
+			}
+		}
+	}
 }

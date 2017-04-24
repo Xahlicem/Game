@@ -19,7 +19,7 @@ public class Tile {
 	}
 	
 	public void draw(int x, int y, Screen screen) {
-		//TODO
+		screen.drawSprite(x, y, sprite);
 	}
 	
 	public boolean solid() {
