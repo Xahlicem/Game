@@ -12,7 +12,7 @@ public class Tile {
 	protected boolean solid = false;
 
 	public static List<Tile> animated = new ArrayList<Tile>();
-	public static List<Tile> tiles = new ArrayList<Tile>();
+	public static List<Tile> tileList = new ArrayList<Tile>();
 
 	public static final Tile NULL = new Tile(Sprite.NULL);
 	public static final Tile WATER = new AnimatedTile(new int[] { 120, 10, 5, 15 }, Sprite.WATER);
@@ -28,13 +28,13 @@ public class Tile {
 
 	public Tile(Sprite sprite) {
 		this.sprite = sprite;
-		tiles.add(this);
+		tileList.add(this);
 	}
 
 	public Tile(Sprite sprite, boolean solid) {
 		this.sprite = sprite;
 		this.solid = solid;
-		tiles.add(this);
+		tileList.add(this);
 	}
 
 	public void tick() {}

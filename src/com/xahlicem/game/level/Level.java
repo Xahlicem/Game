@@ -97,8 +97,8 @@ public class Level {
 	}
 
 	public Tile getTile(int i) {
-		if (tiles[i] >= Tile.tiles.size() || tiles[i] < 0) return Tile.NULL;
-		return Tile.tiles.get(tiles[i]);
+		if (tiles[i] >= Tile.tileList.size() || tiles[i] < 0) return Tile.NULL;
+		return Tile.tileList.get(tiles[i]);
 		/*switch (tiles[i]) {
 		case 0:
 			return Tile.GRASS;
