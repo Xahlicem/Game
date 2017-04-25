@@ -19,7 +19,7 @@ public class Level {
 	private static final int NIGHT_LIGHT = 0x203040;
 	private static final Random R = new Random();
 
-	private int width, height, wMask, hMask;
+	public int width, height, wMask, hMask;
 	private int[] tiles, darkness;
 	private int time, light;
 	public String[] bgm = new String[]{};
@@ -124,7 +124,6 @@ public class Level {
 		else if (time < 700) light = EVENING_LIGHT;
 		else if (time < 750) light = TWI_LIGHT;
 		else light = NIGHT_LIGHT;
-		System.out.println(time + " " + light);
 	}
 
 	public void draw(int xScroll, int yScroll, Screen screen) {
