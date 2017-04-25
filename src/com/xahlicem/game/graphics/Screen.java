@@ -28,7 +28,7 @@ public class Screen {
 		Arrays.fill(pixels, 0);
 	}
 
-	public void drawSprite(int xPos, int yPos, Sprite sprite) {
+	public void drawSprite(int xPos, int yPos, Sprite sprite, int darkness) {
 		xPos -= xOffset;
 		yPos -= yOffset;
 		for (int y = 0; y < sprite.size; y++) {
@@ -36,7 +36,7 @@ public class Screen {
 			for (int x = 0; x < sprite.size; x++) {
 				int xa = x + xPos;
 				if (xa < 0 || xa >= width || ya < 0 || ya >= height) continue;
-				pixels[xa + ya * width] = sprite.pixels[x + y * sprite.size];
+				pixels[xa + ya * width] = sprite.pixels[x + y * sprite.size] & darkness;
 			}
 		}
 	}

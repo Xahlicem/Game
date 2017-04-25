@@ -39,8 +39,12 @@ public class Tile {
 
 	public void tick() {}
 
+	public void draw(int x, int y, Screen screen, int darkness) {
+		screen.drawSprite(x, y, sprite, darkness);
+	}
+	
 	public void draw(int x, int y, Screen screen) {
-		screen.drawSprite(x, y, sprite);
+		screen.drawSprite(x, y, sprite, 0xFFFFFF);
 	}
 
 	public boolean solid() {
