@@ -34,4 +34,32 @@ public class Sprite {
 			for (int x = 0; x < size; x++)
 				pixels[x + y * size] = sheet.pixels[(xPos + x) + (yPos + y) * sheet.size];
 	}
+
+	protected Sprite rotate(int times) {
+		int[] srcPixels = pixels;
+		Sprite s = new Sprite(size, 0);
+
+		for (int i = 0; i < times; i++) {
+			// Create the destination Sprite
+			int[] destPixels = new int[srcPixels.length];
+
+			int srcPos = 0; // We can just increment this since the data pack
+							// order matches our loop traversal: left to right,
+							// top to bottom. (Just like reading a book.)
+			for (int srcY = 0; srcY < size; srcY++)
+				for (int srcX = 0; srcX < size; srcX++) {
+					int destX = ((size - 1) - srcY);
+					int destY = srcX;
+					destPixels[destX + destY * size] = srcPixels[srcPos++];
+				}
+			srcPixels = destPixels;
+		}
+		
+		s.pixels = srcPixels;
+		return s;
+	}
+	
+	protected Sprite rotate() {
+		return rotate(1);
+	}
 }
