@@ -19,6 +19,7 @@ public class Tile {
 	public static final Tile R_WATER = new RandomAnimatedTile(10, new int[] { 5, 10, 5, 15 }, Sprite.WATER);
 	public static final Tile DIRT = new Tile(Sprite.DIRT);
 	public static final Tile GRASS = new Tile(Sprite.GRASS);
+	public static final Tile SMALL_FLOWERS = new Tile(Sprite.SMALL_FLOWERS);
 	public static final Tile GRASS_GROWN = new AnimatedTile(new int[] { 150, 30, 45, 15 }, Sprite.GRASS_GROWN);
 	public static final Tile R_GRASS_GROWN = new RandomAnimatedTile(50, new int[] { 5, 30, 45, 15 }, Sprite.GRASS_GROWN);
 	public static final Tile GRASS_TALL = new AnimatedTile(new int[] { 150, 30, 45, 15 }, Sprite.GRASS_TALL);
