@@ -56,7 +56,7 @@ public class Level {
 
 	private void loadLevel(String path) {
 		try {
-			BufferedImage image = ImageIO.read(SpriteSheet.class.getResource(path + ".png"));
+			BufferedImage image = ImageIO.read(SpriteSheet.class.getResource(path + ".PNG"));
 			width = image.getWidth();
 			height = image.getHeight();
 			wMask = width - 1;
@@ -68,7 +68,7 @@ public class Level {
 		}
 		
 		try {
-			BufferedImage image = ImageIO.read(SpriteSheet.class.getResource(path + "_L.png"));
+			BufferedImage image = ImageIO.read(SpriteSheet.class.getResource(path + "_L.PNG"));
 			width = image.getWidth();
 			height = image.getHeight();
 			wMask = width - 1;
@@ -86,11 +86,16 @@ public class Level {
 			darkness[i] = darkness[i] & 0xFFFFFF;
 			switch (tiles[i] & 0xFFFFFF) {
 			case 0x00FF00:
-				tiles[i] = R.nextInt(7) + 4;
+				tiles[i] = R.nextInt(8) + 4;
 				break;
 			case 0x00FE00:
-				tiles[i] = 4;
+				tiles[i] = 5;
 				break;
+			case 0x0000FF:
+				tiles[i] = R.nextInt(2) + 1;
+				break;
+			case 0x964B00:
+				tiles[i] = 3;
 			}
 		}
 	}
