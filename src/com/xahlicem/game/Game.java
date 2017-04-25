@@ -150,12 +150,8 @@ public class Game extends Canvas implements Runnable {
 
 		screen.clear();
 		level.draw(x, y, screen);
-		// screen.draw(x, y, pixels);
 		if (Arrays.equals(pixels, backPixels)) return;
 		backPixels = Arrays.copyOf(pixels, pixels.length);
-		// for (int i = 0; i < pixels.length; i++) {
-		// pixels[i] = screen.pixels[i];
-		// }
 
 		// Graphics g = strategy.getDrawGraphics();
 		Graphics g = getGraphics();
