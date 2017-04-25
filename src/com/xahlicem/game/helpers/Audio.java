@@ -22,7 +22,7 @@ public class Audio {
 	}
 	
 	public void tick(Level level) {
-		if (isPlaying(level.bgm[bgmIndex])) return;
+		if (level.bgm.length <= 0 || isPlaying(level.bgm[bgmIndex])) return;
 		bgmIndex = (++bgmIndex) % level.bgm.length;
 		play(level.bgm[bgmIndex]);
 	}
