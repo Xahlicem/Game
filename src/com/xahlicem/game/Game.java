@@ -8,6 +8,7 @@ import java.awt.image.DataBufferInt;
 import java.util.Arrays;
 
 import com.xahlicem.game.graphics.Screen;
+import com.xahlicem.game.helpers.Audio;
 import com.xahlicem.game.helpers.Input;
 import com.xahlicem.game.level.Level;
 
@@ -25,6 +26,7 @@ public class Game extends Canvas implements Runnable {
 	private Frame frame;
 	private boolean running;
 	private Input input;
+	private Audio audio;
 	private Screen screen;
 	private Level level;
 
@@ -41,12 +43,14 @@ public class Game extends Canvas implements Runnable {
 		screen = new Screen(WIDTH, HEIGHT, pixels);
 		frame = new Frame(this);
 		input = new Input();
+		audio = new Audio();
+		
 
 		addKeyListener(input);
 		addMouseListener(input);
 		addMouseMotionListener(input);
 
-		level = new Level(8, 8);
+		changeLevel(Level.TITLE);
 	}
 
 	public static void main(String[] args) {
@@ -107,6 +111,7 @@ public class Game extends Canvas implements Runnable {
 
 	public synchronized void stop() {
 		running = false;
+		audio.closeAll();
 		try {
 			thread.join();
 		} catch (InterruptedException e) {
@@ -116,6 +121,7 @@ public class Game extends Canvas implements Runnable {
 
 	private void tick() {
 		level.tick();
+		audio.tick(level);
 		int i = 2;
 
 		if (input.isKeyPressed(Input.KEY_SHIFT)) i = 4;
@@ -159,5 +165,10 @@ public class Game extends Canvas implements Runnable {
 		g.dispose();
 
 		// strategy.show();
+	}
+	
+	private void changeLevel(Level level) {
+		this.level = level;
+		audio.load(level.bgm);
 	}
 }
