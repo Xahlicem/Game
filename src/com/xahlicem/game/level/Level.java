@@ -109,7 +109,7 @@ public class Level {
 
 	public void tick() {
 		time();
-		for (Tile tile : Tile.animated)
+		for (Tile tile : Tile.tileList)
 			tile.tick();
 	}
 	
@@ -143,5 +143,9 @@ public class Level {
 	public Tile getTile(int i) {
 		if (tiles[i] >= Tile.tileList.size() || tiles[i] < 0) return Tile.NULL;
 		return Tile.tileList.get(tiles[i]);
+	}
+	
+	public void changeTile(int x, int y, int tile) {
+		tiles[x + y * width] = tile;
 	}
 }

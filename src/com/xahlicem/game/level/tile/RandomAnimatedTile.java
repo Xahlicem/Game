@@ -13,13 +13,13 @@ public class RandomAnimatedTile extends AnimatedTile {
 	protected final int chance;
 	protected boolean active = false;
 
-	public RandomAnimatedTile(int chance, int[] delay, AnimatedSprite sprites) {
-		super(delay, sprites);
+	public RandomAnimatedTile(int chance, int[] delay, AnimatedSprite sprites, int color) {
+		super(delay, sprites, color);
 		this.chance = chance;
 	}
 
-	public RandomAnimatedTile(int chance, int delay, AnimatedSprite sprites) {
-		super(delay, sprites);
+	public RandomAnimatedTile(int chance, int delay, AnimatedSprite sprites, int color) {
+		super(delay, sprites, color);
 		this.chance = chance;
 	}
 
