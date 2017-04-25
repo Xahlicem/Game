@@ -33,7 +33,7 @@ public class Audio {
 		Clip clip;
 		try {
 			AudioInputStream ais = AudioSystem
-					.getAudioInputStream(Audio.class.getResourceAsStream("/sfx/" + name + ".wav"));
+					.getAudioInputStream(Audio.class.getResourceAsStream("/sfx/" + name + ".mp3"));
 			AudioFormat baseFormat = ais.getFormat();
 			AudioFormat decodeFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, baseFormat.getSampleRate(), 16,
 					baseFormat.getChannels(), baseFormat.getChannels() * 2, baseFormat.getSampleRate(), false);
