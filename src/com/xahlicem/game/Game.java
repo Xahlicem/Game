@@ -94,7 +94,6 @@ public class Game extends Canvas implements Runnable {
 
 			if (System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;
-				System.out.println("TPS:" + tps + ", FPS:" + fps);
 				frame.setTitle(TITLE + "   |   TPS:" + tps + ", FPS:" + fps);
 				tps = 0;
 				fps = 0;
@@ -136,10 +135,17 @@ public class Game extends Canvas implements Runnable {
 		pointX = (pointX / SCALE) + x >> 4;
 		pointY = (pointY / SCALE) + y >> 4;
 
-		if (input.isKeyPressed(Input.KEY_PRESS)) System.out.println((pointX & 7) + ", " + (pointY & 7));
+		if (input.isKeyPressed(Input.KEY_PRESS)) press = true;
+		
+		if (press && !input.isKeyPressed(Input.KEY_PRESS)) {
+			System.out.println((pointX & level.wMask) + ", " + (pointY & level.hMask));
+			level.changeTile((pointX & level.wMask), (pointY & level.hMask), 0);
+			press = false;
+		}
 	}
 
 	int x = 0, y = 0;
+	boolean press = false;
 
 	private void draw() {
 		// BufferStrategy strategy = getBufferStrategy();
