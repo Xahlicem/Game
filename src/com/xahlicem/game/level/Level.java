@@ -27,7 +27,7 @@ public class Level {
 	private int time, light;
 	public String[] bgm = new String[]{};
 
-	public static final Level TITLE = new Level("/level/TITLE");
+	public static final Level TITLE = new Level("/level/TITLE", "BGM_TITLE");
 
 	public Level(int width, int height) {
 		this.width = width;

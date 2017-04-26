@@ -1,7 +1,11 @@
 package com.xahlicem.game.helpers;
 
+import java.io.File;
 import java.util.HashMap;
 
+import javax.sound.midi.MidiSystem;
+import javax.sound.midi.Sequence;
+import javax.sound.midi.Sequencer;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -22,9 +26,9 @@ public class Audio {
 	}
 	
 	public void tick(Level level) {
-		if (level.bgm.length <= 0 || isPlaying(level.bgm[bgmIndex])) return;
-		bgmIndex = (++bgmIndex) % level.bgm.length;
-		play(level.bgm[bgmIndex]);
+		//if (level.bgm.length <= 0 || isPlaying(level.bgm[bgmIndex])) return;
+		//bgmIndex = (++bgmIndex) % level.bgm.length;
+		//loop(level.bgm[bgmIndex], 100000, 0, 350000);
 	}
 
 	public void load(String name) {
@@ -33,7 +37,7 @@ public class Audio {
 		Clip clip;
 		try {
 			AudioInputStream ais = AudioSystem
-					.getAudioInputStream(Audio.class.getResourceAsStream("/sfx/" + name + ".mp3"));
+					.getAudioInputStream(Audio.class.getResourceAsStream("/sfx/" + name + ".WAV"));
 			AudioFormat baseFormat = ais.getFormat();
 			AudioFormat decodeFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, baseFormat.getSampleRate(), 16,
 					baseFormat.getChannels(), baseFormat.getChannels() * 2, baseFormat.getSampleRate(), false);
@@ -45,10 +49,22 @@ public class Audio {
 			e.printStackTrace();
 		}
 	}
+	
+	private void playMidi(String midFilename) {
+		try {
+		File midiFile = new File("/sfx/" + midFilename + ".mid");
+        Sequence song = MidiSystem.getSequence(Audio.class.getResourceAsStream("/sfx/" + midFilename + ".mid"));
+        Sequencer midiPlayer = MidiSystem.getSequencer();
+        midiPlayer.open();
+        midiPlayer.setSequence(song);
+        midiPlayer.setLoopCount(0); // repeat 0 times (play once)
+        midiPlayer.start();
+		} catch(Exception e) {}
+	}
 
 	public void load(String... names) {
 		for (int i = 0; i < names.length; i++)
-			load(names[i]);
+			playMidi(names[i]);
 	}
 
 	//public void playLoop(String name) {
