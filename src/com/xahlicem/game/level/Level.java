@@ -2,6 +2,8 @@ package com.xahlicem.game.level;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
@@ -12,13 +14,20 @@ import com.xahlicem.game.level.tile.Tile;
 
 public class Level {
 
-	private static Random R = new Random();
+	private static final int DAY_LIGHT = 0xFFFFFF;
+	private static final int MORNING_LIGHT = 0xC0C0C0;
+	private static final int EVENING_LIGHT = 0x80A0A0;
+	private static final int TWI_LIGHT = 0x306080;
+	private static final int NIGHT_LIGHT = 0x203040;
+	private static final Random R = new Random();
 
-	private int width, height, wMask, hMask;
-	private int[] tiles;
+	public int width, height, wMask, hMask;
+	private int[] tiles, darkness;
+	private List<Tile> tileList = new ArrayList<Tile>();
+	private int time, light;
 	public String[] bgm = new String[]{};
 
-	public static final Level TITLE = new Level("/level/TITLE.png", "BGM0");
+	public static final Level TITLE = new Level("/level/TITLE");
 
 	public Level(int width, int height) {
 		this.width = width;
@@ -50,7 +59,7 @@ public class Level {
 
 	private void loadLevel(String path) {
 		try {
-			BufferedImage image = ImageIO.read(SpriteSheet.class.getResource(path));
+			BufferedImage image = ImageIO.read(SpriteSheet.class.getResource(path + ".PNG"));
 			width = image.getWidth();
 			height = image.getHeight();
 			wMask = width - 1;
@@ -61,15 +70,35 @@ public class Level {
 			e.printStackTrace();
 		}
 		
+		try {
+			BufferedImage image = ImageIO.read(SpriteSheet.class.getResource(path + "_L.PNG"));
+			width = image.getWidth();
+			height = image.getHeight();
+			wMask = width - 1;
+			hMask = height - 1;
+			darkness = new int[width*height];
+			image.getRGB(0, 0, width, height, darkness, 0, width);
+		} catch (IOException e) {
+			e.printStackTrace();
+			darkness = new int[width*height];
+			for (int i = 0; i < darkness.length; i++) darkness[i] = 0xFFFFFF;
+		}
+		
 		for (int i = 0; i < tiles.length; i++) {
+			tiles[i] = tiles[i] & 0xFFFFFF;
+			darkness[i] = darkness[i] & 0xFFFFFF;
 			switch (tiles[i] & 0xFFFFFF) {
-			case 0x00FF00:
-				tiles[i] = R.nextInt(7) + 4;
-				break;
-			case 0x00FE00:
-				tiles[i] = 4;
-				break;
+				case Tile.WATER_COLOR:
+					tiles[i] = Tile.WATER_COLOR + R.nextInt(Tile.waterIndex);
+					break;
+				case Tile.DIRT_COLOR:
+					tiles[i] = Tile.DIRT_COLOR + R.nextInt(Tile.dirtIndex);
+					break;
+				case Tile.GRASS_COLOR:
+					tiles[i] = Tile.GRASS_COLOR + R.nextInt(Tile.grassIndex);
+					break;
 			}
+			if (!tileList.contains(Tile.getTile(tiles[i]))) tileList.add(Tile.getTile(tiles[i]));
 		}
 	}
 
@@ -81,15 +110,32 @@ public class Level {
 	}
 
 	public void tick() {
-		for (Tile tile : Tile.animated)
+		time();
+		for (Tile tile : tileList)
 			tile.tick();
+	}
+	
+	private void time() {
+		time++;
+		if (time > 1000) time = 0;
+		
+		if (time < 150) light = NIGHT_LIGHT;
+		else if (time < 250) light = TWI_LIGHT;
+		else if (time < 300) light = MORNING_LIGHT;
+		else if (time < 600) light = DAY_LIGHT;
+		else if (time < 700) light = EVENING_LIGHT;
+		else if (time < 750) light = TWI_LIGHT;
+		else light = NIGHT_LIGHT;
 	}
 
 	public void draw(int xScroll, int yScroll, Screen screen) {
 		screen.setOffset(xScroll, yScroll);
 		for (int y = yScroll >> 4; y <= (yScroll + screen.height) >> 4; y++)
-			for (int x = xScroll >> 4; x <= (xScroll + screen.width) >> 4; x++)
-				getTile(x & wMask, y & hMask).draw(x << 4, y << 4, screen);
+			for (int x = xScroll >> 4; x <= (xScroll + screen.width) >> 4; x++) {
+				int l = darkness[(x&wMask) + (y&hMask) * width];
+				if (l < light) l = light;
+				getTile(x & wMask, y & hMask).draw(x << 4, y << 4, screen, l);
+			}
 	}
 
 	public Tile getTile(int x, int y) {
@@ -97,25 +143,10 @@ public class Level {
 	}
 
 	public Tile getTile(int i) {
-		if (tiles[i] >= Tile.tileList.size() || tiles[i] < 0) return Tile.NULL;
-		return Tile.tileList.get(tiles[i]);
-		/*switch (tiles[i]) {
-		case 0:
-			return Tile.GRASS;
-		case 1:
-			return Tile.GRASS_GROWN;
-		case 2:
-			return Tile.R_GRASS_GROWN;
-		case 3:
-			return Tile.GRASS_TALL;
-		case 4:
-			return Tile.R_GRASS_TALL;
-		case 5:
-			return Tile.FLOWERS;
-		case 6:
-			return Tile.R_FLOWERS;
-		default:
-			return Tile.NULL;
-		}*/
+		return Tile.getTile(tiles[i]);
+	}
+	
+	public void changeTile(int x, int y, int tile) {
+		tiles[x + y * width] = tile;
 	}
 }
