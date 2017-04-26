@@ -16,14 +16,8 @@ public class Frame extends JFrame {
 		setTitle(Game.TITLE);
 		add(game);
 		pack();
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 		setVisible(true);
-	}
-
-	@Override
-	public void dispose() {
-		game.stop();
-		super.dispose();
 	}
 }
