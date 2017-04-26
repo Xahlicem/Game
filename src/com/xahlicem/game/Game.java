@@ -155,7 +155,6 @@ public class Game extends Canvas implements Runnable {
 		if (!click && input.isKeyPressed(Input.KEY_PRESS)) {
 			sfx.play(Sound.SFX);
 			click = true;
-			System.out.println((pointX & level.wMask) + ", " + (pointY & level.hMask) + " - " + input.wheelPos + " " + Tile.getTile(tile));
 		}
 		if (click && !input.isKeyPressed(Input.KEY_PRESS)) {
 			click = false;
@@ -174,7 +173,7 @@ public class Game extends Canvas implements Runnable {
 			return;
 		}
 
-		//screen.clear();
+		// screen.clear();
 		level.draw(x, y, screen);
 		if (edit) {
 			screen.drawSprite(x, y, Sprite.CONTAINER, 0xFFFFFFFF);

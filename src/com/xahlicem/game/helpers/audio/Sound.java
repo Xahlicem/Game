@@ -30,7 +30,6 @@ public class Sound {
 		try {
 			sound = MidiSystem.getSequence(AudioPlayer.class.getResourceAsStream(path));
 			Track[] tracks = sound.getTracks();
-			System.out.println(tracks.length);
 			for (int i = 1; i < tracks.length; i++)
 				if (i != track) sound.deleteTrack(tracks[i]);
 		} catch (InvalidMidiDataException | IOException e) {

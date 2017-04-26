@@ -61,7 +61,6 @@ public class AudioPlayer {
 	
 	public void play(Sound sound) {
 		play(sound, 0, 0, sound.sound.getTickLength(), 0);
-		System.out.println(sound.sound.getTickLength() + " - " + sound.sound.getMicrosecondLength());
 	}
 
 	public boolean isPlaying() {
