@@ -26,8 +26,9 @@ public class Tile {
 	public static int grassIndex = 0;
 
 	public static final Tile NULL = new Tile(Sprite.NULL, 0xFF66FF);
-	public static final Tile WATER = new AnimatedTile(new int[] { 300, 10, 5, 15 }, Sprite.WATER, WATER_COLOR + waterIndex++);
-	public static final Tile R_WATER = new RandomAnimatedTile(100, new int[] { 5, 10, 5, 15 }, Sprite.WATER, WATER_COLOR + waterIndex++);
+	public static final Tile WATER = new Tile(Sprite.WATER, WATER_COLOR + waterIndex++);
+	public static final Tile WATER_SHINE = new AnimatedTile(new int[] { 300, 10, 5, 15 }, Sprite.WATER, WATER_COLOR + waterIndex++);
+	public static final Tile R_WATER_SHINE = new RandomAnimatedTile(500, new int[] { 5, 10, 5, 15 }, Sprite.WATER, WATER_COLOR + waterIndex++);
 	public static final Tile DIRT = new Tile(Sprite.DIRT, DIRT_COLOR + dirtIndex++);
 	public static final Tile GRASS = new Tile(Sprite.GRASS, GRASS_COLOR + grassIndex++);
 	public static final Tile SMALL_FLOWERS = new Tile(Sprite.SMALL_FLOWERS, GRASS_COLOR + grassIndex++);
