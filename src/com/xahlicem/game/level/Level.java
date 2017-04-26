@@ -2,6 +2,8 @@ package com.xahlicem.game.level;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
@@ -21,6 +23,7 @@ public class Level {
 
 	public int width, height, wMask, hMask;
 	private int[] tiles, darkness;
+	private List<Tile> tileList = new ArrayList<Tile>();
 	private int time, light;
 	public String[] bgm = new String[]{};
 
@@ -85,18 +88,17 @@ public class Level {
 			tiles[i] = tiles[i] & 0xFFFFFF;
 			darkness[i] = darkness[i] & 0xFFFFFF;
 			switch (tiles[i] & 0xFFFFFF) {
-			case 0x00FF00:
-				tiles[i] = R.nextInt(8) + 4;
-				break;
-			case 0x00FE00:
-				tiles[i] = 5;
-				break;
-			case 0x0000FF:
-				tiles[i] = R.nextInt(2) + 1;
-				break;
-			case 0x964B00:
-				tiles[i] = 3;
+				case Tile.WATER_COLOR:
+					tiles[i] = Tile.WATER_COLOR + R.nextInt(Tile.waterIndex);
+					break;
+				case Tile.DIRT_COLOR:
+					tiles[i] = Tile.DIRT_COLOR + R.nextInt(Tile.dirtIndex);
+					break;
+				case Tile.GRASS_COLOR:
+					tiles[i] = Tile.GRASS_COLOR + R.nextInt(Tile.grassIndex);
+					break;
 			}
+			if (!tileList.contains(Tile.getTile(tiles[i]))) tileList.add(Tile.getTile(tiles[i]));
 		}
 	}
 
@@ -109,7 +111,7 @@ public class Level {
 
 	public void tick() {
 		time();
-		for (Tile tile : Tile.tileList)
+		for (Tile tile : tileList)
 			tile.tick();
 	}
 	
@@ -141,8 +143,7 @@ public class Level {
 	}
 
 	public Tile getTile(int i) {
-		if (tiles[i] >= Tile.tileList.size() || tiles[i] < 0) return Tile.NULL;
-		return Tile.tileList.get(tiles[i]);
+		return Tile.getTile(tiles[i]);
 	}
 	
 	public void changeTile(int x, int y, int tile) {
