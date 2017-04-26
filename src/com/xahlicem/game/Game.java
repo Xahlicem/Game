@@ -11,6 +11,7 @@ import com.xahlicem.game.graphics.Screen;
 import com.xahlicem.game.helpers.Audio;
 import com.xahlicem.game.helpers.Input;
 import com.xahlicem.game.level.Level;
+import com.xahlicem.game.level.tile.Tile;
 
 public class Game extends Canvas implements Runnable {
 	private static final double TPS = 60D;
@@ -48,6 +49,7 @@ public class Game extends Canvas implements Runnable {
 
 		addKeyListener(input);
 		addMouseListener(input);
+		addMouseWheelListener(input);
 		addMouseMotionListener(input);
 
 		changeLevel(Level.TITLE);
@@ -137,13 +139,17 @@ public class Game extends Canvas implements Runnable {
 
 		if (input.isKeyPressed(Input.KEY_PRESS)) press = true;
 		
+		input.wheelPos = (Tile.list.size() * 2 + input.wheelPos) % Tile.list.size();
+		
+		tile = Tile.list.get(input.wheelPos).getColor();
+		
 		if (press && !input.isKeyPressed(Input.KEY_PRESS)) {
-			System.out.println((pointX & level.wMask) + ", " + (pointY & level.hMask));
-			level.changeTile((pointX & level.wMask), (pointY & level.hMask), 0);
+			System.out.println((pointX & level.wMask) + ", " + (pointY & level.hMask) + " - " + input.wheelPos);
+			level.changeTile((pointX & level.wMask), (pointY & level.hMask), tile);
 			press = false;
 		}
 	}
-
+	int tile = 0;
 	int x = 0, y = 0;
 	boolean press = false;
 
