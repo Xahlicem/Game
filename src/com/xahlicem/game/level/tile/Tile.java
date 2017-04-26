@@ -38,6 +38,7 @@ public class Tile {
 	public static final Tile R_GRASS_TALL = new RandomAnimatedTile(2000, new int[] { 5, 30, 45, 15 }, Sprite.GRASS_TALL, GRASS_COLOR + grassIndex++);
 	public static final Tile FLOWERS = new AnimatedTile(60, Sprite.FLOWERS, GRASS_COLOR + grassIndex++);
 	public static final Tile R_FLOWERS = new RandomAnimatedTile(1500, 5, Sprite.FLOWERS, GRASS_COLOR + grassIndex++);
+	public static final Tile GRASS_TREE = new TallTile(GRASS_COLOR + grassIndex++, Sprite.TREE_TRUNK, Sprite.TREE_MIDDLE, Sprite.TREE_TOP);
 
 	public Tile(Sprite sprite, int color) {
 		this.sprite = sprite;
