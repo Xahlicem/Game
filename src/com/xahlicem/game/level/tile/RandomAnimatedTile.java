@@ -1,13 +1,9 @@
 package com.xahlicem.game.level.tile;
 
-import java.util.Random;
-
 import com.xahlicem.game.graphics.AnimatedSprite;
 import com.xahlicem.game.graphics.Screen;
 
 public class RandomAnimatedTile extends AnimatedTile {
-
-	public static final Random R = new Random();
 	public static final int CHANCE_MULTI = 100 * 60 * 10;
 
 	protected final int chance;

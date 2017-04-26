@@ -1,18 +1,23 @@
 package com.xahlicem.game.level.tile;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
 
 import com.xahlicem.game.graphics.Screen;
 import com.xahlicem.game.graphics.Sprite;
 
 public class Tile {
+	protected static final Random R = new Random();
 
 	protected Sprite sprite;
 	protected boolean solid = false;
 	protected int color;
-	
+
 	public static final HashMap<Integer, Tile> tileColor = new HashMap<Integer, Tile>();
-	
+	public static List<Tile> list = new ArrayList<Tile>();
+
 	public static final int WATER_COLOR = 0x0000FF;
 	public static int waterIndex = 0;
 	public static final int DIRT_COLOR = 0x964b00;
@@ -37,6 +42,7 @@ public class Tile {
 		this.sprite = sprite;
 		this.color = color;
 		tileColor.put(color, this);
+		list.add(this);
 	}
 
 	public Tile(Sprite sprite, int color, boolean solid) {
@@ -44,8 +50,9 @@ public class Tile {
 		this.solid = solid;
 		this.color = color;
 		tileColor.put(color, this);
+		list.add(this);
 	}
-	
+
 	public static Tile getTile(int color) {
 		if (!tileColor.containsKey(color)) return NULL;
 		return tileColor.get(color);
@@ -56,12 +63,28 @@ public class Tile {
 	public void draw(int x, int y, Screen screen, int darkness) {
 		screen.drawSprite(x, y, sprite, darkness);
 	}
-	
+
 	public void draw(int x, int y, Screen screen) {
 		screen.drawSprite(x, y, sprite, 0xFFFFFF);
 	}
 
 	public boolean solid() {
 		return solid;
+	}
+
+	public int getColor() {
+		return color;
+	}
+
+	public int getRandomColor(int color) {
+		switch (color & 0xFFFFFF) {
+		case Tile.WATER_COLOR:
+			return Tile.WATER_COLOR + R.nextInt(Tile.waterIndex);
+		case Tile.DIRT_COLOR:
+			return Tile.DIRT_COLOR + R.nextInt(Tile.dirtIndex);
+		case Tile.GRASS_COLOR:
+			return Tile.GRASS_COLOR + R.nextInt(Tile.grassIndex);
+		}
+		return NULL.getColor();
 	}
 }
