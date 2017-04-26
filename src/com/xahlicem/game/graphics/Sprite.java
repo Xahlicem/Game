@@ -15,6 +15,10 @@ public class Sprite {
 	public static final AnimatedSprite GRASS_GROWN = new AnimatedSprite(4, 16, 3, 0, SpriteSheet.TILES);
 	public static final AnimatedSprite GRASS_TALL = new AnimatedSprite(4, 16, 4, 0, SpriteSheet.TILES);
 	public static final AnimatedSprite FLOWERS = new AnimatedSprite(4, 16, 5, 0, SpriteSheet.TILES);
+	public static final Sprite TREE = new Sprite(16, 48, 6, 0, SpriteSheet.TILES);
+	public static final Sprite TREE_TOP = new Sprite(16, 16, 6, 0, SpriteSheet.TILES);
+	public static final Sprite TREE_MIDDLE = new Sprite(16, 16, 6, 1, SpriteSheet.TILES);
+	public static final Sprite TREE_TRUNK = new Sprite(16, 16, 6, 2, SpriteSheet.TILES);
 	
 	public static final Sprite[] FONT = loadFont(SpriteSheet.FONT);
 
