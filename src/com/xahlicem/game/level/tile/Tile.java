@@ -77,7 +77,7 @@ public class Tile {
 	}
 
 	public int getRandomColor(int color) {
-		switch (color & 0xFFFFFF) {
+		switch (color) {
 		case Tile.WATER_COLOR:
 			return Tile.WATER_COLOR + R.nextInt(Tile.waterIndex);
 		case Tile.DIRT_COLOR:
@@ -85,6 +85,6 @@ public class Tile {
 		case Tile.GRASS_COLOR:
 			return Tile.GRASS_COLOR + R.nextInt(Tile.grassIndex);
 		}
-		return NULL.getColor();
+		return color;
 	}
 }
