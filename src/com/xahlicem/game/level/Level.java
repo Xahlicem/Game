@@ -87,17 +87,7 @@ public class Level {
 		for (int i = 0; i < tiles.length; i++) {
 			tiles[i] = tiles[i] & 0xFFFFFF;
 			darkness[i] = darkness[i] & 0xFFFFFF;
-			switch (tiles[i] & 0xFFFFFF) {
-				case Tile.WATER_COLOR:
-					tiles[i] = Tile.WATER_COLOR + R.nextInt(Tile.waterIndex);
-					break;
-				case Tile.DIRT_COLOR:
-					tiles[i] = Tile.DIRT_COLOR + R.nextInt(Tile.dirtIndex);
-					break;
-				case Tile.GRASS_COLOR:
-					tiles[i] = Tile.GRASS_COLOR + R.nextInt(Tile.grassIndex);
-					break;
-			}
+			tiles[i] = Tile.getRandomColor(tiles[i]);
 			if (!tileList.contains(Tile.getTile(tiles[i]))) tileList.add(Tile.getTile(tiles[i]));
 		}
 	}
