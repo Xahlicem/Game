@@ -26,9 +26,9 @@ public class RandomAnimatedTile extends AnimatedTile {
 		}
 	}
 
-	public void draw(int x, int y, Screen screen) {
+	public void draw(int x, int y, Screen screen, int darkness) {
 		if (!active && R.nextInt(CHANCE_MULTI) <= chance) active = true;
-		super.draw(x, y, screen);
+		super.draw(x, y, screen, darkness);
 	}
 
 }
