@@ -8,6 +8,7 @@ import java.awt.image.DataBufferInt;
 import java.util.Arrays;
 
 import com.xahlicem.game.graphics.Screen;
+import com.xahlicem.game.graphics.Sprite;
 import com.xahlicem.game.helpers.Audio;
 import com.xahlicem.game.helpers.Input;
 import com.xahlicem.game.level.Level;
@@ -141,12 +142,13 @@ public class Game extends Canvas implements Runnable {
 		
 		tile = Tile.list.get(input.wheelPos).getColor();
 		
-		if (input.isKeyPressed(Input.KEY_PRESS)) {
-			System.out.println((pointX & level.wMask) + ", " + (pointY & level.hMask) + " - " + input.wheelPos);
+		if (edit && input.isKeyPressed(Input.KEY_PRESS)) {
+			System.out.println((pointX & level.wMask) + ", " + (pointY & level.hMask) + " - " + input.wheelPos + " " + Tile.getTile(tile));
 			level.changeTile((pointX & level.wMask), (pointY & level.hMask), tile);
 		}
 	}
 	
+	boolean edit = true;
 	int tile = 0;
 	int x = 0, y = 0;
 
@@ -159,6 +161,10 @@ public class Game extends Canvas implements Runnable {
 
 		screen.clear();
 		level.draw(x, y, screen);
+		if (edit) {
+			screen.drawSprite(x, y, Sprite.CONTAINER, 0xFFFFFFFF);
+			Tile.getTile(tile).draw(x+2, y+2, screen);
+		}
 		if (Arrays.equals(pixels, backPixels)) return;
 		backPixels = Arrays.copyOf(pixels, pixels.length);
 
