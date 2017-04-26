@@ -7,6 +7,7 @@ public class Sprite {
 	protected SpriteSheet sheet;
 
 	public static final Sprite NULL = new Sprite(16, 0xFF66FF);
+	public static final Sprite CONTAINER = new Sprite(20, 0x0);
 	public static final AnimatedSprite WATER = new AnimatedSprite(4, 16, 0, 0, SpriteSheet.TILES);
 	public static final Sprite DIRT = new Sprite(16, 1, 0, SpriteSheet.TILES);
 	public static final Sprite GRASS = new Sprite(16, 2, 0, SpriteSheet.TILES);
