@@ -15,6 +15,8 @@ public class Sprite {
 	public static final AnimatedSprite GRASS_GROWN = new AnimatedSprite(4, 16, 3, 0, SpriteSheet.TILES);
 	public static final AnimatedSprite GRASS_TALL = new AnimatedSprite(4, 16, 4, 0, SpriteSheet.TILES);
 	public static final AnimatedSprite FLOWERS = new AnimatedSprite(4, 16, 5, 0, SpriteSheet.TILES);
+	
+	public static final Sprite[] FONT = loadFont(SpriteSheet.FONT);
 
 	public Sprite(int size, int x, int y, SpriteSheet sheet) {
 		width = size;
@@ -82,10 +84,10 @@ public class Sprite {
 		return rotate(1);
 	}
 	
-	protected Sprite[] loadFont(SpriteSheet sheet) {
-		Sprite[] sprites = new Sprite['`' + 1];
+	protected static Sprite[] loadFont(SpriteSheet sheet) {
+		Sprite[] sprites = new Sprite['~'];
 		
-		for (int i = 0; i < sprites.length; i++) sprites[i] = new Sprite(4, 6, i % 32, i / 4, SpriteSheet.FONT);
+		for (int i = 0; i < sprites.length; i++) sprites[i] = new Sprite(4, 6, i % 32, i / 32, sheet);
 		return sprites;
 	}
 }
