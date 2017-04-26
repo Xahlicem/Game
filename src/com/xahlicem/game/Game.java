@@ -137,21 +137,18 @@ public class Game extends Canvas implements Runnable {
 		pointX = (pointX / SCALE) + x >> 4;
 		pointY = (pointY / SCALE) + y >> 4;
 
-		if (input.isKeyPressed(Input.KEY_PRESS)) press = true;
-		
 		input.wheelPos = (Tile.list.size() * 2 + input.wheelPos) % Tile.list.size();
 		
 		tile = Tile.list.get(input.wheelPos).getColor();
 		
-		if (press && !input.isKeyPressed(Input.KEY_PRESS)) {
+		if (input.isKeyPressed(Input.KEY_PRESS)) {
 			System.out.println((pointX & level.wMask) + ", " + (pointY & level.hMask) + " - " + input.wheelPos);
 			level.changeTile((pointX & level.wMask), (pointY & level.hMask), tile);
-			press = false;
 		}
 	}
+	
 	int tile = 0;
 	int x = 0, y = 0;
-	boolean press = false;
 
 	private void draw() {
 		// BufferStrategy strategy = getBufferStrategy();
