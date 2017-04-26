@@ -26,6 +26,7 @@ public class SpriteSheet {
 			height = image.getHeight();
 			pixels = new int[width * height];
 			image.getRGB(0, 0, width, height, pixels, 0, width);
+			for (int i = 0; i < pixels.length; i++) pixels[i] &= 0xFFFFFF;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
