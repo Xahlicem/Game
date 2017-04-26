@@ -10,6 +10,8 @@ import javax.imageio.ImageIO;
 
 import com.xahlicem.game.graphics.Screen;
 import com.xahlicem.game.graphics.SpriteSheet;
+import com.xahlicem.game.helpers.audio.AudioPlayer;
+import com.xahlicem.game.helpers.audio.Sound;
 import com.xahlicem.game.level.tile.Tile;
 
 public class Level {
@@ -25,9 +27,11 @@ public class Level {
 	private int[] tiles, darkness;
 	private List<Tile> tileList = new ArrayList<Tile>();
 	private int time, light;
-	public String[] bgm = new String[]{};
+	private Sound[] bgm = new Sound[]{};
+	private int bgmIndex = 0;
+	private AudioPlayer midi, sfx;
 
-	public static final Level TITLE = new Level("/level/TITLE", "BGM_TITLE");
+	public static final Level TITLE = new Level("/level/TITLE", Sound.BGM_TITLE);
 
 	public Level(int width, int height) {
 		this.width = width;
@@ -38,7 +42,7 @@ public class Level {
 		generateLevel();
 	}
 
-	public Level(int width, int height, String... bgm) {
+	public Level(int width, int height, Sound... bgm) {
 		this.width = width;
 		this.height = height;
 		wMask = width - 1;
@@ -52,7 +56,7 @@ public class Level {
 		loadLevel(path);
 	}
 	
-	public Level(String path, String... bgm) {
+	public Level(String path, Sound... bgm) {
 		loadLevel(path);
 		this.bgm = bgm;
 	}
@@ -98,8 +102,17 @@ public class Level {
 				tiles[x + y * width] = R.nextInt(10);
 			}
 	}
+	
+	public void init(AudioPlayer midi, AudioPlayer sfx) {
+		this.midi = midi;
+		this.sfx = sfx;
+	}
 
 	public void tick() {
+		if (!midi.isPlaying()) {
+			midi.setSound(bgm[bgmIndex++ % bgm.length]);
+			midi.play();
+		}
 		time();
 		for (Tile tile : tileList)
 			tile.tick();
