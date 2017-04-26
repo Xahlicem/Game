@@ -3,10 +3,12 @@ package com.xahlicem.game.helpers;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
 import javax.swing.event.MouseInputListener;
 
-public class Input implements KeyListener, MouseInputListener {
+public class Input implements KeyListener, MouseInputListener, MouseWheelListener {
 	public static final int KEY_UP = 0b000001;
 	public static final int KEY_DOWN = 0b000010;
 	public static final int KEY_LEFT = 0b000100;
@@ -14,6 +16,7 @@ public class Input implements KeyListener, MouseInputListener {
 	public static final int KEY_SHIFT = 0b010000;
 	public static final int KEY_PRESS = 0b100000;
 
+	public int wheelPos = 0;
 	private int keys = 0;
 	private int[] point = new int[2];
 
@@ -98,6 +101,11 @@ public class Input implements KeyListener, MouseInputListener {
 	public void mouseMoved(MouseEvent e) {
 		point[0] = e.getX();
 		point[1] = e.getY();
+	}
+
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		wheelPos += e.getWheelRotation();
 	}
 
 }

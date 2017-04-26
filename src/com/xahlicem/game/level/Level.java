@@ -10,6 +10,8 @@ import javax.imageio.ImageIO;
 
 import com.xahlicem.game.graphics.Screen;
 import com.xahlicem.game.graphics.SpriteSheet;
+import com.xahlicem.game.helpers.audio.AudioPlayer;
+import com.xahlicem.game.helpers.audio.Sound;
 import com.xahlicem.game.level.tile.Tile;
 
 public class Level {
@@ -25,9 +27,11 @@ public class Level {
 	private int[] tiles, darkness;
 	private List<Tile> tileList = new ArrayList<Tile>();
 	private int time, light;
-	public String[] bgm = new String[]{};
+	private Sound[] bgm = new Sound[]{};
+	private int bgmIndex = 0;
+	private AudioPlayer midi, sfx;
 
-	public static final Level TITLE = new Level("/level/TITLE");
+	public static final Level TITLE = new Level("/level/TITLE", Sound.BGM_TITLE);
 
 	public Level(int width, int height) {
 		this.width = width;
@@ -38,7 +42,7 @@ public class Level {
 		generateLevel();
 	}
 
-	public Level(int width, int height, String... bgm) {
+	public Level(int width, int height, Sound... bgm) {
 		this.width = width;
 		this.height = height;
 		wMask = width - 1;
@@ -52,7 +56,7 @@ public class Level {
 		loadLevel(path);
 	}
 	
-	public Level(String path, String... bgm) {
+	public Level(String path, Sound... bgm) {
 		loadLevel(path);
 		this.bgm = bgm;
 	}
@@ -87,17 +91,7 @@ public class Level {
 		for (int i = 0; i < tiles.length; i++) {
 			tiles[i] = tiles[i] & 0xFFFFFF;
 			darkness[i] = darkness[i] & 0xFFFFFF;
-			switch (tiles[i] & 0xFFFFFF) {
-				case Tile.WATER_COLOR:
-					tiles[i] = Tile.WATER_COLOR + R.nextInt(Tile.waterIndex);
-					break;
-				case Tile.DIRT_COLOR:
-					tiles[i] = Tile.DIRT_COLOR + R.nextInt(Tile.dirtIndex);
-					break;
-				case Tile.GRASS_COLOR:
-					tiles[i] = Tile.GRASS_COLOR + R.nextInt(Tile.grassIndex);
-					break;
-			}
+			tiles[i] = Tile.getRandomColor(tiles[i]);
 			if (!tileList.contains(Tile.getTile(tiles[i]))) tileList.add(Tile.getTile(tiles[i]));
 		}
 	}
@@ -108,8 +102,17 @@ public class Level {
 				tiles[x + y * width] = R.nextInt(10);
 			}
 	}
+	
+	public void init(AudioPlayer midi, AudioPlayer sfx) {
+		this.midi = midi;
+		this.sfx = sfx;
+	}
 
 	public void tick() {
+		if (!midi.isPlaying()) {
+			midi.setSound(bgm[bgmIndex++ % bgm.length]);
+			midi.play();
+		}
 		time();
 		for (Tile tile : tileList)
 			tile.tick();
@@ -117,20 +120,20 @@ public class Level {
 	
 	private void time() {
 		time++;
-		if (time > 1000) time = 0;
+		if (time > 10000) time = 0;
 		
-		if (time < 150) light = NIGHT_LIGHT;
-		else if (time < 250) light = TWI_LIGHT;
-		else if (time < 300) light = MORNING_LIGHT;
-		else if (time < 600) light = DAY_LIGHT;
-		else if (time < 700) light = EVENING_LIGHT;
-		else if (time < 750) light = TWI_LIGHT;
+		if (time < 1500) light = NIGHT_LIGHT;
+		else if (time < 2500) light = TWI_LIGHT;
+		else if (time < 3000) light = MORNING_LIGHT;
+		else if (time < 6000) light = DAY_LIGHT;
+		else if (time < 7000) light = EVENING_LIGHT;
+		else if (time < 7500) light = TWI_LIGHT;
 		else light = NIGHT_LIGHT;
 	}
 
 	public void draw(int xScroll, int yScroll, Screen screen) {
 		screen.setOffset(xScroll, yScroll);
-		for (int y = yScroll >> 4; y <= (yScroll + screen.height) >> 4; y++)
+		for (int y = yScroll >> 4; y <= (yScroll + screen.height + 32) >> 4; y++)
 			for (int x = xScroll >> 4; x <= (xScroll + screen.width) >> 4; x++) {
 				int l = darkness[(x&wMask) + (y&hMask) * width];
 				if (l < light) l = light;

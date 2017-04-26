@@ -1,16 +1,23 @@
 package com.xahlicem.game;
 
 import java.awt.Canvas;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.util.Arrays;
 
 import com.xahlicem.game.graphics.Screen;
-import com.xahlicem.game.helpers.Audio;
+import com.xahlicem.game.graphics.Sprite;
 import com.xahlicem.game.helpers.Input;
+import com.xahlicem.game.helpers.audio.AudioPlayer;
+import com.xahlicem.game.helpers.audio.SFXPlayer;
+import com.xahlicem.game.helpers.audio.Sound;
 import com.xahlicem.game.level.Level;
+import com.xahlicem.game.level.tile.RandomAnimatedTile;
+import com.xahlicem.game.level.tile.Tile;
 
 public class Game extends Canvas implements Runnable {
 	private static final double TPS = 60D;
@@ -26,7 +33,7 @@ public class Game extends Canvas implements Runnable {
 	private Frame frame;
 	private boolean running;
 	private Input input;
-	private Audio audio;
+	private AudioPlayer bgm, sfx;
 	private Screen screen;
 	private Level level;
 
@@ -43,14 +50,11 @@ public class Game extends Canvas implements Runnable {
 		screen = new Screen(WIDTH, HEIGHT, pixels);
 		frame = new Frame(this);
 		input = new Input();
-		audio = new Audio();
-		
 
 		addKeyListener(input);
 		addMouseListener(input);
+		addMouseWheelListener(input);
 		addMouseMotionListener(input);
-
-		changeLevel(Level.TITLE);
 	}
 
 	public static void main(String[] args) {
@@ -68,13 +72,18 @@ public class Game extends Canvas implements Runnable {
 		int fps = 0, tps = 0;
 		boolean draw = false;
 
+		bgm = new AudioPlayer();
+		sfx = new SFXPlayer();
+
+		changeLevel(Level.TITLE);
+
 		while (running) {
 			now = System.nanoTime();
 			delta += (double) (now - lastTime) / NSPT;
 			lastTime = now;
 
 			if (delta < 1) try {
-				Thread.sleep(5);
+				// Thread.sleep(5);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -89,7 +98,7 @@ public class Game extends Canvas implements Runnable {
 			if (draw) {
 				draw();
 				fps++;
-				draw = false;
+				// draw = false;
 			}
 
 			if (System.currentTimeMillis() - timer > 1000) {
@@ -99,6 +108,8 @@ public class Game extends Canvas implements Runnable {
 				fps = 0;
 			}
 		}
+		sfx.close();
+		bgm.close();
 
 	}
 
@@ -110,7 +121,6 @@ public class Game extends Canvas implements Runnable {
 
 	public synchronized void stop() {
 		running = false;
-		audio.closeAll();
 		try {
 			thread.join();
 		} catch (InterruptedException e) {
@@ -120,7 +130,6 @@ public class Game extends Canvas implements Runnable {
 
 	private void tick() {
 		level.tick();
-		audio.tick(level);
 		int i = 2;
 
 		if (input.isKeyPressed(Input.KEY_SHIFT)) i = 4;
@@ -135,42 +144,60 @@ public class Game extends Canvas implements Runnable {
 		pointX = (pointX / SCALE) + x >> 4;
 		pointY = (pointY / SCALE) + y >> 4;
 
-		if (input.isKeyPressed(Input.KEY_PRESS)) press = true;
-		
-		if (press && !input.isKeyPressed(Input.KEY_PRESS)) {
-			System.out.println((pointX & level.wMask) + ", " + (pointY & level.hMask));
-			level.changeTile((pointX & level.wMask), (pointY & level.hMask), 0);
-			press = false;
+		input.wheelPos = (Tile.list.size() * 2 + input.wheelPos) % Tile.list.size();
+
+		tile = Tile.list.get(input.wheelPos).getColor();
+
+		if (edit && input.isKeyPressed(Input.KEY_PRESS)) {
+			level.changeTile((pointX & level.wMask), (pointY & level.hMask), tile);
+		}
+
+		if (!click && input.isKeyPressed(Input.KEY_PRESS)) {
+			sfx.play(Sound.SFX);
+			click = true;
+			System.out.println((pointX & level.wMask) + ", " + (pointY & level.hMask) + " - " + input.wheelPos + " " + Tile.getTile(tile));
+		}
+		if (click && !input.isKeyPressed(Input.KEY_PRESS)) {
+			click = false;
 		}
 	}
 
+	boolean click = false;
+	boolean edit = true;
+	int tile = 0;
 	int x = 0, y = 0;
-	boolean press = false;
 
 	private void draw() {
-		// BufferStrategy strategy = getBufferStrategy();
-		// if (strategy == null) {
-		// createBufferStrategy(3);
-		// return;
-		// }
+		BufferStrategy strategy = getBufferStrategy();
+		if (strategy == null) {
+			createBufferStrategy(3);
+			return;
+		}
 
-		screen.clear();
+		//screen.clear();
 		level.draw(x, y, screen);
+		if (edit) {
+			screen.drawSprite(x, y, Sprite.CONTAINER, 0xFFFFFFFF);
+			Tile.getTile(tile).draw(x + 2, y + 2, screen);
+			String s = String.valueOf(input.wheelPos);
+			if (Tile.getTile(tile).getClass().equals(RandomAnimatedTile.class)) s += "A";
+			for (int i = 0; i < s.length(); i++)
+				screen.drawSprite(x + 3 + (i * 4), y + 12, Sprite.FONT[s.charAt(i)], 0xFFFFFFFF);
+		}
 		if (Arrays.equals(pixels, backPixels)) return;
 		backPixels = Arrays.copyOf(pixels, pixels.length);
 
-		// Graphics g = strategy.getDrawGraphics();
-		Graphics g = getGraphics();
-		// g.setColor(Color.BLACK);
-		// g.fillRect(0, 0, getWidth(), getHeight());
+		Graphics g = strategy.getDrawGraphics();
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, getWidth(), getHeight());
 		g.drawImage(image, 0, 0, getWidth(), getHeight(), this);
 		g.dispose();
 
-		// strategy.show();
+		strategy.show();
 	}
-	
+
 	private void changeLevel(Level level) {
 		this.level = level;
-		audio.load(level.bgm);
+		level.init(bgm, sfx);
 	}
 }

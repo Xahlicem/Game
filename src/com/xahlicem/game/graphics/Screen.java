@@ -5,7 +5,8 @@ import java.util.Arrays;
 public class Screen {
 	public int width;
 	public int height;
-
+	
+	private static final int INVISIBLE = 0xFF88FF;
 	private int xOffset, yOffset;
 
 	public int[] pixels;
@@ -31,12 +32,14 @@ public class Screen {
 	public void drawSprite(int xPos, int yPos, Sprite sprite, int darkness) {
 		xPos -= xOffset;
 		yPos -= yOffset;
-		for (int y = 0; y < sprite.size; y++) {
+		for (int y = 0; y < sprite.height; y++) {
 			int ya = y + yPos;
-			for (int x = 0; x < sprite.size; x++) {
+			for (int x = 0; x < sprite.width; x++) {
 				int xa = x + xPos;
 				if (xa < 0 || xa >= width || ya < 0 || ya >= height) continue;
-				pixels[xa + ya * width] = sprite.pixels[x + y * sprite.size] & darkness;
+				int color = sprite.pixels[x + y * sprite.width];
+				if (color == INVISIBLE) continue;
+				pixels[xa + ya * width] = color & darkness;
 			}
 		}
 	}
