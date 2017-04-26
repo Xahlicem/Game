@@ -14,7 +14,7 @@ public class AnimatedSprite extends Sprite {
 	public void loadAnimations(int xPos, int yPos) {
 		sprites = new Sprite[frames];
 		for (int i = 0; i < sprites.length; i++)
-			sprites[i] = new Sprite(size, xPos, yPos + i, sheet);
+			sprites[i] = new Sprite(width, height, xPos, yPos + i, sheet);
 	}
 
 	public Sprite getFrame(int currentFrame) {
