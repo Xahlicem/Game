@@ -164,6 +164,9 @@ public class Game extends Canvas implements Runnable {
 		if (edit) {
 			screen.drawSprite(x, y, Sprite.CONTAINER, 0xFFFFFFFF);
 			Tile.getTile(tile).draw(x+2, y+2, screen);
+			String s = String.valueOf(input.wheelPos);
+			for (int i = 0; i < s.length(); i++)
+				screen.drawSprite(x+3+(i*4), y+12, Sprite.FONT[s.charAt(i)], 0xFFFFFFFF);
 		}
 		if (Arrays.equals(pixels, backPixels)) return;
 		backPixels = Arrays.copyOf(pixels, pixels.length);
