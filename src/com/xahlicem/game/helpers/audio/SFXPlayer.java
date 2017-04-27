@@ -35,9 +35,9 @@ public class SFXPlayer {
 	}
 	
 	public void sound(int sound, int time) {
-	    // Check for null; maybe not all 16 channels exist.
 		channelIndex++;
 		if (channelIndex >= MAX_CHANNELS) channelIndex = CHANNELS_START;
+	    // Check for null; maybe not all 16 channels exist.
 	    if (channels[channelIndex] != null) {
 	    	ticks.put(channels[channelIndex], time);
 	    	channels[channelIndex].programChange(sound);

@@ -14,6 +14,7 @@ import com.xahlicem.game.graphics.Sprite;
 import com.xahlicem.game.helpers.Input;
 import com.xahlicem.game.helpers.audio.BGMPlayer;
 import com.xahlicem.game.helpers.audio.SFXPlayer;
+import com.xahlicem.game.helpers.audio.Volume;
 import com.xahlicem.game.level.Level;
 import com.xahlicem.game.level.tile.RandomAnimatedTile;
 import com.xahlicem.game.level.tile.Tile;
@@ -34,6 +35,7 @@ public class Game extends Canvas implements Runnable {
 	private Input input;
 	private BGMPlayer bgm;
 	private SFXPlayer sfx;
+	private Volume volume;
 	private Screen screen;
 	private Level level;
 
@@ -51,10 +53,16 @@ public class Game extends Canvas implements Runnable {
 		frame = new Frame(this);
 		input = new Input();
 
+		bgm = new BGMPlayer();
+		sfx = new SFXPlayer();
+		volume = new Volume();
+
 		addKeyListener(input);
 		addMouseListener(input);
 		addMouseWheelListener(input);
 		addMouseMotionListener(input);
+
+		changeLevel(Level.TITLE);
 	}
 
 	public static void main(String[] args) {
@@ -71,11 +79,7 @@ public class Game extends Canvas implements Runnable {
 		double delta = 0;
 		int fps = 0, tps = 0;
 		boolean draw = false;
-
-		bgm = new BGMPlayer();
-		sfx = new SFXPlayer();
-
-		changeLevel(Level.TITLE);
+		volume.set(0.1);
 
 		while (running) {
 			now = System.nanoTime();

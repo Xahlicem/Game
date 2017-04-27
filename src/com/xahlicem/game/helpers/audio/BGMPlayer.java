@@ -25,8 +25,7 @@ public class BGMPlayer {
 		midiPlayer.close();
 	}
 
-	public void tick() {
-	}
+	public void tick() {}
 
 	public void setSound(BGM sound) {
 		currentSound = sound;
@@ -39,11 +38,11 @@ public class BGMPlayer {
 			if (end > length) end = length;
 			if (start > length) start = length;
 			if (pos > length) pos = length;
-			
+
 			if (end < length) end = 0;
 			if (start < length) start = 0;
 			if (pos < length) pos = 0;
-			
+
 			midiPlayer.setSequence(sound.sound);
 			midiPlayer.setLoopCount(loops);
 			midiPlayer.setLoopStartPoint(start);
@@ -58,7 +57,7 @@ public class BGMPlayer {
 	public void play() {
 		play(currentSound, 0, 0, currentSound.sound.getTickLength(), 0);
 	}
-	
+
 	public void play(BGM sound) {
 		play(sound, 0, 0, sound.sound.getTickLength(), 0);
 	}
