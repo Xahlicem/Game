@@ -7,14 +7,13 @@ import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Track;
 
-public class Sound {
+public class BGM {
 	public Sequence sound;
 	private String path;
 
-	public static final Sound BGM_TITLE = new Sound("BGM_TITLE");
-	public static final Sound SFX = new Sound("SFX", 1);
+	public static final BGM BGM_TITLE = new BGM("BGM_TITLE");
 
-	public Sound(String name) {
+	public BGM(String name) {
 		path = "/sfx/" + name + ".mid";
 		try {
 			sound = MidiSystem.getSequence(AudioPlayer.class.getResourceAsStream(path));
@@ -24,7 +23,7 @@ public class Sound {
 		}
 	}
 
-	public Sound(String name, int track) {
+	public BGM(String name, int track) {
 		path = "/sfx/" + name + ".mid";
 		track += 1;
 		try {
