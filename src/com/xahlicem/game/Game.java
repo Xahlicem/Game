@@ -79,7 +79,7 @@ public class Game extends Canvas implements Runnable {
 		double delta = 0;
 		int fps = 0, tps = 0;
 		boolean draw = false;
-		volume.set(0.1);
+		volume.set(0.05);
 
 		while (running) {
 			now = System.nanoTime();
@@ -146,6 +146,12 @@ public class Game extends Canvas implements Runnable {
 
 		int pointX = input.getPoint()[0];
 		int pointY = input.getPoint()[1];
+		
+		if (pointX < 32 && pointY < 32) {
+			if (input.isKeyPressed(Input.KEY_UP)) volume.set(volume.get() + .05);
+			if (input.isKeyPressed(Input.KEY_DOWN)) volume.set(volume.get() - .05);
+		}
+
 		pointX = (pointX / SCALE) + x >> 4;
 		pointY = (pointY / SCALE) + y >> 4;
 

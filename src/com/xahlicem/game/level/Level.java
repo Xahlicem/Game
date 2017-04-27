@@ -21,9 +21,9 @@ public class Level {
 	private static final int DAY_LIGHT = 0xFFFFFF;
 	private static final int MORNING_LIGHT = 0xC0C0C0;
 	private static final int EVENING_LIGHT = 0x80C0C0;
-	private static final int TWI_LIGHT = 0x4F1A3F;
-	private static final int DARK_LIGHT = 0x1f1A1F;
+	private static final int DARK_LIGHT = 0x1F1A1F;
 	private static final int NIGHT_LIGHT = 0x0A0F09;
+	private static final int MIDNIGHT_LIGHT = 0x000000;
 	private static final Random R = new Random();
 
 	public int width, height, wMask, hMask;
@@ -133,6 +133,7 @@ public class Level {
 			midi.play();
 		}
 		time();
+		//light = DARK_LIGHT;
 		for (Tile tile : tileList)
 			tile.tick();
 	}
@@ -141,15 +142,14 @@ public class Level {
 		time++;
 		if (time > 2400) time = 0;
 
-		if (time < 500) light = NIGHT_LIGHT;
-		else if (time < 550) light = DARK_LIGHT;
-		else if (time < 600) light = TWI_LIGHT;
-		else if (time < 800) light = MORNING_LIGHT;
-		else if (time < 1900) light = DAY_LIGHT;
-		else if (time < 2100) light = EVENING_LIGHT;
-		else if (time < 2200) light = TWI_LIGHT;
-		else if (time < 2250) light = DARK_LIGHT;
-		else light = NIGHT_LIGHT;
+		if (time >= 2250) light = NIGHT_LIGHT;
+		else if (time >= 2100) light = DARK_LIGHT;
+		else if (time >= 1900) light = EVENING_LIGHT;
+		else if (time >= 800) light = DAY_LIGHT;
+		else if (time >= 550) light = MORNING_LIGHT;
+		else if (time >= 400) light = DARK_LIGHT;
+		else if (time >= 300) light = NIGHT_LIGHT;
+		else light = MIDNIGHT_LIGHT;
 	}
 
 	public void draw(int xScroll, int yScroll, Screen screen) {
@@ -178,6 +178,7 @@ public class Level {
 				Sprite[] draw = Sprite.INVISIBLE_EDGE;
 				Tile t = getTile((x + increaseX[i] & wMask) + (y + increaseY[i] & hMask) * width);
 				if (t.getBaseColor() == Tile.DIRT_COLOR && t.getHeight() > h) draw = Sprite.DIRT_EDGE;
+				if (t.getBaseColor() == Tile.PATH_COLOR && t.getHeight() > h) draw = Sprite.PATH_EDGE;
 				if (t.getBaseColor() == Tile.GRASS_COLOR && t.getHeight() > h) draw = Sprite.GRASS_EDGE;
 				screen.drawSprite(x2, y2, draw[edge[i]], l);
 			}
