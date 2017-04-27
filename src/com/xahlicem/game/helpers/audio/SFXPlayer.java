@@ -1,73 +1,57 @@
 package com.xahlicem.game.helpers.audio;
 
+import java.util.HashMap;
+
+import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
-import javax.sound.midi.Sequencer;
+import javax.sound.midi.Synthesizer;
 
-public class SFXPlayer extends AudioPlayer {
+public class SFXPlayer {
 
-	private static final int MAX_CHANNELS = 8;
-	private static final int MAX_CHANNELS_MASK = MAX_CHANNELS - 1;
-	private Sequencer[] channels;
-	private long[] positions;
-	private int channelIndex = 0;
+	private static final int CHANNELS_START = 10;
+	private static final int MAX_CHANNELS = 16;
+	private HashMap<MidiChannel, Integer> ticks = new HashMap<MidiChannel, Integer>();
+	private MidiChannel[] channels;
+	private int channelIndex = CHANNELS_START - 1;
+	private Synthesizer synth;
 
 	public SFXPlayer() {
 		try {
-			channels = new Sequencer[MAX_CHANNELS];
-			positions = new long[MAX_CHANNELS];
-			for (int i = 0; i < channels.length; i++) {
-				channels[i] = MidiSystem.getSequencer();
-				channels[i].open();
-			}
-			midiPlayer = channels[channelIndex];
+			synth = MidiSystem.getSynthesizer();
+			synth.open();
+		    channels = synth.getChannels();
+		    synth.loadAllInstruments(synth.getDefaultSoundbank());
 		} catch (MidiUnavailableException e) {
 			e.printStackTrace();
 		}
 	}
-
-	public void close() {
-		System.out.println("Closing");
-		for (int i = 0; i < channels.length; i++) {
-			channels[i].stop();
-			channels[i].close();
+	
+	public void tick() {
+		for (MidiChannel channel : ticks.keySet()) {
+			ticks.put(channel, ticks.get(channel)-1);
+			if (ticks.get(channel) == 0) channel.allNotesOff();
 		}
-		System.out.println("Closed");
 	}
-
-	public void play(Sound sound, int loops, long start, long end, long pos) {
-		channelIndex = ++channelIndex & MAX_CHANNELS_MASK;
-		midiPlayer = channels[channelIndex];
-		super.play(sound, loops, start, end, pos);
-	}
-
-	public boolean isPlaying() {
-		for (int i = 0; i < channels.length; i++) {
-			if (channels[i].isRunning()) return true;
-		}
-		return false;
-	}
-
-	public void stop() {
-		for (int i = 0; i < channels.length; i++)
-			channels[i].stop();
+	
+	public void sound(int sound, int time) {
+	    // Check for null; maybe not all 16 channels exist.
+		channelIndex++;
+		if (channelIndex >= MAX_CHANNELS) channelIndex = CHANNELS_START;
+	    if (channels[channelIndex] != null) {
+	    	ticks.put(channels[channelIndex], time);
+	    	channels[channelIndex].programChange(sound);
+	        channels[channelIndex].noteOn(60, 93); 
+	    }
 	}
 
 	public void mute() {
-		if (mute) return;
-		mute = true;
-		for (int i = 0; i < channels.length; i++) {
-			positions[i] = channels[i].getTickPosition();
-			channels[i].stop();
-		}
 	}
 
 	public void unMute() {
-		if (!mute) return;
-		mute = false;
-		for (int i = 0; i < channels.length; i++) {
-			channels[i].start();
-			channels[i].setTickPosition(positions[i]);
-		}
+	}
+	
+	public void close() {
+		synth.close();
 	}
 }
