@@ -12,9 +12,8 @@ import java.util.Arrays;
 import com.xahlicem.game.graphics.Screen;
 import com.xahlicem.game.graphics.Sprite;
 import com.xahlicem.game.helpers.Input;
-import com.xahlicem.game.helpers.audio.AudioPlayer;
+import com.xahlicem.game.helpers.audio.BGMPlayer;
 import com.xahlicem.game.helpers.audio.SFXPlayer;
-import com.xahlicem.game.helpers.audio.Sound;
 import com.xahlicem.game.level.Level;
 import com.xahlicem.game.level.tile.RandomAnimatedTile;
 import com.xahlicem.game.level.tile.Tile;
@@ -33,7 +32,8 @@ public class Game extends Canvas implements Runnable {
 	private Frame frame;
 	private boolean running;
 	private Input input;
-	private AudioPlayer bgm, sfx;
+	private BGMPlayer bgm;
+	private SFXPlayer sfx;
 	private Screen screen;
 	private Level level;
 
@@ -72,7 +72,7 @@ public class Game extends Canvas implements Runnable {
 		int fps = 0, tps = 0;
 		boolean draw = false;
 
-		bgm = new AudioPlayer();
+		bgm = new BGMPlayer();
 		sfx = new SFXPlayer();
 
 		changeLevel(Level.TITLE);
@@ -129,6 +129,7 @@ public class Game extends Canvas implements Runnable {
 	}
 
 	private void tick() {
+		sfx.tick();
 		level.tick();
 		int i = 2;
 
@@ -150,14 +151,21 @@ public class Game extends Canvas implements Runnable {
 
 		if (edit && input.isKeyPressed(Input.KEY_PRESS)) {
 			level.changeTile((pointX & level.wMask), (pointY & level.hMask), tile);
+			if ((pointX & level.wMask) != lastX || (pointY & level.hMask) != lastY) {
+				sfx.sound(127, 1);
+				lastX = (pointX & level.wMask);
+				lastY = (pointY & level.hMask);
+			}
 		}
 
 		if (!click && input.isKeyPressed(Input.KEY_PRESS)) {
-			sfx.play(Sound.SFX);
+			sfx.sound(127, 1);
 			click = true;
 		}
 		if (click && !input.isKeyPressed(Input.KEY_PRESS)) {
 			click = false;
+			lastX = -1;
+			lastY = -1;
 		}
 	}
 
@@ -165,6 +173,7 @@ public class Game extends Canvas implements Runnable {
 	boolean edit = true;
 	int tile = 0;
 	int x = 0, y = 0;
+	int lastX, lastY;
 
 	private void draw() {
 		BufferStrategy strategy = getBufferStrategy();
