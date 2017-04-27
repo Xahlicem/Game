@@ -5,13 +5,13 @@ import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Sequencer;
 
-public class AudioPlayer {
+public class BGMPlayer {
 	protected boolean mute = false;
 	protected long position;
-	private Sound currentSound;
+	private BGM currentSound;
 	protected Sequencer midiPlayer;
 
-	public AudioPlayer() {
+	public BGMPlayer() {
 		try {
 			midiPlayer = MidiSystem.getSequencer();
 			midiPlayer.open();
@@ -28,11 +28,11 @@ public class AudioPlayer {
 	public void tick() {
 	}
 
-	public void setSound(Sound sound) {
+	public void setSound(BGM sound) {
 		currentSound = sound;
 	}
 
-	public void play(Sound sound, int loops, long start, long end, long pos) {
+	public void play(BGM sound, int loops, long start, long end, long pos) {
 		if (mute) return;
 		if (sound != null) try {
 			long length = sound.sound.getTickLength();
@@ -59,7 +59,7 @@ public class AudioPlayer {
 		play(currentSound, 0, 0, currentSound.sound.getTickLength(), 0);
 	}
 	
-	public void play(Sound sound) {
+	public void play(BGM sound) {
 		play(sound, 0, 0, sound.sound.getTickLength(), 0);
 	}
 
