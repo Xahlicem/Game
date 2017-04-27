@@ -13,12 +13,14 @@ public class Tile {
 
 	protected Sprite sprite;
 	protected boolean solid = false;
-	protected int color;
+	protected int color, baseColor;
+	protected int height;
 
-	public static final HashMap<Integer, Tile> tileColor = new HashMap<Integer, Tile>();
+	private static final HashMap<Integer, Tile> tileColor = new HashMap<Integer, Tile>();
 	public static List<Tile> list = new ArrayList<Tile>();
 
-	public static final int INCREASE_BY = 0x01000000;
+	private static final int INCREASE_BY = 0x01000000;
+	
 	public static final int WATER_COLOR = 0xE00000FF;
 	public static int waterIndex = 0;
 	public static final int DIRT_COLOR = 0xE0964b00;
@@ -44,22 +46,28 @@ public class Tile {
 	public Tile(Sprite sprite, int color) {
 		this.sprite = sprite;
 		this.color = color;
-		increaseColor();
+		baseColor = color;
+		init();
 		tileColor.put(this.color, this);
 		list.add(this);
 	}
 
-	private void increaseColor() {
+	private void init() {
+		height = 0;
+		
 		switch (color) {
 		case WATER_COLOR:
+			height = 0;
 			this.color += waterIndex;
 			waterIndex += INCREASE_BY;
 			break;
 		case DIRT_COLOR:
+			height = 1;
 			this.color += dirtIndex;
 			dirtIndex += INCREASE_BY;
 			break;
 		case GRASS_COLOR:
+			height = 2;
 			this.color += grassIndex;
 			grassIndex += INCREASE_BY;
 			break;
@@ -107,5 +115,13 @@ public class Tile {
 			return Tile.GRASS_COLOR + (R.nextInt(Tile.grassIndex >> 24) << 24);
 		}
 		return color;
+	}
+	
+	public int getHeight() {
+		return height;
+	}
+	
+	public int getBaseColor() {
+		return baseColor;
 	}
 }

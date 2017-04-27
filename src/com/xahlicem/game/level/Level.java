@@ -167,15 +167,15 @@ public class Level {
 		int loc = (x & wMask) + (y & hMask) * width;
 		int[] increaseX = new int[] { -1, 1, 0, 0 };
 		int[] increaseY = new int[] { 0, 0, -1, 1 };
-		int [] edge = new int[]{0, 2, 1, 3};
-		int color = tiles[loc] & 0xFFFFFF;
+		int[] edge = new int[] { 0, 2, 1, 3 };
+		int h = getTile(loc).getHeight();
 
 		for (int i = 0; i < 4; i++) {
 			if ((edges[loc] >> i & 0x1) == 0x1) {
 				Sprite[] draw = Sprite.INVISIBLE_EDGE;
-				int t = tiles[((x + increaseX[i] & wMask) + (y + increaseY[i] & hMask) * width)];
-				if ((t & 0xFFFFFF) == 0x964b00 && color != 0x00FF00) draw = Sprite.DIRT_EDGE;
-				if ((t & 0xFFFFFF) == 0x00FF00) draw = Sprite.GRASS_EDGE;
+				Tile t = getTile((x + increaseX[i] & wMask) + (y + increaseY[i] & hMask) * width);
+				if (t.getBaseColor() == Tile.DIRT_COLOR && t.getHeight() > h) draw = Sprite.DIRT_EDGE;
+				if (t.getBaseColor() == Tile.GRASS_COLOR && t.getHeight() > h) draw = Sprite.GRASS_EDGE;
 				screen.drawSprite(x2, y2, draw[edge[i]], l);
 			}
 		}
