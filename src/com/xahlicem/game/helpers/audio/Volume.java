@@ -28,6 +28,7 @@ public class Volume {
 	}
 
 	public void set(double value) {
+		if (value > 1) value = 1;
 		volCtrl.setValue((float) value);
 
 	}
