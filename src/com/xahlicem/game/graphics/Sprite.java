@@ -16,9 +16,12 @@ public class Sprite {
 	
 	public static final Sprite DIRT = new Sprite(16, 1, 0, SpriteSheet.TILES);
 	public static final Sprite[] DIRT_EDGE = rotateAll(16, 16, 1, 1, SpriteSheet.TILES);
+	public static final Sprite DIRT_GRASS = new Sprite(16, 1, 2, SpriteSheet.TILES);
+	public static final Sprite DIRT_CRACKED = new Sprite(16, 1, 3, SpriteSheet.TILES);
 
 	public static final Sprite GRASS = new Sprite(16, 2, 0, SpriteSheet.TILES);
 	public static final Sprite[] GRASS_EDGE = rotateAll(16, 16, 2, 1, SpriteSheet.TILES);
+	public static final Sprite GRASS_ROCK = new Sprite(16, 2, 2, SpriteSheet.TILES);
 	public static final Sprite SMALL_FLOWERS = new Sprite(16, 2, 3, SpriteSheet.TILES);
 	public static final AnimatedSprite GRASS_GROWN = new AnimatedSprite(4, 16, 3, 0, SpriteSheet.TILES);
 	public static final AnimatedSprite GRASS_TALL = new AnimatedSprite(4, 16, 4, 0, SpriteSheet.TILES);

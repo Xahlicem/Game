@@ -29,11 +29,17 @@ public class Tile {
 	public static int grassIndex = 0;
 
 	public static final Tile NULL = new Tile(Sprite.NULL, 0xFFFF66FF);
+	
 	public static final Tile WATER = new Tile(Sprite.WATER, WATER_COLOR);
 	public static final Tile WATER_SHINE = new AnimatedTile(new int[] { 300, 10, 5, 15 }, Sprite.WATER, WATER_COLOR);
 	public static final Tile R_WATER_SHINE = new RandomAnimatedTile(500, new int[] { 5, 10, 5, 15 }, Sprite.WATER, WATER_COLOR);
+
 	public static final Tile DIRT = new Tile(Sprite.DIRT, DIRT_COLOR);
+	public static final Tile DIRT_GRASS = new Tile(Sprite.DIRT_GRASS, DIRT_COLOR);
+	public static final Tile DIRT_CRACKED = new Tile(Sprite.DIRT_CRACKED, DIRT_COLOR);
+
 	public static final Tile GRASS = new Tile(Sprite.GRASS, GRASS_COLOR);
+	public static final Tile GRASS_ROCK = new Tile(Sprite.GRASS_ROCK, GRASS_COLOR);
 	public static final Tile SMALL_FLOWERS = new Tile(Sprite.SMALL_FLOWERS, GRASS_COLOR);
 	public static final Tile GRASS_GROWN = new AnimatedTile(new int[] { 150, 30, 45, 15 }, Sprite.GRASS_GROWN, GRASS_COLOR);
 	public static final Tile R_GRASS_GROWN = new RandomAnimatedTile(1000, new int[] { 5, 30, 45, 15 }, Sprite.GRASS_GROWN, GRASS_COLOR);
@@ -106,13 +112,16 @@ public class Tile {
 	}
 
 	public static int getRandomColor(int color) {
+		int i = (color - 0x1F000000);
+		if ((i & 0xFF000000) != 0xE0000000) return color;
+		if (R.nextInt(10) == 0) return (color - 0x1F000000);
 		switch (color - 0x1F000000) {
-		case Tile.WATER_COLOR:
-			return Tile.WATER_COLOR + (R.nextInt(Tile.waterIndex >> 24) << 24);
-		case Tile.DIRT_COLOR:
-			return Tile.DIRT_COLOR + (R.nextInt(Tile.dirtIndex >> 24) << 24);
-		case Tile.GRASS_COLOR:
-			return Tile.GRASS_COLOR + (R.nextInt(Tile.grassIndex >> 24) << 24);
+		case WATER_COLOR:
+			return WATER_COLOR + (R.nextInt(waterIndex >> 24) << 24);
+		case DIRT_COLOR:
+			return DIRT_COLOR + (R.nextInt(dirtIndex >> 24) << 24);
+		case GRASS_COLOR:
+			return GRASS_COLOR + (R.nextInt(grassIndex >> 24) << 24);
 		}
 		return color;
 	}
