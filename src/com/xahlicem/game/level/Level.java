@@ -20,9 +20,10 @@ public class Level {
 
 	private static final int DAY_LIGHT = 0xFFFFFF;
 	private static final int MORNING_LIGHT = 0xC0C0C0;
-	private static final int EVENING_LIGHT = 0x80A0A0;
-	private static final int TWI_LIGHT = 0x306080;
-	private static final int NIGHT_LIGHT = 0x203040;
+	private static final int EVENING_LIGHT = 0x80C0C0;
+	private static final int TWI_LIGHT = 0x4F1A3F;
+	private static final int DARK_LIGHT = 0x1f1A1F;
+	private static final int NIGHT_LIGHT = 0x0A0F09;
 	private static final Random R = new Random();
 
 	public int width, height, wMask, hMask;
@@ -138,14 +139,16 @@ public class Level {
 
 	private void time() {
 		time++;
-		if (time > 10000) time = 0;
+		if (time > 2400) time = 0;
 
-		if (time < 1500) light = NIGHT_LIGHT;
-		else if (time < 2500) light = TWI_LIGHT;
-		else if (time < 3000) light = MORNING_LIGHT;
-		else if (time < 6000) light = DAY_LIGHT;
-		else if (time < 7000) light = EVENING_LIGHT;
-		else if (time < 7500) light = TWI_LIGHT;
+		if (time < 500) light = NIGHT_LIGHT;
+		else if (time < 550) light = DARK_LIGHT;
+		else if (time < 600) light = TWI_LIGHT;
+		else if (time < 800) light = MORNING_LIGHT;
+		else if (time < 1900) light = DAY_LIGHT;
+		else if (time < 2100) light = EVENING_LIGHT;
+		else if (time < 2200) light = TWI_LIGHT;
+		else if (time < 2250) light = DARK_LIGHT;
 		else light = NIGHT_LIGHT;
 	}
 
