@@ -25,6 +25,8 @@ public class Tile {
 	public static int waterIndex = 0;
 	public static final int DIRT_COLOR = 0xE0964b00;
 	public static int dirtIndex = 0;
+	public static final int PATH_COLOR = 0xE0BFBFBF;
+	public static int pathIndex = 0;
 	public static final int GRASS_COLOR = 0xE000FF00;
 	public static int grassIndex = 0;
 
@@ -37,6 +39,10 @@ public class Tile {
 	public static final Tile DIRT = new Tile(Sprite.DIRT, DIRT_COLOR);
 	public static final Tile DIRT_GRASS = new Tile(Sprite.DIRT_GRASS, DIRT_COLOR);
 	public static final Tile DIRT_CRACKED = new Tile(Sprite.DIRT_CRACKED, DIRT_COLOR);
+
+	public static final Tile PATH = new Tile(Sprite.PATH, PATH_COLOR);
+	public static final Tile PATH_GRASS = new Tile(Sprite.PATH_GRASS, PATH_COLOR);
+	public static final Tile PATH_CRACKED = new Tile(Sprite.PATH_CRACKED, PATH_COLOR);
 
 	public static final Tile GRASS = new Tile(Sprite.GRASS, GRASS_COLOR);
 	public static final Tile GRASS_ROCK = new Tile(Sprite.GRASS_ROCK, GRASS_COLOR);
@@ -72,8 +78,13 @@ public class Tile {
 			this.color += dirtIndex;
 			dirtIndex += INCREASE_BY;
 			break;
-		case GRASS_COLOR:
+		case PATH_COLOR:
 			height = 2;
+			this.color += pathIndex;
+			pathIndex += INCREASE_BY;
+			break;
+		case GRASS_COLOR:
+			height = 3;
 			this.color += grassIndex;
 			grassIndex += INCREASE_BY;
 			break;
@@ -120,6 +131,8 @@ public class Tile {
 			return WATER_COLOR + (R.nextInt(waterIndex >> 24) << 24);
 		case DIRT_COLOR:
 			return DIRT_COLOR + (R.nextInt(dirtIndex >> 24) << 24);
+		case PATH_COLOR:
+			return PATH_COLOR + (R.nextInt(pathIndex >> 24) << 24);
 		case GRASS_COLOR:
 			return GRASS_COLOR + (R.nextInt(grassIndex >> 24) << 24);
 		}
