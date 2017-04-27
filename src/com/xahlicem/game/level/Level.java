@@ -9,6 +9,7 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 
 import com.xahlicem.game.graphics.Screen;
+import com.xahlicem.game.graphics.Sprite;
 import com.xahlicem.game.graphics.SpriteSheet;
 import com.xahlicem.game.helpers.audio.BGM;
 import com.xahlicem.game.helpers.audio.BGMPlayer;
@@ -25,7 +26,7 @@ public class Level {
 	private static final Random R = new Random();
 
 	public int width, height, wMask, hMask;
-	private int[] tiles, darkness;
+	private int[] tiles, darkness, edges;
 	private List<Tile> tileList = new ArrayList<Tile>();
 	private int time, light;
 	private BGM[] bgm = new BGM[] {};
@@ -91,12 +92,26 @@ public class Level {
 				darkness[i] = 0xFFFFFF;
 		}
 
-		for (int i = 0; i < tiles.length; i++) {
-			tiles[i] = tiles[i] & 0xFFFFFF;
-			darkness[i] = darkness[i] & 0xFFFFFF;
-			tiles[i] = Tile.getRandomColor(tiles[i]);
-			if (!tileList.contains(Tile.getTile(tiles[i]))) tileList.add(Tile.getTile(tiles[i]));
-		}
+		edges = new int[width * height];
+
+		for (int y = 0; y < height; y++)
+			for (int x = 0; x < width; x++) {
+				int i = x + y * width;
+				calculateEdges(x, y);
+				darkness[i] = darkness[i] & 0xFFFFFF;
+				tiles[i] = Tile.getRandomColor(tiles[i]);
+				if (!tileList.contains(Tile.getTile(tiles[i]))) tileList.add(Tile.getTile(tiles[i]));
+			}
+	}
+
+	private void calculateEdges(int x, int y) {
+		int i = x + y * width;
+		edges[i] = 0;
+		int color = tiles[i] & 0xFFFFFF;
+		if ((tiles[((x - 1) & wMask) + (y & hMask) * width] & 0xFFFFFF) != color) edges[i] |= 0b1;
+		if ((tiles[((x + 1) & wMask) + (y & hMask) * width] & 0xFFFFFF) != color) edges[i] |= 0b10;
+		if ((tiles[(x & wMask) + ((y - 1) & hMask) * width] & 0xFFFFFF) != color) edges[i] |= 0b100;
+		if ((tiles[(x & wMask) + ((y + 1) & hMask) * width] & 0xFFFFFF) != color) edges[i] |= 0b1000;
 	}
 
 	private void generateLevel() {
@@ -138,10 +153,32 @@ public class Level {
 		screen.setOffset(xScroll, yScroll);
 		for (int y = yScroll >> 4; y <= (yScroll + screen.height + 32) >> 4; y++)
 			for (int x = xScroll >> 4; x <= (xScroll + screen.width) >> 4; x++) {
-				int l = darkness[(x & wMask) + (y & hMask) * width];
+				int i = (x & wMask) + (y & hMask) * width;
+				int x2 = x << 4;
+				int y2 = y << 4;
+				int l = darkness[i];
 				if (l < light) l = light;
-				getTile(x & wMask, y & hMask).draw(x << 4, y << 4, screen, l);
+				getTile(i).draw(x2, y2, screen, l);
+				drawEdges(x, y, x2, y2, l, screen);
 			}
+	}
+
+	private void drawEdges(int x, int y, int x2, int y2, int l, Screen screen) {
+		int loc = (x & wMask) + (y & hMask) * width;
+		int[] increaseX = new int[] { -1, 1, 0, 0 };
+		int[] increaseY = new int[] { 0, 0, -1, 1 };
+		int [] edge = new int[]{0, 2, 1, 3};
+		int color = tiles[loc] & 0xFFFFFF;
+
+		for (int i = 0; i < 4; i++) {
+			if ((edges[loc] >> i & 0x1) == 0x1) {
+				Sprite[] draw = Sprite.INVISIBLE_EDGE;
+				int t = tiles[((x + increaseX[i] & wMask) + (y + increaseY[i] & hMask) * width)];
+				if ((t & 0xFFFFFF) == 0x964b00 && color != 0x00FF00) draw = Sprite.DIRT_EDGE;
+				if ((t & 0xFFFFFF) == 0x00FF00) draw = Sprite.GRASS_EDGE;
+				screen.drawSprite(x2, y2, draw[edge[i]], l);
+			}
+		}
 	}
 
 	public Tile getTile(int x, int y) {
@@ -154,5 +191,10 @@ public class Level {
 
 	public void changeTile(int x, int y, int tile) {
 		tiles[x + y * width] = tile;
+		calculateEdges(x, y);
+		calculateEdges((x - 1) & wMask, y);
+		calculateEdges((x + 1) & wMask, y);
+		calculateEdges(x, (y - 1) & hMask);
+		calculateEdges(x, (y + 1) & hMask);
 	}
 }

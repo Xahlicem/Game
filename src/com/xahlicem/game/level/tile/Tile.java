@@ -18,33 +18,52 @@ public class Tile {
 	public static final HashMap<Integer, Tile> tileColor = new HashMap<Integer, Tile>();
 	public static List<Tile> list = new ArrayList<Tile>();
 
-	public static final int WATER_COLOR = 0x0000FF;
+	public static final int INCREASE_BY = 0x01000000;
+	public static final int WATER_COLOR = 0xE00000FF;
 	public static int waterIndex = 0;
-	public static final int DIRT_COLOR = 0x964b00;
+	public static final int DIRT_COLOR = 0xE0964b00;
 	public static int dirtIndex = 0;
-	public static final int GRASS_COLOR = 0x00FF00;
+	public static final int GRASS_COLOR = 0xE000FF00;
 	public static int grassIndex = 0;
 
-	public static final Tile NULL = new Tile(Sprite.NULL, 0xFF66FF);
-	public static final Tile WATER = new Tile(Sprite.WATER, WATER_COLOR + waterIndex++);
-	public static final Tile WATER_SHINE = new AnimatedTile(new int[] { 300, 10, 5, 15 }, Sprite.WATER, WATER_COLOR + waterIndex++);
-	public static final Tile R_WATER_SHINE = new RandomAnimatedTile(500, new int[] { 5, 10, 5, 15 }, Sprite.WATER, WATER_COLOR + waterIndex++);
-	public static final Tile DIRT = new Tile(Sprite.DIRT, DIRT_COLOR + dirtIndex++);
-	public static final Tile GRASS = new Tile(Sprite.GRASS, GRASS_COLOR + grassIndex++);
-	public static final Tile SMALL_FLOWERS = new Tile(Sprite.SMALL_FLOWERS, GRASS_COLOR + grassIndex++);
-	public static final Tile GRASS_GROWN = new AnimatedTile(new int[] { 150, 30, 45, 15 }, Sprite.GRASS_GROWN, GRASS_COLOR + grassIndex++);
-	public static final Tile R_GRASS_GROWN = new RandomAnimatedTile(1000, new int[] { 5, 30, 45, 15 }, Sprite.GRASS_GROWN, GRASS_COLOR + grassIndex++);
-	public static final Tile GRASS_TALL = new AnimatedTile(new int[] { 150, 30, 45, 15 }, Sprite.GRASS_TALL, GRASS_COLOR + grassIndex++);
-	public static final Tile R_GRASS_TALL = new RandomAnimatedTile(2000, new int[] { 5, 30, 45, 15 }, Sprite.GRASS_TALL, GRASS_COLOR + grassIndex++);
-	public static final Tile FLOWERS = new AnimatedTile(60, Sprite.FLOWERS, GRASS_COLOR + grassIndex++);
-	public static final Tile R_FLOWERS = new RandomAnimatedTile(1500, 5, Sprite.FLOWERS, GRASS_COLOR + grassIndex++);
-	public static final Tile GRASS_TREE = new TallTile(GRASS_COLOR + grassIndex++, Sprite.TREE_TRUNK, Sprite.TREE_MIDDLE, Sprite.TREE_TOP);
+	public static final Tile NULL = new Tile(Sprite.NULL, 0xFFFF66FF);
+	public static final Tile WATER = new Tile(Sprite.WATER, WATER_COLOR);
+	public static final Tile WATER_SHINE = new AnimatedTile(new int[] { 300, 10, 5, 15 }, Sprite.WATER, WATER_COLOR);
+	public static final Tile R_WATER_SHINE = new RandomAnimatedTile(500, new int[] { 5, 10, 5, 15 }, Sprite.WATER, WATER_COLOR);
+	public static final Tile DIRT = new Tile(Sprite.DIRT, DIRT_COLOR);
+	public static final Tile GRASS = new Tile(Sprite.GRASS, GRASS_COLOR);
+	public static final Tile SMALL_FLOWERS = new Tile(Sprite.SMALL_FLOWERS, GRASS_COLOR);
+	public static final Tile GRASS_GROWN = new AnimatedTile(new int[] { 150, 30, 45, 15 }, Sprite.GRASS_GROWN, GRASS_COLOR);
+	public static final Tile R_GRASS_GROWN = new RandomAnimatedTile(1000, new int[] { 5, 30, 45, 15 }, Sprite.GRASS_GROWN, GRASS_COLOR);
+	public static final Tile GRASS_TALL = new AnimatedTile(new int[] { 150, 30, 45, 15 }, Sprite.GRASS_TALL, GRASS_COLOR);
+	public static final Tile R_GRASS_TALL = new RandomAnimatedTile(2000, new int[] { 5, 30, 45, 15 }, Sprite.GRASS_TALL, GRASS_COLOR);
+	public static final Tile FLOWERS = new AnimatedTile(60, Sprite.FLOWERS, GRASS_COLOR);
+	public static final Tile R_FLOWERS = new RandomAnimatedTile(1500, 5, Sprite.FLOWERS, GRASS_COLOR);
+	public static final Tile GRASS_TREE = new TallTile(GRASS_COLOR, Sprite.TREE_TRUNK, Sprite.TREE_MIDDLE, Sprite.TREE_TOP);
 
 	public Tile(Sprite sprite, int color) {
 		this.sprite = sprite;
 		this.color = color;
-		tileColor.put(color, this);
+		increaseColor();
+		tileColor.put(this.color, this);
 		list.add(this);
+	}
+
+	private void increaseColor() {
+		switch (color) {
+		case WATER_COLOR:
+			this.color += waterIndex;
+			waterIndex += INCREASE_BY;
+			break;
+		case DIRT_COLOR:
+			this.color += dirtIndex;
+			dirtIndex += INCREASE_BY;
+			break;
+		case GRASS_COLOR:
+			this.color += grassIndex;
+			grassIndex += INCREASE_BY;
+			break;
+		}
 	}
 
 	public Tile(Sprite sprite, int color, boolean solid) {
@@ -79,13 +98,13 @@ public class Tile {
 	}
 
 	public static int getRandomColor(int color) {
-		switch (color) {
+		switch (color - 0x1F000000) {
 		case Tile.WATER_COLOR:
-			return Tile.WATER_COLOR + R.nextInt(Tile.waterIndex);
+			return Tile.WATER_COLOR + (R.nextInt(Tile.waterIndex >> 24) << 24);
 		case Tile.DIRT_COLOR:
-			return Tile.DIRT_COLOR + R.nextInt(Tile.dirtIndex);
+			return Tile.DIRT_COLOR + (R.nextInt(Tile.dirtIndex >> 24) << 24);
 		case Tile.GRASS_COLOR:
-			return Tile.GRASS_COLOR + R.nextInt(Tile.grassIndex);
+			return Tile.GRASS_COLOR + (R.nextInt(Tile.grassIndex >> 24) << 24);
 		}
 		return color;
 	}

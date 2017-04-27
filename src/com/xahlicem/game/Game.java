@@ -83,7 +83,7 @@ public class Game extends Canvas implements Runnable {
 			lastTime = now;
 
 			if (delta < 1) try {
-				// Thread.sleep(5);
+				Thread.sleep(5);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -98,7 +98,7 @@ public class Game extends Canvas implements Runnable {
 			if (draw) {
 				draw();
 				fps++;
-				// draw = false;
+				draw = false;
 			}
 
 			if (System.currentTimeMillis() - timer > 1000) {
@@ -150,8 +150,8 @@ public class Game extends Canvas implements Runnable {
 		tile = Tile.list.get(input.wheelPos).getColor();
 
 		if (edit && input.isKeyPressed(Input.KEY_PRESS)) {
-			level.changeTile((pointX & level.wMask), (pointY & level.hMask), tile);
 			if ((pointX & level.wMask) != lastX || (pointY & level.hMask) != lastY) {
+				level.changeTile((pointX & level.wMask), (pointY & level.hMask), tile);
 				sfx.sound(127, 1);
 				lastX = (pointX & level.wMask);
 				lastY = (pointY & level.hMask);
@@ -159,6 +159,7 @@ public class Game extends Canvas implements Runnable {
 		}
 
 		if (!click && input.isKeyPressed(Input.KEY_PRESS)) {
+			level.changeTile((pointX & level.wMask), (pointY & level.hMask), tile);
 			sfx.sound(127, 1);
 			click = true;
 		}
