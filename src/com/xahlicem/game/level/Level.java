@@ -2,6 +2,7 @@ package com.xahlicem.game.level;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -133,7 +134,7 @@ public class Level {
 			midi.play();
 		}
 		time();
-		//light = DARK_LIGHT;
+		// light = DARK_LIGHT;
 		for (Tile tile : tileList)
 			tile.tick();
 	}
@@ -193,13 +194,97 @@ public class Level {
 		return Tile.getTile(tiles[i]);
 	}
 
-	public void changeTile(int x, int y, int tile) {
-		tiles[x + y * width] = tile;
+	public void changeTile(int x, int y, int tile, boolean random) {
+		if (random) tiles[x + y * width] = Tile.getRandomColor(tile | 0xFF000000);
+		else tiles[x + y * width] = tile;
 		sfx.sound(127, 1);
 		calculateEdges(x, y);
 		calculateEdges((x - 1) & wMask, y);
 		calculateEdges((x + 1) & wMask, y);
 		calculateEdges(x, (y - 1) & hMask);
 		calculateEdges(x, (y + 1) & hMask);
+	}
+
+	public void changeTile(int x, int y, int tile) {
+		changeTile(x, y, tile, false);
+	}
+
+	public byte[] getPacket() {
+
+		ByteBuffer b = ByteBuffer.allocate(4096);
+		b.put((byte) 'L');
+		// b.putInt(time);
+		b.put((byte) (time >> 24));
+		b.put((byte) (time >> 16));
+		b.put((byte) (time >> 8));
+		b.put((byte) time);
+
+		for (int i = 0; i < tiles.length; i++) {
+			b.put((byte) Tile.list.indexOf(getTile(i)));
+
+			switch (darkness[i]) {
+				case DAY_LIGHT:
+					b.put((byte) 0);
+					break;
+				case MORNING_LIGHT:
+					b.put((byte) 1);
+					break;
+				case EVENING_LIGHT:
+					b.put((byte) 2);
+					break;
+				case DARK_LIGHT:
+					b.put((byte) 3);
+					break;
+				case NIGHT_LIGHT:
+					b.put((byte) 4);
+					break;
+				default:
+					b.put((byte) 5);
+					break;
+			}
+
+			b.put((byte) edges[i]);
+		}
+		return b.array();
+	}
+
+	public void addPacket(byte[] packet) {
+		int index = 1;
+		int b = 0;
+		b |= ((packet[index++] & 0xff) << 24);
+		b |= ((packet[index++] & 0xff) << 16);
+		b |= ((packet[index++] & 0xff) << 8);
+		b |= packet[index++] & 0xff;
+
+		time = b;
+
+		// time = ByteBuffer.wrap(packet).getInt(1);
+
+		for (int i = 0; i < tiles.length; i++) {
+			tiles[i] = Tile.list.get(packet[index++]).getColor();
+
+			switch (packet[index++]) {
+				case 0:
+					darkness[i] = DAY_LIGHT;
+					break;
+				case 1:
+					darkness[i] = MORNING_LIGHT;
+					break;
+				case 2:
+					darkness[i] = EVENING_LIGHT;
+					break;
+				case 3:
+					darkness[i] = DARK_LIGHT;
+					break;
+				case 4:
+					darkness[i] = NIGHT_LIGHT;
+					break;
+				default:
+					darkness[i] = MIDNIGHT_LIGHT;
+					break;
+			}
+
+			edges[i] = packet[index++];
+		}
 	}
 }

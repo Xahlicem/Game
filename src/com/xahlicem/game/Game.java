@@ -9,12 +9,16 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.util.Arrays;
 
+import javax.swing.JOptionPane;
+
 import com.xahlicem.game.graphics.Screen;
 import com.xahlicem.game.graphics.Sprite;
 import com.xahlicem.game.helpers.Input;
 import com.xahlicem.game.helpers.audio.BGMPlayer;
 import com.xahlicem.game.helpers.audio.SFXPlayer;
 import com.xahlicem.game.helpers.audio.Volume;
+import com.xahlicem.game.helpers.net.Client;
+import com.xahlicem.game.helpers.net.Server;
 import com.xahlicem.game.level.Level;
 import com.xahlicem.game.level.tile.RandomAnimatedTile;
 import com.xahlicem.game.level.tile.Tile;
@@ -30,6 +34,7 @@ public class Game extends Canvas implements Runnable {
 	public static final String TITLE = "Game";
 
 	private Thread thread;
+	private int ticks = 0;
 	private Frame frame;
 	private boolean running;
 	private Input input;
@@ -38,6 +43,9 @@ public class Game extends Canvas implements Runnable {
 	private Volume volume;
 	private Screen screen;
 	private Level level;
+
+	private Client client;
+	private Server server;
 
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 	private int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
@@ -61,8 +69,6 @@ public class Game extends Canvas implements Runnable {
 		addMouseListener(input);
 		addMouseWheelListener(input);
 		addMouseMotionListener(input);
-
-		changeLevel(Level.TITLE);
 	}
 
 	public static void main(String[] args) {
@@ -80,6 +86,10 @@ public class Game extends Canvas implements Runnable {
 		int fps = 0, tps = 0;
 		boolean draw = false;
 		volume.set(0.05);
+
+		client.sendData("*PING");
+
+		changeLevel(Level.TITLE);
 
 		while (running) {
 			now = System.nanoTime();
@@ -119,6 +129,15 @@ public class Game extends Canvas implements Runnable {
 
 	public synchronized void start() {
 		running = true;
+
+		String ip = "localhost";
+		if (JOptionPane.showConfirmDialog(this, "Do you want to host?") == 0) {
+			server = new Server(this);
+			server.start();
+		} else ip = JOptionPane.showInputDialog("Please enter server IP");
+		client = new Client(this, ip);
+		client.start();
+
 		thread = new Thread(this, "Display");
 		thread.start();
 	}
@@ -135,6 +154,8 @@ public class Game extends Canvas implements Runnable {
 	private void tick() {
 		sfx.tick();
 		level.tick();
+		if ((ticks % 600) == 0)client.sendData("*PING");
+		if ((ticks % 6000) == 0)client.requestLevel();
 		int i = 2;
 
 		if (input.isKeyPressed(Input.KEY_SHIFT)) i = 4;
@@ -146,7 +167,7 @@ public class Game extends Canvas implements Runnable {
 
 		int pointX = input.getPoint()[0];
 		int pointY = input.getPoint()[1];
-		
+
 		if (pointX < 32 && pointY < 32) {
 			if (input.isKeyPressed(Input.KEY_UP)) volume.set(volume.get() + .05);
 			if (input.isKeyPressed(Input.KEY_DOWN)) volume.set(volume.get() - .05);
@@ -161,14 +182,14 @@ public class Game extends Canvas implements Runnable {
 
 		if (edit && input.isKeyPressed(Input.KEY_PRESS)) {
 			if ((pointX & level.wMask) != lastX || (pointY & level.hMask) != lastY) {
-				level.changeTile((pointX & level.wMask), (pointY & level.hMask), tile);
+				level.changeTile((pointX & level.wMask), (pointY & level.hMask), tile, input.isKeyPressed(Input.KEY_SHIFT));
+				client.sendData(level.getPacket());
 				lastX = (pointX & level.wMask);
 				lastY = (pointY & level.hMask);
 			}
 		}
 
 		if (!click && input.isKeyPressed(Input.KEY_PRESS)) {
-			level.changeTile((pointX & level.wMask), (pointY & level.hMask), tile);
 			click = true;
 		}
 		if (click && !input.isKeyPressed(Input.KEY_PRESS)) {
@@ -176,6 +197,7 @@ public class Game extends Canvas implements Runnable {
 			lastX = -1;
 			lastY = -1;
 		}
+		ticks++;
 	}
 
 	boolean click = false;
@@ -216,5 +238,10 @@ public class Game extends Canvas implements Runnable {
 	private void changeLevel(Level level) {
 		this.level = level;
 		level.init(bgm, sfx);
+		if (server == null) client.requestLevel(); 
+	}
+	
+	public Level getLevel() {
+		return level;
 	}
 }
