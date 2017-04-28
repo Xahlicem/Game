@@ -162,7 +162,6 @@ public class Game extends Canvas implements Runnable {
 		if (edit && input.isKeyPressed(Input.KEY_PRESS)) {
 			if ((pointX & level.wMask) != lastX || (pointY & level.hMask) != lastY) {
 				level.changeTile((pointX & level.wMask), (pointY & level.hMask), tile);
-				sfx.sound(127, 1);
 				lastX = (pointX & level.wMask);
 				lastY = (pointY & level.hMask);
 			}
@@ -170,7 +169,6 @@ public class Game extends Canvas implements Runnable {
 
 		if (!click && input.isKeyPressed(Input.KEY_PRESS)) {
 			level.changeTile((pointX & level.wMask), (pointY & level.hMask), tile);
-			sfx.sound(127, 1);
 			click = true;
 		}
 		if (click && !input.isKeyPressed(Input.KEY_PRESS)) {

@@ -195,6 +195,7 @@ public class Level {
 
 	public void changeTile(int x, int y, int tile) {
 		tiles[x + y * width] = tile;
+		sfx.sound(127, 1);
 		calculateEdges(x, y);
 		calculateEdges((x - 1) & wMask, y);
 		calculateEdges((x + 1) & wMask, y);
