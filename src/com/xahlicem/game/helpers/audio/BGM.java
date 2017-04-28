@@ -14,7 +14,7 @@ public class BGM {
 	public static final BGM BGM_TITLE = new BGM("BGM_TITLE");
 
 	public BGM(String name) {
-		path = "/sfx/" + name + ".mid";
+		path = "/sfx/" + name + ".MID";
 		try {
 			sound = MidiSystem.getSequence(BGMPlayer.class.getResourceAsStream(path));
 		} catch (InvalidMidiDataException | IOException e) {
@@ -24,7 +24,7 @@ public class BGM {
 	}
 
 	public BGM(String name, int track) {
-		path = "/sfx/" + name + ".mid";
+		path = "/sfx/" + name + ".MID";
 		track += 1;
 		try {
 			sound = MidiSystem.getSequence(BGMPlayer.class.getResourceAsStream(path));
