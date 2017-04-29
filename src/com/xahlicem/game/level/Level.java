@@ -15,6 +15,8 @@ import com.xahlicem.game.graphics.SpriteSheet;
 import com.xahlicem.game.helpers.audio.BGM;
 import com.xahlicem.game.helpers.audio.BGMPlayer;
 import com.xahlicem.game.helpers.audio.SFXPlayer;
+import com.xahlicem.game.helpers.net.packet.PacketLevelChange;
+import com.xahlicem.game.helpers.net.packet.Packet.PacketType;
 import com.xahlicem.game.level.tile.Tile;
 
 public class Level {
@@ -28,7 +30,8 @@ public class Level {
 	private static final Random R = new Random();
 
 	public int width, height, wMask, hMask;
-	private int[] tiles, darkness, edges;
+	private int[] tiles, darkness;
+	private byte[] edges;
 	private List<Tile> tileList = new ArrayList<Tile>();
 	private int time, light;
 	private BGM[] bgm = new BGM[] {};
@@ -94,7 +97,7 @@ public class Level {
 				darkness[i] = 0xFFFFFF;
 		}
 
-		edges = new int[width * height];
+		edges = new byte[width * height];
 
 		for (int y = 0; y < height; y++)
 			for (int x = 0; x < width; x++) {
@@ -209,43 +212,50 @@ public class Level {
 		changeTile(x, y, tile, false);
 	}
 
-	public byte[] getPacket() {
+	public PacketLevelChange getPacket() {
 
-		ByteBuffer b = ByteBuffer.allocate(4096);
-		b.put((byte) 'L');
+		ByteBuffer bytes = ByteBuffer.allocate(4096);
+		bytes.put((byte) 0);
 		// b.putInt(time);
-		b.put((byte) (time >> 24));
-		b.put((byte) (time >> 16));
-		b.put((byte) (time >> 8));
-		b.put((byte) time);
+		bytes.put((byte) (time >> 24));
+		bytes.put((byte) (time >> 16));
+		bytes.put((byte) (time >> 8));
+		bytes.put((byte) time);
 
 		for (int i = 0; i < tiles.length; i++) {
-			b.put((byte) Tile.list.indexOf(getTile(i)));
+			bytes.put((byte) Tile.list.indexOf(getTile(i)));
+
+			byte b = edges[i];
+			//bytes.put(edges[i]);
 
 			switch (darkness[i]) {
 				case DAY_LIGHT:
-					b.put((byte) 0);
+					//bytes.put((byte) 0);
 					break;
 				case MORNING_LIGHT:
-					b.put((byte) 1);
+					//bytes.put((byte) 1);
+					b |= 1 << 4;
 					break;
 				case EVENING_LIGHT:
-					b.put((byte) 2);
+					//bytes.put((byte) 2);
+					b |= 2 << 4;
 					break;
 				case DARK_LIGHT:
-					b.put((byte) 3);
+					//bytes.put((byte) 3);
+					b |= 3 << 4;
 					break;
 				case NIGHT_LIGHT:
-					b.put((byte) 4);
+					//bytes.put((byte) 4);
+					b |= 4 << 4;
 					break;
 				default:
-					b.put((byte) 5);
+					//bytes.put((byte) 5);
+					b |= 5 << 4;
 					break;
 			}
-
-			b.put((byte) edges[i]);
+			bytes.put(b);
 		}
-		return b.array();
+		return new PacketLevelChange(bytes.array());
 	}
 
 	public void addPacket(byte[] packet) {
@@ -263,7 +273,11 @@ public class Level {
 		for (int i = 0; i < tiles.length; i++) {
 			tiles[i] = Tile.list.get(packet[index++]).getColor();
 
-			switch (packet[index++]) {
+			b = packet[index++];
+			edges[i] = (byte) (b & 0xF);
+			//edges[i] = packet[index++];
+
+			switch (b >> 4) { //(packet[index++]) {
 				case 0:
 					darkness[i] = DAY_LIGHT;
 					break;
@@ -283,8 +297,6 @@ public class Level {
 					darkness[i] = MIDNIGHT_LIGHT;
 					break;
 			}
-
-			edges[i] = packet[index++];
 		}
 	}
 }

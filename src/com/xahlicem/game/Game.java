@@ -7,7 +7,6 @@ import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.util.Arrays;
 
 import javax.swing.JOptionPane;
 
@@ -19,6 +18,8 @@ import com.xahlicem.game.helpers.audio.SFXPlayer;
 import com.xahlicem.game.helpers.audio.Volume;
 import com.xahlicem.game.helpers.net.Client;
 import com.xahlicem.game.helpers.net.Server;
+import com.xahlicem.game.helpers.net.packet.PacketLevelReq;
+import com.xahlicem.game.helpers.net.packet.PacketLogin;
 import com.xahlicem.game.level.Level;
 import com.xahlicem.game.level.tile.RandomAnimatedTile;
 import com.xahlicem.game.level.tile.Tile;
@@ -87,8 +88,6 @@ public class Game extends Canvas implements Runnable {
 		boolean draw = false;
 		volume.set(0.05);
 
-		client.sendData("*PING");
-
 		changeLevel(Level.TITLE);
 
 		while (running) {
@@ -130,13 +129,16 @@ public class Game extends Canvas implements Runnable {
 	public synchronized void start() {
 		running = true;
 
+		String name = JOptionPane.showInputDialog("Please enter name");
 		String ip = "localhost";
 		if (JOptionPane.showConfirmDialog(this, "Do you want to host?") == 0) {
 			server = new Server(this);
 			server.start();
-		} else ip = JOptionPane.showInputDialog("Please enter server IP");
+		} //else ip = JOptionPane.showInputDialog("Please enter server IP");
 		client = new Client(this, ip);
 		client.start();
+		
+		new PacketLogin(name).writeData(client);
 
 		thread = new Thread(this, "Display");
 		thread.start();
@@ -155,8 +157,8 @@ public class Game extends Canvas implements Runnable {
 		input.tick();
 		sfx.tick();
 		level.tick();
-		if ((ticks % 600) == 0)client.sendData("*PING");
-		if ((ticks % 6000) == 0)client.requestLevel();
+		//if ((ticks % 600) == 0)client.sendData("*PING");
+		//if ((ticks % 6000) == 0)client.requestLevel();
 		int i = 2;
 
 		if (input.isKeyPressed(Input.KEY_SHIFT)) i = 4;
@@ -181,7 +183,7 @@ public class Game extends Canvas implements Runnable {
 		if (edit && input.isKeyPressed(Input.KEY_PRESS)) {
 			if ((pointX & level.wMask) != lastX || (pointY & level.hMask) != lastY) {
 				level.changeTile((pointX & level.wMask), (pointY & level.hMask), Tile.list.get(tile).getColor(), input.isKeyPressed(Input.KEY_SHIFT));
-				client.sendData(level.getPacket());
+				level.getPacket().writeData(client);
 				lastX = (pointX & level.wMask);
 				lastY = (pointY & level.hMask);
 			}
@@ -236,7 +238,7 @@ public class Game extends Canvas implements Runnable {
 	private void changeLevel(Level level) {
 		this.level = level;
 		level.init(bgm, sfx);
-		if (server == null) client.requestLevel(); 
+		if (server == null) new PacketLevelReq(); 
 	}
 	
 	public Level getLevel() {

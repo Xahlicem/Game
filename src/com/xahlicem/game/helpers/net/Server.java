@@ -1,24 +1,22 @@
 package com.xahlicem.game.helpers.net;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.xahlicem.game.Game;
+import com.xahlicem.game.helpers.net.packet.Packet;
+import com.xahlicem.game.helpers.net.packet.PacketLevelChange;
+import com.xahlicem.game.helpers.net.packet.PacketLogin;
 
-public class Server extends Thread {
-	private DatagramSocket socket;
-	private List<SocketAddress> clients = new ArrayList<SocketAddress>();
-	private Game game;
+public class Server extends NetWorker {
+	private List<InetSocketAddress> clients = new ArrayList<InetSocketAddress>();
+	private List<String> names = new ArrayList<String>();
 
 	public Server(Game game) {
-		this.game = game;
+		super(game);
 		try {
 			socket = new DatagramSocket(1331);
 		} catch (SocketException e) {
@@ -26,47 +24,38 @@ public class Server extends Thread {
 		}
 	}
 
-	public void run() {
-		byte[] data = new byte[4096];
-		while (true) {
-			DatagramPacket packet = new DatagramPacket(data, data.length);
-			try {
-				socket.receive(packet);
-			} catch (IOException e) {
-				e.printStackTrace();
+	@Override
+	protected void parsePacket(byte[] data, InetSocketAddress address) {
+		Packet packet = null;
+		switch(Packet.getPacketType(data[0])) {
+		default:
+		case INVALID:
+			System.out.println("Invalid..." + data[0]);
+			break;
+		case LOGIN:
+			packet = new PacketLogin(data);
+			if (!clients.contains(address)) {
+				for (String name : names) sendData(new PacketLogin(name).getData(), address);
+				clients.add(address);
+				names.add(packet.readData(data));
 			}
-
-			if (data[0] == '*') {
-				String message = new String(packet.getData()).trim().toUpperCase();
-				System.out.println("CLIENT > " + message);
-				if (message.equals("*PING")) {
-					if (!clients.contains(packet.getSocketAddress())) clients.add(packet.getSocketAddress());
-					sendData("*PONG".getBytes(), packet.getSocketAddress());
-				}
-				if (message.equals("*RLVL")) {
-					sendData(game.getLevel().getPacket(), packet.getSocketAddress());
-				}
-			}
-			if (data[0] == 'L') sendToAll(data);
+			System.out.println(packet.readData(data) + " has logged in from " + address);
+			break;
+		case DISCONNECT:
+			System.out.println("Disconnect");
+			break;
+		case LEVEL_REQ:
+			game.getLevel().getPacket().writeSingleData(this, address);
+			break;
+		case LEVEL_CHANGE:
+			packet = new PacketLevelChange(data);
+			break;
 		}
-	}
-
-	public void sendData(byte[] data, SocketAddress address) {
-		DatagramPacket packet = new DatagramPacket(data, data.length, address);
-		try {
-			socket.send(packet);
-		} catch (IOException e) {
-			e.printStackTrace();
-			clients.remove(address);
-		}
-	}
-
-	public void sendData(byte[] data, InetAddress ip, int port) {
-		sendData(data, new InetSocketAddress(ip, port));
+		if (packet != null) packet.writeData(this);
 	}
 
 	public void sendToAll(byte[] data) {
-		for (SocketAddress client : clients)
+		for (InetSocketAddress client : clients)
 			sendData(data, client);
 	}
 }

@@ -1,22 +1,21 @@
 package com.xahlicem.game.helpers.net;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
 import com.xahlicem.game.Game;
+import com.xahlicem.game.helpers.net.packet.Packet;
+import com.xahlicem.game.helpers.net.packet.PacketLogin;
 
-public class Client extends Thread {
+public class Client extends NetWorker {
 
 	private InetAddress ip;
-	private DatagramSocket socket;
-	private Game game;
 	
 	public Client(Game game, String ip) {
-		this.game = game;
+		super(game);
 		try {
 			socket = new DatagramSocket();
 			this.ip = InetAddress.getByName(ip);
@@ -25,39 +24,36 @@ public class Client extends Thread {
 			e.printStackTrace();
 		}
 	}
-	
-	public void run() {
-		byte[] data = new byte[4096];
-		while (true) {
-			DatagramPacket packet = new DatagramPacket(data, data.length);
-			try {
-				socket.receive(packet);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			//System.out.println("SERVER > " + new String(data));
-			if (data[0] == 'L') game.getLevel().addPacket(data);
+
+	@Override
+	protected void parsePacket(byte[] data, InetSocketAddress address) {
+		Packet packet;
+		switch(Packet.getPacketType(data[0])) {
+		default:
+		case INVALID:
+			System.out.println("Invalid..." + data[0]);
+			break;
+		case LOGIN:
+			packet = new PacketLogin(data);
+			System.out.println(packet.readData(data) + " has started playing");
+			break;
+		case DISCONNECT:
+			System.out.println("Disconnect");
+			break;
+		case LEVEL_REQ:
+			game.getLevel().getPacket().writeData(this);
+			break;
+		case LEVEL_CHANGE:
+			game.getLevel().addPacket(data);
+			break;
 		}
 	}
 	
 	public void sendData(byte[] data) {
-		DatagramPacket packet = new DatagramPacket(data, data.length, ip, 1331);
-		try {
-			socket.send(packet);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		sendData(data, ip, 1331);
 	}
 	
 	public void sendData(String data) {
 		sendData(data.getBytes());
-	}
-	
-	public void requestLevel() {
-		sendData("*RLVL");
-	}
-	
-	public void sendLevel() {
-		sendData(game.getLevel().getPacket());
 	}
 }
