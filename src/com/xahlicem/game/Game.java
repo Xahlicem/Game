@@ -111,7 +111,7 @@ public class Game extends Canvas implements Runnable {
 			if (draw) {
 				draw();
 				fps++;
-				//draw = false;
+				// draw = false;
 			}
 
 			if (System.currentTimeMillis() - timer > 1000) {
@@ -134,10 +134,10 @@ public class Game extends Canvas implements Runnable {
 		if (JOptionPane.showConfirmDialog(this, "Do you want to host?") == 0) {
 			server = new Server(this);
 			server.start();
-		} //else ip = JOptionPane.showInputDialog("Please enter server IP");
+		} // else ip = JOptionPane.showInputDialog("Please enter server IP");
 		client = new Client(this, ip);
 		client.start();
-		
+
 		new PacketLogin(name).writeData(client);
 
 		thread = new Thread(this, "Display");
@@ -157,8 +157,8 @@ public class Game extends Canvas implements Runnable {
 		input.tick();
 		sfx.tick();
 		level.tick();
-		//if ((ticks % 600) == 0)client.sendData("*PING");
-		//if ((ticks % 6000) == 0)client.requestLevel();
+		// if ((ticks % 600) == 0)client.sendData("*PING");
+		// if ((ticks % 6000) == 0)client.requestLevel();
 		int i = 2;
 
 		if (input.isKeyPressed(Input.KEY_SHIFT)) i = 4;
@@ -171,18 +171,31 @@ public class Game extends Canvas implements Runnable {
 		int pointX = input.getPoint()[0];
 		int pointY = input.getPoint()[1];
 
-		if (pointX < 70 && pointY < 70) {
-			volume.set(volume.get() + .05 * input.getWheel());
-		} else {
-			if (input.getWheel() != 0)tile = (Tile.list.size() * 2 + tile + input.getWheel()) % Tile.list.size();
+		boolean corner = (pointX < 74 && pointY < 74);
+		if (corner) volume.set(volume.get() + .05 * input.getWheel());
+		else if (input.getWheel() != 0) {
+			if (level.lighted()) color = (Tile.list.size() * 2 + color + input.getWheel()) % Tile.list.size();
+			else color = (Level.LIGHTS.length * 2 + color + input.getWheel()) % Level.LIGHTS.length;
 		}
 
 		pointX = (pointX / SCALE) + x >> 4;
 		pointY = (pointY / SCALE) + y >> 4;
+		xPos = (pointX & level.wMask);
+		yPos = (pointY & level.hMask);
 
 		if (edit && input.isKeyPressed(Input.KEY_PRESS)) {
 			if ((pointX & level.wMask) != lastX || (pointY & level.hMask) != lastY) {
-				level.changeTile((pointX & level.wMask), (pointY & level.hMask), Tile.list.get(tile).getColor(), input.isKeyPressed(Input.KEY_SHIFT));
+				if (corner) {
+					level.toggleLight();
+					color = 0;
+				} else {
+					if (level.lighted()) {
+						level.changeTile(xPos, yPos, Tile.list.get(color).getColor(), input.isKeyPressed(Input.KEY_SHIFT));
+					} else {
+						level.changeLight(xPos, yPos, Level.LIGHTS[color]);
+					}
+				}
+
 				level.getPacket().writeData(client);
 				lastX = (pointX & level.wMask);
 				lastY = (pointY & level.hMask);
@@ -197,14 +210,19 @@ public class Game extends Canvas implements Runnable {
 			lastX = -1;
 			lastY = -1;
 		}
+
+		if (input.isKeyPressed(Input.KEY_ESC)) {
+			level.save("save");
+		}
 		ticks++;
 	}
 
 	boolean click = false;
 	boolean edit = true;
-	int tile = 0;
+	int color = 0;
 	int x = 0, y = 0;
-	int lastX, lastY;
+	int xPos, yPos;
+	int lastX = -1, lastY = -1;
 
 	private void draw() {
 		BufferStrategy strategy = getBufferStrategy();
@@ -217,14 +235,18 @@ public class Game extends Canvas implements Runnable {
 		level.draw(x, y, screen);
 		if (edit) {
 			screen.drawSprite(x, y, Sprite.CONTAINER, 0xFFFFFFFF);
-			Tile.list.get(tile).draw(x + 2, y + 2, screen);
-			String s = String.valueOf(tile);
-			if (Tile.list.get(tile).getClass().equals(RandomAnimatedTile.class)) s += "A";
+			String s = String.valueOf(color);
+			if (level.lighted()) {
+				Tile.list.get(color).draw(x + 2, y + 2, screen);
+				if (Tile.list.get(color).getClass().equals(RandomAnimatedTile.class)) s += "A";
+			} else {
+				level.getTile(xPos, yPos).draw(x + 2, y + 2, screen, Level.LIGHTS[color]);
+			}
 			for (int i = 0; i < s.length(); i++)
 				screen.drawSprite(x + 3 + (i * 4), y + 12, Sprite.FONT[s.charAt(i)], 0xFFFFFFFF);
 		}
-		//if (Arrays.equals(pixels, backPixels)) return;
-		//System.arraycopy(pixels, 0, backPixels, 0, pixels.length);
+		// if (Arrays.equals(pixels, backPixels)) return;
+		// System.arraycopy(pixels, 0, backPixels, 0, pixels.length);
 
 		Graphics g = strategy.getDrawGraphics();
 		g.setColor(Color.BLACK);
@@ -238,9 +260,9 @@ public class Game extends Canvas implements Runnable {
 	private void changeLevel(Level level) {
 		this.level = level;
 		level.init(bgm, sfx);
-		if (server == null) new PacketLevelReq(); 
+		if (server == null) new PacketLevelReq().writeData(client);
 	}
-	
+
 	public Level getLevel() {
 		return level;
 	}

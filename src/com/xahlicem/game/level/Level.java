@@ -1,6 +1,8 @@
 package com.xahlicem.game.level;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -16,23 +18,25 @@ import com.xahlicem.game.helpers.audio.BGM;
 import com.xahlicem.game.helpers.audio.BGMPlayer;
 import com.xahlicem.game.helpers.audio.SFXPlayer;
 import com.xahlicem.game.helpers.net.packet.PacketLevelChange;
-import com.xahlicem.game.helpers.net.packet.Packet.PacketType;
 import com.xahlicem.game.level.tile.Tile;
 
 public class Level {
 
-	private static final int DAY_LIGHT = 0xFFFFFF;
-	private static final int MORNING_LIGHT = 0xC0C0C0;
-	private static final int EVENING_LIGHT = 0x80C0C0;
-	private static final int DARK_LIGHT = 0x1F1A1F;
-	private static final int NIGHT_LIGHT = 0x0A0F09;
-	private static final int MIDNIGHT_LIGHT = 0x000000;
+	private static final int DAY_LIGHT = 0xFFFFFFFF;
+	private static final int MORNING_LIGHT = 0xFFC0C0C0;
+	private static final int EVENING_LIGHT = 0xFF80C0C0;
+	private static final int DARK_LIGHT = 0xFF1F1A1F;
+	private static final int NIGHT_LIGHT = 0xFF0A0F09;
+	private static final int MIDNIGHT_LIGHT = 0xFF000000;
+	public static final int[] LIGHTS = new int[] { MIDNIGHT_LIGHT, NIGHT_LIGHT, DARK_LIGHT, EVENING_LIGHT, MORNING_LIGHT, DAY_LIGHT };
+
 	private static final Random R = new Random();
 
 	public int width, height, wMask, hMask;
-	private int[] tiles, darkness;
-	private byte[] edges;
+	private int[] tiles;
 	private List<Tile> tileList = new ArrayList<Tile>();
+	private boolean lighted = true;
+	private byte[] edges, lights;
 	private int time, light;
 	private BGM[] bgm = new BGM[] {};
 	private int bgmIndex = 0;
@@ -88,13 +92,15 @@ public class Level {
 			height = image.getHeight();
 			wMask = width - 1;
 			hMask = height - 1;
-			darkness = new int[width * height];
-			image.getRGB(0, 0, width, height, darkness, 0, width);
+			lights = new byte[width * height];
+			int[] light = new int[width * height];
+			image.getRGB(0, 0, width, height, light, 0, width);
+			convertLights(light);
 		} catch (IOException e) {
 			e.printStackTrace();
-			darkness = new int[width * height];
-			for (int i = 0; i < darkness.length; i++)
-				darkness[i] = 0xFFFFFF;
+			lights = new byte[width * height];
+			for (int i = 0; i < lights.length; i++)
+				lights[i] = 0;
 		}
 
 		edges = new byte[width * height];
@@ -103,10 +109,34 @@ public class Level {
 			for (int x = 0; x < width; x++) {
 				int i = x + y * width;
 				calculateEdges(x, y);
-				darkness[i] = darkness[i] & 0xFFFFFF;
 				tiles[i] = Tile.getRandomColor(tiles[i]);
 				if (!tileList.contains(Tile.getTile(tiles[i]))) tileList.add(Tile.getTile(tiles[i]));
 			}
+	}
+
+	private void convertLights(int[] light) {
+		for (int i = 0; i < light.length; i++) {
+			switch (light[i]) {
+			case DAY_LIGHT:
+				lights[i] = 5;
+				break;
+			case MORNING_LIGHT:
+				lights[i] = 4;
+				break;
+			case EVENING_LIGHT:
+				lights[i] = 3;
+				break;
+			case DARK_LIGHT:
+				lights[i] = 2;
+				break;
+			case NIGHT_LIGHT:
+				lights[i] = 1;
+				break;
+			default:
+				lights[i] = 0;
+				break;
+			}
+		}
 	}
 
 	private void calculateEdges(int x, int y) {
@@ -146,14 +176,14 @@ public class Level {
 		time++;
 		if (time > 2400) time = 0;
 
-		if (time >= 2250) light = NIGHT_LIGHT;
-		else if (time >= 2100) light = DARK_LIGHT;
-		else if (time >= 1900) light = EVENING_LIGHT;
-		else if (time >= 800) light = DAY_LIGHT;
-		else if (time >= 550) light = MORNING_LIGHT;
-		else if (time >= 400) light = DARK_LIGHT;
-		else if (time >= 300) light = NIGHT_LIGHT;
-		else light = MIDNIGHT_LIGHT;
+		if (time >= 2250) light = 1;
+		else if (time >= 2100) light = 2;
+		else if (time >= 1900) light = 3;
+		else if (time >= 800) light = 5;
+		else if (time >= 550) light = 4;
+		else if (time >= 400) light = 2;
+		else if (time >= 300) light = 1;
+		else light = 0;
 	}
 
 	public void draw(int xScroll, int yScroll, Screen screen) {
@@ -163,11 +193,17 @@ public class Level {
 				int i = (x & wMask) + (y & hMask) * width;
 				int x2 = x << 4;
 				int y2 = y << 4;
-				int l = darkness[i];
-				if (l < light) l = light;
+				int l = getLight(i);
 				getTile(i).draw(x2, y2, screen, l);
 				drawEdges(x, y, x2, y2, l, screen);
 			}
+	}
+
+	private int getLight(int i) {
+		if (!lighted) return LIGHTS[lights[i]];
+		int l = (lights[i] + light);
+		if (l >= LIGHTS.length) l = 5;
+		return LIGHTS[l];
 	}
 
 	private void drawEdges(int x, int y, int x2, int y2, int l, Screen screen) {
@@ -212,6 +248,14 @@ public class Level {
 		changeTile(x, y, tile, false);
 	}
 
+	public void changeLight(int i, int light) {
+		this.lights[i] = (byte) light;
+	}
+
+	public void changeLight(int x, int y, int light) {
+		changeLight(x + y * width, light);
+	}
+
 	public PacketLevelChange getPacket() {
 
 		ByteBuffer bytes = ByteBuffer.allocate(4096);
@@ -226,33 +270,7 @@ public class Level {
 			bytes.put((byte) Tile.list.indexOf(getTile(i)));
 
 			byte b = edges[i];
-			//bytes.put(edges[i]);
-
-			switch (darkness[i]) {
-				case DAY_LIGHT:
-					//bytes.put((byte) 0);
-					break;
-				case MORNING_LIGHT:
-					//bytes.put((byte) 1);
-					b |= 1 << 4;
-					break;
-				case EVENING_LIGHT:
-					//bytes.put((byte) 2);
-					b |= 2 << 4;
-					break;
-				case DARK_LIGHT:
-					//bytes.put((byte) 3);
-					b |= 3 << 4;
-					break;
-				case NIGHT_LIGHT:
-					//bytes.put((byte) 4);
-					b |= 4 << 4;
-					break;
-				default:
-					//bytes.put((byte) 5);
-					b |= 5 << 4;
-					break;
-			}
+			b |= lights[i] << 4;
 			bytes.put(b);
 		}
 		return new PacketLevelChange(bytes.array());
@@ -275,28 +293,33 @@ public class Level {
 
 			b = packet[index++];
 			edges[i] = (byte) (b & 0xF);
-			//edges[i] = packet[index++];
 
-			switch (b >> 4) { //(packet[index++]) {
-				case 0:
-					darkness[i] = DAY_LIGHT;
-					break;
-				case 1:
-					darkness[i] = MORNING_LIGHT;
-					break;
-				case 2:
-					darkness[i] = EVENING_LIGHT;
-					break;
-				case 3:
-					darkness[i] = DARK_LIGHT;
-					break;
-				case 4:
-					darkness[i] = NIGHT_LIGHT;
-					break;
-				default:
-					darkness[i] = MIDNIGHT_LIGHT;
-					break;
-			}
+			lights[i] = (byte) (b >> 4);
+		}
+	}
+
+	public void toggleLight() {
+		setLight(!lighted);
+	}
+
+	public void setLight(boolean light) {
+		lighted = light;
+	}
+
+	public boolean lighted() {
+		return lighted;
+	}
+
+	public void save(String name) {
+		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+		try {
+			System.arraycopy(tiles, 0, pixels, 0, pixels.length);
+			ImageIO.write(image, "PNG", new File(name.toUpperCase() + ".PNG"));
+			System.arraycopy(lights, 0, pixels, 0, pixels.length);
+			ImageIO.write(image, "PNG", new File(name.toUpperCase() + "_L.PNG"));
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }

@@ -15,6 +15,7 @@ public class Input implements KeyListener, MouseInputListener, MouseWheelListene
 	public static final int KEY_RIGHT = 0b001000;
 	public static final int KEY_SHIFT = 0b010000;
 	public static final int KEY_PRESS = 0b100000;
+	public static final int KEY_ESC = 0b1000000;
 
 	private int wheelPos = 0;
 	private boolean wheelMoved = false;
@@ -59,6 +60,9 @@ public class Input implements KeyListener, MouseInputListener, MouseWheelListene
 				break;
 			case KeyEvent.VK_SHIFT:
 				bit = KEY_SHIFT;
+				break;
+			case KeyEvent.VK_ESCAPE:
+				bit = KEY_ESC;
 				break;
 			default:
 				return;
