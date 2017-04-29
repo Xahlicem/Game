@@ -16,7 +16,8 @@ public class Input implements KeyListener, MouseInputListener, MouseWheelListene
 	public static final int KEY_SHIFT = 0b010000;
 	public static final int KEY_PRESS = 0b100000;
 
-	public int wheelPos = 0;
+	private int wheelPos = 0;
+	private boolean wheelMoved = false;
 	private int keys = 0;
 	private int[] point = new int[2];
 
@@ -26,6 +27,15 @@ public class Input implements KeyListener, MouseInputListener, MouseWheelListene
 
 	public int[] getPoint() {
 		return point;
+	}
+	
+	public int getWheel() {
+		return wheelPos;
+	}
+	
+	public void tick() {
+		if (!wheelMoved) wheelPos = 0; 
+		wheelMoved = false;
 	}
 
 	private void tick(int key, boolean pressed) {
@@ -105,7 +115,7 @@ public class Input implements KeyListener, MouseInputListener, MouseWheelListene
 
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
-		wheelPos += e.getWheelRotation();
+		wheelPos -= e.getWheelRotation();
+		wheelMoved = true;
 	}
-
 }

@@ -49,7 +49,7 @@ public class Game extends Canvas implements Runnable {
 
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 	private int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
-	private int[] backPixels;
+	private int[] backPixels = new int[pixels.length];
 
 	public Game() {
 		Dimension size = new Dimension(WIDTH * SCALE, HEIGHT * SCALE);
@@ -112,7 +112,7 @@ public class Game extends Canvas implements Runnable {
 			if (draw) {
 				draw();
 				fps++;
-				draw = false;
+				//draw = false;
 			}
 
 			if (System.currentTimeMillis() - timer > 1000) {
@@ -152,6 +152,7 @@ public class Game extends Canvas implements Runnable {
 	}
 
 	private void tick() {
+		input.tick();
 		sfx.tick();
 		level.tick();
 		if ((ticks % 600) == 0)client.sendData("*PING");
@@ -168,21 +169,18 @@ public class Game extends Canvas implements Runnable {
 		int pointX = input.getPoint()[0];
 		int pointY = input.getPoint()[1];
 
-		if (pointX < 32 && pointY < 32) {
-			if (input.isKeyPressed(Input.KEY_UP)) volume.set(volume.get() + .05);
-			if (input.isKeyPressed(Input.KEY_DOWN)) volume.set(volume.get() - .05);
+		if (pointX < 70 && pointY < 70) {
+			volume.set(volume.get() + .05 * input.getWheel());
+		} else {
+			if (input.getWheel() != 0)tile = (Tile.list.size() * 2 + tile + input.getWheel()) % Tile.list.size();
 		}
 
 		pointX = (pointX / SCALE) + x >> 4;
 		pointY = (pointY / SCALE) + y >> 4;
 
-		input.wheelPos = (Tile.list.size() * 2 + input.wheelPos) % Tile.list.size();
-
-		tile = Tile.list.get(input.wheelPos).getColor();
-
 		if (edit && input.isKeyPressed(Input.KEY_PRESS)) {
 			if ((pointX & level.wMask) != lastX || (pointY & level.hMask) != lastY) {
-				level.changeTile((pointX & level.wMask), (pointY & level.hMask), tile, input.isKeyPressed(Input.KEY_SHIFT));
+				level.changeTile((pointX & level.wMask), (pointY & level.hMask), Tile.list.get(tile).getColor(), input.isKeyPressed(Input.KEY_SHIFT));
 				client.sendData(level.getPacket());
 				lastX = (pointX & level.wMask);
 				lastY = (pointY & level.hMask);
@@ -217,14 +215,14 @@ public class Game extends Canvas implements Runnable {
 		level.draw(x, y, screen);
 		if (edit) {
 			screen.drawSprite(x, y, Sprite.CONTAINER, 0xFFFFFFFF);
-			Tile.getTile(tile).draw(x + 2, y + 2, screen);
-			String s = String.valueOf(input.wheelPos);
-			if (Tile.getTile(tile).getClass().equals(RandomAnimatedTile.class)) s += "A";
+			Tile.list.get(tile).draw(x + 2, y + 2, screen);
+			String s = String.valueOf(tile);
+			if (Tile.list.get(tile).getClass().equals(RandomAnimatedTile.class)) s += "A";
 			for (int i = 0; i < s.length(); i++)
 				screen.drawSprite(x + 3 + (i * 4), y + 12, Sprite.FONT[s.charAt(i)], 0xFFFFFFFF);
 		}
-		if (Arrays.equals(pixels, backPixels)) return;
-		backPixels = Arrays.copyOf(pixels, pixels.length);
+		//if (Arrays.equals(pixels, backPixels)) return;
+		//System.arraycopy(pixels, 0, backPixels, 0, pixels.length);
 
 		Graphics g = strategy.getDrawGraphics();
 		g.setColor(Color.BLACK);
