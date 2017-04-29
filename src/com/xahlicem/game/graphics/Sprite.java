@@ -37,6 +37,7 @@ public class Sprite {
 	public static final Sprite TREE_TRUNK = new Sprite(16, 16, 7, 2, SpriteSheet.TILES);
 
 	public static final Sprite[] FONT = loadFont(SpriteSheet.FONT);
+	public static final Sprite[] FONT_WHITE = loadFont(SpriteSheet.FONT_WHITE);
 
 	public Sprite(int size, int x, int y, SpriteSheet sheet) {
 		width = size;

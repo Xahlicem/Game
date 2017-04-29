@@ -243,7 +243,7 @@ public class Game extends Canvas implements Runnable {
 				level.getTile(xPos, yPos).draw(x + 2, y + 2, screen, Level.LIGHTS[color]);
 			}
 			for (int i = 0; i < s.length(); i++)
-				screen.drawSprite(x + 3 + (i * 4), y + 12, Sprite.FONT[s.charAt(i)], 0xFFFFFFFF);
+				screen.drawSprite(x + 3 + (i * 4), y + 12, (level.lighted())?Sprite.FONT[s.charAt(i)]:Sprite.FONT_WHITE[s.charAt(i)], 0xFFFFFFFF);
 		}
 		// if (Arrays.equals(pixels, backPixels)) return;
 		// System.arraycopy(pixels, 0, backPixels, 0, pixels.length);
