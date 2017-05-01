@@ -4,8 +4,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
@@ -24,19 +24,64 @@ public class Level {
 	/**
 	 * Bits that will indicate how dark a something will get
 	 */
-	private static final int BIT_LIGHT = 	0b11100000000000000000000000000000;
-	private static final int BIT_PLAYER = 	0b00010000000000000000000000000000;
-	private static final int BIT_NEXT =		0b00001000000000000000000000000000;
-	private static final int BIT_PREV = 	0b00000100000000000000000000000000;
-	private static final int BIT_RANDOM_M = 0b00000010000000000000000000000000;
-	private static final int BIT_RANDOM_T = 0b00000001000000000000000000000000;
-	private static final int BIT_MOBSET = 	0b00000000110000000000000000000000;
-	private static final int BIT_MOB = 		0b00000000001110000000000000000000;
-	private static final int BIT_ITEM = 	0b00000000000001110000000000000000;
-	private static final int BIT_TILETYPE = 0b00000000000000001111100000000000;
-	private static final int BIT_TILEVAR = 	0b00000000000000000000011100000000;
-	private static final int BIT_EDGE = 	0b00000000000000000000000011110000;
-	private static final int BIT_L_EDGE = 	0b00000000000000000000000000001111;
+	private static final int BIT_LIGHT = 	0b11100000000000000000000000000000; // 8
+	/**
+	 * Player start flag
+	 * 
+	 * player will start on random tile with flag
+	 */
+	private static final int BIT_PLAYER = 	0b00010000000000000000000000000000; // 1
+	/**
+	 * Next level flag
+	 */
+	private static final int BIT_NEXT =		0b00001000000000000000000000000000; // 1
+	/**
+	 * Previous level flag
+	 */
+	private static final int BIT_PREV = 	0b00000100000000000000000000000000; // 1
+	/**
+	 * Random mob flag
+	 */
+	private static final int BIT_RANDOM_M = 0b00000010000000000000000000000000; // 1
+	/**
+	 * Random tile flag
+	 */
+	private static final int BIT_RANDOM_T = 0b00000001000000000000000000000000; // 1
+	/**
+	 * Which mob set mob is using
+	 */
+	private static final int BIT_MOBSET = 	0b00000000111000000000000000000000; // 8
+	/**
+	 * Which mob out of mob set
+	 */
+	private static final int BIT_MOB = 		0b00000000000111100000000000000000; // 16
+	/**
+	 * What item is contained within mob/chest
+	 */
+	private static final int BIT_ITEM = 	0b00000000000000011111000000000000; // 32
+	/**
+	 * Which tile type
+	 * 
+	 * 0 - Special
+	 * 1 - Water
+	 * 2 - Dirt
+	 * 3 - Path
+	 * 4 - Grass
+	 * 5 - Tree
+	 * TODO Finish tile types
+	 */
+	private static final int BIT_TILETYPE = 0b00000000000000000000111110000000; // 32
+	/**
+	 * Which variant of tile to show
+	 * 
+	 * if BIT_RANDOM_T is set ignore
+	 */
+	private static final int BIT_TILEVAR = 	0b00000000000000000000000001110000; // 8
+	/**
+	 * Which edge to show
+	 */
+	private static final int BIT_EDGE = 	0b00000000000000000000000000001111; // 8
+	
 	private static final Random R = new Random();
 
 	public static final int MAX_BRIGHTNESS = 8;
@@ -75,14 +120,26 @@ public class Level {
 		loadLevel(path);
 	}
 
+	public Level(File file) {
+		try {
+			loadLevel(file.toURI().toURL());
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public Level(String path, BGM... bgm) {
 		loadLevel(path);
 		this.bgm = bgm;
 	}
 
 	private void loadLevel(String path) {
+		loadLevel(SpriteSheet.class.getResource(path + ".PNG"));
+	}
+	
+	private void loadLevel(URL url) {
 		try {
-			BufferedImage image = ImageIO.read(SpriteSheet.class.getResource(path + ".PNG"));
+			BufferedImage image = ImageIO.read(url);
 			width = image.getWidth();
 			height = image.getHeight();
 			wMask = width - 1;
@@ -101,11 +158,11 @@ public class Level {
 	private void calculateEdges(int x, int y) {
 		int i = x + y * width;
 		tiles[i] &= ~(BIT_EDGE);
-		int color = tiles[i] & 0xF800;
-		if ((tiles[((x - 1) & wMask) + (y & hMask) * width] & 0xF800) != color) tiles[i] |= 0b00010000;
-		if ((tiles[((x + 1) & wMask) + (y & hMask) * width] & 0xF800) != color) tiles[i] |= 0b00100000;
-		if ((tiles[(x & wMask) + ((y - 1) & hMask) * width] & 0xF800) != color) tiles[i] |= 0b01000000;
-		if ((tiles[(x & wMask) + ((y + 1) & hMask) * width] & 0xF800) != color) tiles[i] |= 0b10000000;
+		int color = tiles[i] & 0xF8;
+		if ((tiles[((x - 1) & wMask) + (y & hMask) * width] & 0xF8) != color) tiles[i] |= 0b0001;
+		if ((tiles[((x + 1) & wMask) + (y & hMask) * width] & 0xF8) != color) tiles[i] |= 0b0010;
+		if ((tiles[(x & wMask) + ((y - 1) & hMask) * width] & 0xF8) != color) tiles[i] |= 0b0100;
+		if ((tiles[(x & wMask) + ((y + 1) & hMask) * width] & 0xF8) != color) tiles[i] |= 0b1000;
 	}
 
 	private void generateLevel() {
@@ -121,7 +178,7 @@ public class Level {
 	}
 
 	public void tick() {
-		if (!midi.isPlaying()) {
+		if (bgm.length != 0 && !midi.isPlaying()) {
 			midi.setSound(bgm[bgmIndex++ % bgm.length]);
 			midi.play();
 		}
@@ -152,36 +209,40 @@ public class Level {
 				int x2 = x << 4;
 				int y2 = y << 4;
 
-				int p = getLight(i);
-				int t = getLight((x & wMask) + (y - 1 & hMask) * width);
-				int b = getLight((x & wMask) + (y + 1 & hMask) * width);
-				int l = getLight((x - 1 & wMask) + (y & hMask) * width);
-				int r = getLight((x + 1 & wMask) + (y & hMask) * width);
+				int[] lights = getLights(x, y);
 
-				getTile(i).draw(x2, y2, screen, p, t, b, l, r);
-				drawEdges(x, y, x2, y2, p, screen);
+				getTile(i).draw(x2, y2, screen, lights);
+				drawEdges(x, y, x2, y2, screen, lights);
 				if (Game.edit && (tiles[i] & BIT_RANDOM_T) != 0) screen.drawSprite(x2+7, y2+6, Sprite.FONT['R'], 8);
 			}
 	}
 
-	private void drawEdges(int x, int y, int x2, int y2, int l, Screen screen) {
+	private int[] getLights(int x, int y) {
+		int[] lights = new int[5];
+		lights[0] = getLight((x & wMask) + (y & hMask) * width);
+		lights[1] = getLight((x & wMask) + (y - 1 & hMask) * width);
+		lights[2] = getLight((x & wMask) + (y + 1 & hMask) * width);
+		lights[3] = getLight((x - 1 & wMask) + (y & hMask) * width);
+		lights[4] = getLight((x + 1 & wMask) + (y & hMask) * width);
+		return lights;
+	}
+
+	private void drawEdges(int x, int y, int x2, int y2, Screen screen, int... lights) {
 		int loc = (x & wMask) + (y & hMask) * width;
 		int[] increaseX = new int[] { -1, 1, 0, 0 };
 		int[] increaseY = new int[] { 0, 0, -1, 1 };
 		int[] edge = new int[] { 0, 2, 1, 3 };
 		int h = getTile(loc).getHeight();
 
-		int c = tiles[loc] >> 4;
-
 		for (int i = 0; i < 4; i++) {
-			if ((c >> i & 0x1) == 0x1) {
+			if ((tiles[loc] >> i & 0x1) == 0x1) {
 				Sprite[] draw = Sprite.INVISIBLE_EDGE;
 				Tile t = getTile((x + increaseX[i] & wMask) + (y + increaseY[i] & hMask) * width);
 				if (t.getBaseColor() == Tile.DIRT.getBaseColor() && t.getHeight() > h) draw = Sprite.DIRT_EDGE;
 				if (t.getBaseColor() == Tile.PATH.getBaseColor() && t.getHeight() > h) draw = Sprite.PATH_EDGE;
 				if (t.getBaseColor() == Tile.GRASS.getBaseColor() && t.getHeight() > h) draw = Sprite.GRASS_EDGE;
 				if (t.getBaseColor() == Tile.TREE.getBaseColor() && t.getHeight() > h) draw = Sprite.GRASS_EDGE;
-				screen.drawSprite(x2, y2, draw[edge[i]], l);
+				screen.drawSprite(x2, y2, draw[edge[i]], lights);
 			}
 		}
 	}
@@ -266,7 +327,7 @@ public class Level {
 			for (int i = 0; i < pixels.length; i++) {
 				if ((pixels[i] & BIT_RANDOM_T) != 0) pixels[i] &= ~(BIT_TILEVAR);
 			}
-			ImageIO.write(image, "PNG", new File(name.toUpperCase() + ".PNG"));
+			ImageIO.write(image, "PNG", new File("save/" + name.toUpperCase() + ".PNG"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

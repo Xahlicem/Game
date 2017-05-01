@@ -7,6 +7,8 @@ import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.io.File;
+import java.util.Arrays;
 
 import javax.swing.JOptionPane;
 
@@ -44,6 +46,7 @@ public class Game extends Canvas implements Runnable {
 	private Volume volume;
 	private Screen screen;
 	private Level level;
+	private File save;
 
 	private Client client;
 	private Server server;
@@ -73,8 +76,10 @@ public class Game extends Canvas implements Runnable {
 	}
 
 	public static void main(String[] args) {
+		new File("save/").mkdir();
 		Game game = new Game();
 		game.frame.init();
+		game.save = new File("save/SAVE.PNG");
 
 		game.start();
 	}
@@ -88,7 +93,8 @@ public class Game extends Canvas implements Runnable {
 		boolean draw = false;
 		volume.set(0.05);
 
-		changeLevel(Level.TITLE);
+		if (save.exists()) changeLevel(new Level(save));
+		else changeLevel(Level.TITLE);
 
 		while (running) {
 			now = System.nanoTime();
@@ -96,7 +102,7 @@ public class Game extends Canvas implements Runnable {
 			lastTime = now;
 
 			if (delta < 1) try {
-				// Thread.sleep(5);
+				Thread.sleep(5);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -130,7 +136,7 @@ public class Game extends Canvas implements Runnable {
 		running = true;
 
 		String name = JOptionPane.showInputDialog("Please enter name");
-		String ip = "localhost";
+		String ip = "10.1.10.2";
 		if (JOptionPane.showConfirmDialog(this, "Do you want to host?") == 0) {
 			server = new Server(this);
 			server.start();
@@ -167,6 +173,7 @@ public class Game extends Canvas implements Runnable {
 		if (input.isKeyPressed(Input.KEY_DOWN)) y += i;
 		if (input.isKeyPressed(Input.KEY_LEFT)) x -= i;
 		if (input.isKeyPressed(Input.KEY_RIGHT)) x += i;
+		edit = input.isKeyPressed(Input.KEY_E);
 
 		int pointX = input.getPoint()[0];
 		int pointY = input.getPoint()[1];
@@ -245,8 +252,8 @@ public class Game extends Canvas implements Runnable {
 			for (int i = 0; i < s.length(); i++)
 				screen.drawSprite(x + 3 + (i * 4), y + 12, (level.lighted()) ? Sprite.FONT[s.charAt(i)] : Sprite.FONT_WHITE[s.charAt(i)], 8);
 		}
-		// if (Arrays.equals(pixels, backPixels)) return;
-		// System.arraycopy(pixels, 0, backPixels, 0, pixels.length);
+		if (Arrays.equals(pixels, backPixels)) return;
+		System.arraycopy(pixels, 0, backPixels, 0, pixels.length);
 
 		Graphics g = strategy.getDrawGraphics();
 		g.setColor(Color.BLACK);

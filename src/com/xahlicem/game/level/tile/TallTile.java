@@ -17,9 +17,9 @@ public class TallTile extends Tile {
 		for (int i = 1; i < sprites.length; i++) screen.drawSprite(x, y - sprite.height * i, sprites[i], darkness);
 	}
 	
-	public void draw(int x, int y, Screen screen, int darkness, int t, int b, int l, int r) {
-		screen.drawSprite(x, y, sprite, darkness, t, b, l, r);
-		for (int i = 1; i < sprites.length; i++) screen.drawSprite(x, y - sprite.height * i, sprites[i], darkness, t, b ,l, r);
+	public void draw(int x, int y, Screen screen, int... lights) {
+		screen.drawSprite(x, y, sprite, lights[0], lights[0], lights[2], lights[3], lights[4]);
+		for (int i = 1; i < sprites.length; i++) screen.drawSprite(x, y - sprite.height * i, sprites[i], lights[0], lights[0], lights[0], lights[3], lights[4]);
 	}
 
 }

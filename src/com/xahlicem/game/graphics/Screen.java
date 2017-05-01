@@ -45,12 +45,12 @@ public class Screen {
 		}
 	}
 
-	public void drawSprite(int xPos, int yPos, Sprite sprite, int darkness, int top, int bottom, int left, int right) {
-		float t = (float) (top+darkness / (sprite.width >> 1)) * .5F;
-		float b = (float) (bottom+darkness / (sprite.width >> 1)) * .5F;
-		float l = (float) (left+darkness / (sprite.width >> 1)) * .5F;
-		float r = (float) (right+darkness / (sprite.width >> 1)) * .5F;
-		float p = t;
+	public void drawSprite(int xPos, int yPos, Sprite sprite, int... lights) {
+		float top = (float) (lights[1]+lights[0] / (sprite.width >> 1)) * .5F;
+		float bottom = (float) (lights[2]+lights[0] / (sprite.width >> 1)) * .5F;
+		float left = (float) (lights[3]+lights[0] / (sprite.width >> 1)) * .5F;
+		float right = (float) (lights[4]+lights[0] / (sprite.width >> 1)) * .5F;
+		float light = top;
 
 		xPos -= xOffset;
 		yPos -= yOffset;
@@ -64,13 +64,13 @@ public class Screen {
 				if (xa < 0 || xa >= width) continue;
 				int color = sprite.pixels[x + w - 1 + (y + h - 1) * sprite.width];
 				if (color == INVISIBLE) continue;
-				if (y <= 0) p = t;
-				if (y > 0) p = b;
-				if (x <= 0) p += l;
-				if (x > 0) p += r;
+				if (y <= 0) light = top;
+				if (y > 0) light = bottom;
+				if (x <= 0) light += left;
+				if (x > 0) light += right;
 				//p *= .5F;
 				// if (p < 0) p = 0;
-				pixels[xa + ya * width] = makeDarker(color, (darkness + p));
+				pixels[xa + ya * width] = makeDarker(color, (lights[0] + light));
 			}
 		}
 	}

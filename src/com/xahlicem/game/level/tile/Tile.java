@@ -89,7 +89,7 @@ public class Tile {
 	}
 
 	public static Tile getTile(int color) {
-		int tile = (color >> 8) & 0xFF;
+		int tile = (color >> 4) & 0xFF;
 		if (!tileMap.containsKey(tile)) return NULL;
 		return tileMap.get(tile);
 	}
@@ -109,7 +109,7 @@ public class Tile {
 	}
 
 	public int getColor() {
-		return (type.get() | varient) << 8;
+		return (type.get() | varient) << 4;
 	}
 
 	public int getHeight() {
@@ -117,7 +117,7 @@ public class Tile {
 	}
 
 	public int getBaseColor() {
-		return type.get() << 8;
+		return type.get() << 4;
 	}
 	
 	public int getIndex() {
@@ -131,7 +131,7 @@ public class Tile {
 
 	public int getRandomColor() {
 		if (type.getIndex() <= 1) return this.getColor();
-		return (type.get() | R.nextInt(type.getIndex())) << 8;
+		return (type.get() | R.nextInt(type.getIndex())) << 4;
 	}
 
 	public static int getRandomColor(int tile) {
@@ -160,7 +160,7 @@ public class Tile {
 		return NULL;
 	}
 
-	public void draw(int x2, int y2, Screen screen, int p, int t, int b, int l, int r) {
-		screen.drawSprite(x2, y2, sprite, p, t, b, l, r);
+	public void draw(int x2, int y2, Screen screen, int... lights) {
+		screen.drawSprite(x2, y2, sprite, lights);
 	}
 }
