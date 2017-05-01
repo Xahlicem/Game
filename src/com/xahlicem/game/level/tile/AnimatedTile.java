@@ -10,14 +10,14 @@ public class AnimatedTile extends Tile {
 	protected AnimatedSprite sprites;
 	protected int currentFrame = 0;
 
-	public AnimatedTile(int[] delay, AnimatedSprite sprites, int color) {
-		super(sprites, color);
+	public AnimatedTile(TileType type, AnimatedSprite sprites, int[] delay) {
+		super(type, sprites);
 		this.sprites = sprites;
 		this.delay = delay;
 	}
 
-	public AnimatedTile(int delay, AnimatedSprite sprites, int color) {
-		super(sprites, color);
+	public AnimatedTile(TileType type, AnimatedSprite sprites, int delay) {
+		super(type, sprites);
 		this.sprites = sprites;
 		if (delay <= 0) delay = 1;
 		this.delay = new int[] { delay };

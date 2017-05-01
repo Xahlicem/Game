@@ -42,6 +42,7 @@ public class Server extends NetWorker {
 			System.out.println(packet.readData(data) + " has logged in from " + address);
 			break;
 		case DISCONNECT:
+			clients.remove(address);
 			System.out.println("Disconnect");
 			break;
 		case LEVEL_REQ:

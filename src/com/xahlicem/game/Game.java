@@ -96,7 +96,7 @@ public class Game extends Canvas implements Runnable {
 			lastTime = now;
 
 			if (delta < 1) try {
-				Thread.sleep(5);
+				// Thread.sleep(5);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -174,8 +174,8 @@ public class Game extends Canvas implements Runnable {
 		boolean corner = (pointX < 74 && pointY < 74);
 		if (corner) volume.set(volume.get() + .05 * input.getWheel());
 		else if (input.getWheel() != 0) {
-			if (level.lighted()) color = (Tile.list.size() * 2 + color + input.getWheel()) % Tile.list.size();
-			else color = (Level.LIGHTS.length * 2 + color + input.getWheel()) % Level.LIGHTS.length;
+			if (level.lighted()) color = (Tile.getTileIndexLength() * 2 + color + input.getWheel()) % Tile.getTileIndexLength();
+			else color = (Level.MAX_BRIGHTNESS * 2 + color + input.getWheel()) % Level.MAX_BRIGHTNESS;
 		}
 
 		pointX = (pointX / SCALE) + x >> 4;
@@ -190,9 +190,9 @@ public class Game extends Canvas implements Runnable {
 					color = 0;
 				} else {
 					if (level.lighted()) {
-						level.changeTile(xPos, yPos, Tile.list.get(color).getColor(), input.isKeyPressed(Input.KEY_SHIFT));
+						level.changeTile(xPos, yPos, Tile.getTileFromIndex(color).getColor(), input.isKeyPressed(Input.KEY_SHIFT));
 					} else {
-						level.changeLight(xPos, yPos, Level.LIGHTS[color]);
+						level.changeLight(xPos, yPos, color);
 					}
 				}
 
@@ -218,7 +218,7 @@ public class Game extends Canvas implements Runnable {
 	}
 
 	boolean click = false;
-	boolean edit = true;
+	public static boolean edit = true;
 	int color = 0;
 	int x = 0, y = 0;
 	int xPos, yPos;
@@ -234,16 +234,16 @@ public class Game extends Canvas implements Runnable {
 		// screen.clear();
 		level.draw(x, y, screen);
 		if (edit) {
-			screen.drawSprite(x, y, Sprite.CONTAINER, 0xFFFFFFFF);
+			screen.drawSprite(x, y, Sprite.CONTAINER, 8);
 			String s = String.valueOf(color);
 			if (level.lighted()) {
-				Tile.list.get(color).draw(x + 2, y + 2, screen);
-				if (Tile.list.get(color).getClass().equals(RandomAnimatedTile.class)) s += "A";
+				Tile.getTileFromIndex(color).draw(x + 2, y + 2, screen);
+				if (Tile.getTileFromIndex(color).getClass().equals(RandomAnimatedTile.class)) s += "A";
 			} else {
-				level.getTile(xPos, yPos).draw(x + 2, y + 2, screen, Level.LIGHTS[color]);
+				level.getTile(xPos, yPos).draw(x + 2, y + 2, screen, color);
 			}
 			for (int i = 0; i < s.length(); i++)
-				screen.drawSprite(x + 3 + (i * 4), y + 12, (level.lighted())?Sprite.FONT[s.charAt(i)]:Sprite.FONT_WHITE[s.charAt(i)], 0xFFFFFFFF);
+				screen.drawSprite(x + 3 + (i * 4), y + 12, (level.lighted()) ? Sprite.FONT[s.charAt(i)] : Sprite.FONT_WHITE[s.charAt(i)], 8);
 		}
 		// if (Arrays.equals(pixels, backPixels)) return;
 		// System.arraycopy(pixels, 0, backPixels, 0, pixels.length);

@@ -18,7 +18,7 @@ public abstract class NetWorker extends Thread{
 	
 	public void run() {
 		while (true) {
-			byte[] data = new byte[4096];
+			byte[] data = new byte[10240];
 			DatagramPacket packet = new DatagramPacket(data, data.length);
 			try {
 				socket.receive(packet);
