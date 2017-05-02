@@ -7,7 +7,7 @@ public class Sprite {
 	protected SpriteSheet sheet;
 
 	public static final Sprite INVISIBLE = new Sprite(16, 0xFF88FF);
-	public static final Sprite[] INVISIBLE_EDGE = rotateAll(INVISIBLE);
+	public static final Sprite[] INVISIBLE_EDGE = generateEdge(INVISIBLE);
 	
 	public static final Sprite NULL = new Sprite(16, 0xFF66FF);
 	
@@ -15,17 +15,17 @@ public class Sprite {
 	public static final AnimatedSprite WATER = new AnimatedSprite(4, 16, 0, 0, SpriteSheet.TILES);
 	
 	public static final Sprite DIRT = new Sprite(16, 1, 0, SpriteSheet.TILES);
-	public static final Sprite[] DIRT_EDGE = rotateAll(16, 16, 1, 1, SpriteSheet.TILES);
+	public static final Sprite[] DIRT_EDGE = generateEdge(16, 16, 1, 1, SpriteSheet.TILES);
 	public static final Sprite DIRT_GRASS = new Sprite(16, 1, 2, SpriteSheet.TILES);
 	public static final Sprite DIRT_CRACKED = new Sprite(16, 1, 3, SpriteSheet.TILES);
 
 	public static final Sprite PATH = new Sprite(16, 2, 0, SpriteSheet.TILES);
-	public static final Sprite[] PATH_EDGE = rotateAll(16, 16, 2, 1, SpriteSheet.TILES);
+	public static final Sprite[] PATH_EDGE = generateEdge(16, 16, 2, 1, SpriteSheet.TILES);
 	public static final Sprite PATH_GRASS = new Sprite(16, 2, 2, SpriteSheet.TILES);
 	public static final Sprite PATH_CRACKED = new Sprite(16, 2, 3, SpriteSheet.TILES);
 
 	public static final Sprite GRASS = new Sprite(16, 3, 0, SpriteSheet.TILES);
-	public static final Sprite[] GRASS_EDGE = rotateAll(16, 16, 3, 1, SpriteSheet.TILES);
+	public static final Sprite[] GRASS_EDGE = generateEdge(16, 16, 3, 1, SpriteSheet.TILES);
 	public static final Sprite GRASS_ROCK = new Sprite(16, 3, 2, SpriteSheet.TILES);
 	public static final Sprite SMALL_FLOWERS = new Sprite(16, 3, 3, SpriteSheet.TILES);
 	public static final AnimatedSprite GRASS_GROWN = new AnimatedSprite(4, 16, 4, 0, SpriteSheet.TILES);
@@ -35,9 +35,13 @@ public class Sprite {
 	public static final Sprite TREE_TOP = new Sprite(16, 16, 7, 0, SpriteSheet.TILES);
 	public static final Sprite TREE_MIDDLE = new Sprite(16, 16, 7, 1, SpriteSheet.TILES);
 	public static final Sprite TREE_TRUNK = new Sprite(16, 16, 7, 2, SpriteSheet.TILES);
+	
+	public static final Sprite[][] EDGES = new Sprite[][]{
+			INVISIBLE_EDGE, DIRT_EDGE, PATH_EDGE, GRASS_EDGE
+	};
 
 	public static final Sprite[] FONT = loadFont(SpriteSheet.FONT);
-	public static final Sprite[] FONT_WHITE = loadFont(SpriteSheet.FONT_WHITE);
+	public static final Sprite[] FONT_TINY = loadFont(SpriteSheet.FONT_TINY);
 
 	public Sprite(int size, int x, int y, SpriteSheet sheet) {
 		width = size;
@@ -105,24 +109,17 @@ public class Sprite {
 		return rotate(1);
 	}
 
-	protected static Sprite[] rotateAll(int width, int height, int x, int y, SpriteSheet sheet) {
-		Sprite[] ret = new Sprite[4];
-
-		ret[0] = new Sprite(width, height, x, y, sheet);
-		ret[1] = ret[0].rotate();
-		ret[2] = ret[1].rotate();
-		ret[3] = ret[2].rotate();
-
-		return ret;
+	protected static Sprite[] generateEdge(int width, int height, int x, int y, SpriteSheet sheet) {
+		return generateEdge(new Sprite(width, height, x, y, sheet));
 	}
 	
-	protected static Sprite[] rotateAll(Sprite s) {
+	protected static Sprite[] generateEdge(Sprite s) {
 		Sprite[] ret = new Sprite[4];
 
-		ret[0] = s;
-		ret[1] = ret[0].rotate();
+		ret[3] = s;
+		ret[1] = ret[3].rotate();
 		ret[2] = ret[1].rotate();
-		ret[3] = ret[2].rotate();
+		ret[0] = ret[2].rotate();
 
 		return ret;
 	}

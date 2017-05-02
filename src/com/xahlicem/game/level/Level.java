@@ -21,6 +21,8 @@ import com.xahlicem.game.helpers.net.packet.PacketLevelChange;
 import com.xahlicem.game.level.tile.Tile;
 
 public class Level {
+	
+	 
 	/**
 	 * Bits that will indicate how dark a something will get
 	 */
@@ -79,6 +81,11 @@ public class Level {
 	private static final int BIT_TILEVAR = 	0b00000000000000000000000001110000; // 8
 	/**
 	 * Which edge to show
+	 * 
+	 * 0b0001 = Top
+	 * 0b0010 = Bottom
+	 * 0b0100 = Left
+	 * 0b1000 = Right
 	 */
 	private static final int BIT_EDGE = 	0b00000000000000000000000000001111; // 8
 	
@@ -86,7 +93,7 @@ public class Level {
 
 	public static final int MAX_BRIGHTNESS = 8;
 
-	public int width, height, wMask, hMask;
+	public int width, height;
 	private int[] tiles;
 	private boolean lighted = true;
 	private int time, darkness;
@@ -100,8 +107,6 @@ public class Level {
 	public Level(int width, int height) {
 		this.width = width;
 		this.height = height;
-		wMask = width - 1;
-		hMask = height - 1;
 		tiles = new int[width * height];
 		generateLevel();
 	}
@@ -109,8 +114,6 @@ public class Level {
 	public Level(int width, int height, BGM... bgm) {
 		this.width = width;
 		this.height = height;
-		wMask = width - 1;
-		hMask = height - 1;
 		this.bgm = bgm;
 		tiles = new int[width * height];
 		generateLevel();
@@ -142,8 +145,6 @@ public class Level {
 			BufferedImage image = ImageIO.read(url);
 			width = image.getWidth();
 			height = image.getHeight();
-			wMask = width - 1;
-			hMask = height - 1;
 			tiles = new int[width * height];
 			image.getRGB(0, 0, width, height, tiles, 0, width);
 		} catch (IOException e) {
@@ -155,21 +156,29 @@ public class Level {
 				if ((tiles[x + y * width] & BIT_RANDOM_T) != 0) changeTile(x, y, tiles[x + y * width], true);
 	}
 
-	private void calculateEdges(int x, int y) {
-		int i = x + y * width;
+	private void calculateEdge(int x, int y) {
+		int i = getPos(x, y);
 		tiles[i] &= ~(BIT_EDGE);
-		int color = tiles[i] & 0xF8;
-		if ((tiles[((x - 1) & wMask) + (y & hMask) * width] & 0xF8) != color) tiles[i] |= 0b0001;
-		if ((tiles[((x + 1) & wMask) + (y & hMask) * width] & 0xF8) != color) tiles[i] |= 0b0010;
-		if ((tiles[(x & wMask) + ((y - 1) & hMask) * width] & 0xF8) != color) tiles[i] |= 0b0100;
-		if ((tiles[(x & wMask) + ((y + 1) & hMask) * width] & 0xF8) != color) tiles[i] |= 0b1000;
+		int color = tiles[i] & BIT_TILETYPE;
+		if ((tiles[getPos(x, y+1)] & BIT_TILETYPE) != color) tiles[i] |= 0b0001;
+		if ((tiles[getPos(x, y-1)] & BIT_TILETYPE) != color) tiles[i] |= 0b0010;
+		if ((tiles[getPos(x+1, y)] & BIT_TILETYPE) != color) tiles[i] |= 0b0100;
+		if ((tiles[getPos(x-1, y)] & BIT_TILETYPE) != color) tiles[i] |= 0b1000;
+	}
+
+
+	private void calculateEdges(int x, int y) {
+		calculateEdge(x, y);
+		calculateEdge(x, y-1);
+		calculateEdge(x, y+1);
+		calculateEdge(x-1, y);
+		calculateEdge(x+1, y);
 	}
 
 	private void generateLevel() {
+		for (int i = 0; i < tiles.length; i++) tiles[i] = (R.nextInt(5) + 1) << 7;
 		for (int y = 0; y < height; y++)
-			for (int x = 0; x < width; x++) {
-				tiles[x + y * width] = R.nextInt(10);
-			}
+			for (int x = 0; x < width; x++) calculateEdge(x, y);
 	}
 
 	public void init(BGMPlayer midi, SFXPlayer sfx) {
@@ -203,9 +212,9 @@ public class Level {
 
 	public void draw(int xScroll, int yScroll, Screen screen) {
 		screen.setOffset(xScroll, yScroll);
-		for (int y = yScroll >> 4; y <= (yScroll + screen.height + 32) >> 4; y++)
-			for (int x = xScroll >> 4; x <= (xScroll + screen.width) >> 4; x++) {
-				int i = (x & wMask) + (y & hMask) * width;
+		for (int y = yScroll >> 4; y <= (yScroll + Screen.HEIGHT + 32) >> 4; y++)
+			for (int x = xScroll >> 4; x <= (xScroll + Screen.WIDTH) >> 4; x++) {
+				int i = getPos(x, y);
 				int x2 = x << 4;
 				int y2 = y << 4;
 
@@ -219,30 +228,24 @@ public class Level {
 
 	private int[] getLights(int x, int y) {
 		int[] lights = new int[5];
-		lights[0] = getLight((x & wMask) + (y & hMask) * width);
-		lights[1] = getLight((x & wMask) + (y - 1 & hMask) * width);
-		lights[2] = getLight((x & wMask) + (y + 1 & hMask) * width);
-		lights[3] = getLight((x - 1 & wMask) + (y & hMask) * width);
-		lights[4] = getLight((x + 1 & wMask) + (y & hMask) * width);
+		lights[0] = getLight(x, y);
+		lights[1] = getLight(x, y - 1);
+		lights[2] = getLight(x, y + 1);
+		lights[3] = getLight(x - 1, y);
+		lights[4] = getLight(x + 1, y);
 		return lights;
 	}
 
 	private void drawEdges(int x, int y, int x2, int y2, Screen screen, int... lights) {
-		int loc = (x & wMask) + (y & hMask) * width;
-		int[] increaseX = new int[] { -1, 1, 0, 0 };
-		int[] increaseY = new int[] { 0, 0, -1, 1 };
-		int[] edge = new int[] { 0, 2, 1, 3 };
+		int loc = getPos(x, y);
+		int[] increaseY = new int[] {  1, -1, 0, 0 };
+		int[] increaseX = new int[] { 0, 0, 1, -1 };
 		int h = getTile(loc).getHeight();
 
 		for (int i = 0; i < 4; i++) {
-			if ((tiles[loc] >> i & 0x1) == 0x1) {
-				Sprite[] draw = Sprite.INVISIBLE_EDGE;
-				Tile t = getTile((x + increaseX[i] & wMask) + (y + increaseY[i] & hMask) * width);
-				if (t.getBaseColor() == Tile.DIRT.getBaseColor() && t.getHeight() > h) draw = Sprite.DIRT_EDGE;
-				if (t.getBaseColor() == Tile.PATH.getBaseColor() && t.getHeight() > h) draw = Sprite.PATH_EDGE;
-				if (t.getBaseColor() == Tile.GRASS.getBaseColor() && t.getHeight() > h) draw = Sprite.GRASS_EDGE;
-				if (t.getBaseColor() == Tile.TREE.getBaseColor() && t.getHeight() > h) draw = Sprite.GRASS_EDGE;
-				screen.drawSprite(x2, y2, draw[edge[i]], lights);
+			if (((tiles[loc] >> i) & 0x1) == 0x1) {
+				int t = getTile(getPos(x + increaseX[i], y + increaseY[i])).getHeight();
+				if (t > h) screen.drawSprite(x2, y2, Sprite.EDGES[t][i], lights);
 			}
 		}
 	}
@@ -256,7 +259,7 @@ public class Level {
 	}
 
 	public void changeTile(int x, int y, int tile, boolean random) {
-		int i = x + y * width;
+		int i = getPos(x, y);
 		tiles[i] &= ~(BIT_TILETYPE | BIT_TILEVAR);
 
 		if (random) tiles[i] |= Tile.getRandomColor(tile) | BIT_RANDOM_T;
@@ -268,6 +271,7 @@ public class Level {
 		if (sfx != null) sfx.sound(127, 1);
 
 		calculateEdges(x, y);
+		System.out.println(x + ", " + y + " - " + Integer.toBinaryString(tiles[i]));
 	}
 
 	public void changeTile(int x, int y, int tile) {
@@ -282,14 +286,12 @@ public class Level {
 	}
 
 	public int getLight(int x, int y) {
-		return getLight(x + y * width);
+		return getLight(getPos(x, y));
 	}
 
 	public void changeLight(int i, int light) {
 		tiles[i] &= ~(BIT_LIGHT);
 		tiles[i] |= light << 29;
-		System.out.println(getLight(i));
-		// System.out.println(String.format("%d", tiles[i] >> 29));
 	}
 
 	public void changeLight(int x, int y, int light) {
@@ -298,6 +300,24 @@ public class Level {
 
 	public PacketLevelChange getPacket() {
 		return new PacketLevelChange(width, height, time, tiles);
+	}
+	
+	public int getX(int i) {
+		if (i < width && i > 0) return i;
+		int x = i % width;
+		if (x < 0) return x+width;
+		return x;
+	}
+	
+	public int getY(int i) {
+		if (i < height && i > 0) return i;
+		int y = i % height;
+		if (y < 0) return y+height;
+		return y;
+	}
+	
+	public int getPos(int x, int y) {
+		return getX(x) + getY(y) * width;
 	}
 
 	public void addPacket(PacketLevelChange packet) {

@@ -12,8 +12,8 @@ public class SpriteSheet {
 	public int[] pixels;
 
 	public static final SpriteSheet TILES = new SpriteSheet("/textures/TILES.PNG");
-	public static final SpriteSheet FONT = new SpriteSheet("/textures/FONT_TINY.PNG");
-	public static final SpriteSheet FONT_WHITE = new SpriteSheet("/textures/FONT_TINY_WHITE.PNG");
+	public static final SpriteSheet FONT = new SpriteSheet("/textures/FONT.PNG");
+	public static final SpriteSheet FONT_TINY = new SpriteSheet("/textures/FONT_TINY.PNG");
 
 	public SpriteSheet(String path) {
 		this.path = path;
