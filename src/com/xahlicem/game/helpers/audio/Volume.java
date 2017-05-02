@@ -49,10 +49,22 @@ public class Volume {
 		if (value > 1.0) value = 1;
 		if (value < 0.0) value = 0;
 		volCtrl.setValue((float) value);
+		line.close();
 	}
 
 	public float get() {
-		return volCtrl.getValue();
+		try {
+			init();
+			line.open();
+			// Assuming getControl call succeeds,
+			// we now have our LINE_IN VOLUME control.
+			volCtrl = (FloatControl) line.getControl(FloatControl.Type.VOLUME);
+		} catch (LineUnavailableException e) {
+			e.printStackTrace();
+		}
+		float ret = volCtrl.getValue();
+		line.close();
+		return ret;
 	}
 
 }

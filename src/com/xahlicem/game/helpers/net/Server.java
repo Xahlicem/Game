@@ -9,6 +9,7 @@ import java.util.List;
 import com.xahlicem.game.Game;
 import com.xahlicem.game.helpers.net.packet.Packet;
 import com.xahlicem.game.helpers.net.packet.PacketLevelChange;
+import com.xahlicem.game.helpers.net.packet.PacketLevelTime;
 import com.xahlicem.game.helpers.net.packet.PacketLogin;
 
 public class Server extends NetWorker {
@@ -46,10 +47,13 @@ public class Server extends NetWorker {
 			System.out.println("Disconnect");
 			break;
 		case LEVEL_REQ:
-			game.getLevel().getPacket().writeSingleData(this, address);
+			game.getLevel().sendChangeTo(this, address);
 			break;
 		case LEVEL_CHANGE:
 			packet = new PacketLevelChange(data);
+			break;
+		case LEVEL_TIME:
+			packet = new PacketLevelTime(data);
 			break;
 		}
 		if (packet != null) packet.writeData(this);

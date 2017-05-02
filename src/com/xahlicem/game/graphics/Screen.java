@@ -58,9 +58,9 @@ public class Screen  extends Canvas {
 			if (ya < 0 || ya >= HEIGHT) continue;
 			for (int x = 0; x < sprite.width; x++) {
 				int xa = x + xPos;
-				if (xa < 0 || xa >= WIDTH) continue;
 				int color = sprite.pixels[x + y * sprite.width];
-				if (color == INVISIBLE) continue;
+				if (xa < 0 || xa >= WIDTH || color == INVISIBLE) continue;
+				
 				pixels[xa + ya * WIDTH] = makeDarker(color, darkness);
 			}
 		}
@@ -82,13 +82,14 @@ public class Screen  extends Canvas {
 			if (ya < 0 || ya >= HEIGHT) continue;
 			for (int x = -w + 1; x < w + 1; x++) {
 				int xa = x + h - 1 + xPos;
-				if (xa < 0 || xa >= WIDTH) continue;
 				int color = sprite.pixels[x + w - 1 + (y + h - 1) * sprite.width];
-				if (color == INVISIBLE) continue;
+				if (xa < 0 || xa >= WIDTH || color == INVISIBLE) continue;
+				
 				if (y <= 0) light = top;
 				if (y > 0) light = bottom;
 				if (x <= 0) light += left;
 				if (x > 0) light += right;
+				
 				pixels[xa + ya * WIDTH] = makeDarker(color, (lights[0] + light));
 			}
 		}
@@ -102,8 +103,8 @@ public class Screen  extends Canvas {
 			if (ya < 0 || ya >= HEIGHT) continue;
 			for (int x = 0; x < sprite.width; x++) {
 				int xa = x + xPos;
-				if (xa < 0 || xa >= WIDTH) continue;
-				if (sprite.pixels[x + y * sprite.width] == INVISIBLE) continue;
+				if (xa < 0 || xa >= WIDTH || sprite.pixels[x + y * sprite.width] == INVISIBLE) continue;
+				
 				pixels[xa + ya * WIDTH] = color;
 			}
 		}

@@ -17,16 +17,21 @@ public abstract class NetWorker extends Thread{
 	}
 	
 	public void run() {
-		while (true) {
+		while (Game.running) {
 			byte[] data = new byte[10240];
 			DatagramPacket packet = new DatagramPacket(data, data.length);
 			try {
 				socket.receive(packet);
-			} catch (IOException e) {
+				parsePacket(packet);
+			} catch (IllegalArgumentException | IOException e) {
+				if (e.getLocalizedMessage().equals("socket closed")) return;
 				e.printStackTrace();
 			}
-			parsePacket(packet);
 		}
+	}
+	
+	public void close() {
+		socket.close();
 	}
 
 	protected abstract void parsePacket(byte[] data, InetSocketAddress address);

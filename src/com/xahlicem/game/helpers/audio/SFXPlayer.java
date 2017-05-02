@@ -20,38 +20,39 @@ public class SFXPlayer {
 		try {
 			synth = MidiSystem.getSynthesizer();
 			synth.open();
-		    channels = synth.getChannels();
-		    synth.loadAllInstruments(synth.getDefaultSoundbank());
+			channels = synth.getChannels();
+			synth.loadAllInstruments(synth.getDefaultSoundbank());
 		} catch (MidiUnavailableException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void tick() {
 		for (MidiChannel channel : ticks.keySet()) {
-			ticks.put(channel, ticks.get(channel)-1);
+			ticks.put(channel, ticks.get(channel) - 1);
 			if (ticks.get(channel) == 0) channel.allNotesOff();
 		}
 	}
-	
+
 	public void sound(int sound, int time) {
 		channelIndex++;
 		if (channelIndex >= MAX_CHANNELS) channelIndex = CHANNELS_START;
-	    // Check for null; maybe not all 16 channels exist.
-	    if (channels[channelIndex] != null) {
-	    	ticks.put(channels[channelIndex], time);
-	    	channels[channelIndex].programChange(sound);
-	        channels[channelIndex].noteOn(60, 93); 
-	    }
+		// Check for null; maybe not all 16 channels exist.
+		if (channels[channelIndex] != null) {
+			ticks.put(channels[channelIndex], time);
+			channels[channelIndex].programChange(sound);
+			channels[channelIndex].noteOn(60, 93);
+		}
 	}
 
-	public void mute() {
-	}
+	public void mute() {}
 
-	public void unMute() {
-	}
-	
+	public void unMute() {}
+
 	public void close() {
+		for (MidiChannel channel : channels)
+			channel.allNotesOff();
+
 		synth.close();
 	}
 }

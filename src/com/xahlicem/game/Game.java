@@ -5,7 +5,6 @@ import java.io.File;
 import javax.swing.JOptionPane;
 
 import com.xahlicem.game.graphics.Screen;
-import com.xahlicem.game.graphics.Sprite;
 import com.xahlicem.game.helpers.Input;
 import com.xahlicem.game.helpers.audio.BGMPlayer;
 import com.xahlicem.game.helpers.audio.SFXPlayer;
@@ -15,24 +14,21 @@ import com.xahlicem.game.helpers.net.Server;
 import com.xahlicem.game.helpers.net.packet.PacketLevelReq;
 import com.xahlicem.game.helpers.net.packet.PacketLogin;
 import com.xahlicem.game.level.Level;
-import com.xahlicem.game.level.MenuLevel;
-import com.xahlicem.game.level.tile.RandomAnimatedTile;
-import com.xahlicem.game.level.tile.Tile;
-import com.xahlicem.game.thing.MobileThing;
 
 public class Game implements Runnable {
 	private static final double TPS = 60D;
 	private static final double NSPT = 1_000_000_000D / TPS;
 
 	public static final String TITLE = "Game";
+	public static final Volume volume = new Volume();
 
+	public static boolean running;
+	
 	private Thread thread;
 	private Frame frame;
-	private boolean running;
 	private Input input;
 	private BGMPlayer bgm;
 	private SFXPlayer sfx;
-	private Volume volume;
 	private Screen screen;
 	private Level level;
 	private File save;
@@ -48,7 +44,6 @@ public class Game implements Runnable {
 
 		bgm = new BGMPlayer();
 		sfx = new SFXPlayer();
-		volume = new Volume();
 	}
 
 	public static void main(String[] args) {
@@ -69,9 +64,9 @@ public class Game implements Runnable {
 		boolean draw = false;
 		volume.set(0.05);
 
-		// if (save.exists()) changeLevel(new Level(save));
-		changeLevel(new MenuLevel());
-		//changeLevel(level.TITLE);
+		//if (save.exists()) changeLevel(new EditableLevel(save));
+		//else changeLevel(Level.TITLE);
+		changeLevel(Level.MAIN_MENU);
 
 		while (running) {
 			now = System.nanoTime();
@@ -94,7 +89,7 @@ public class Game implements Runnable {
 			if (draw) {
 				draw();
 				fps++;
-				// draw = false;
+				draw = false;
 			}
 
 			if (System.currentTimeMillis() - timer > 1000) {
@@ -104,8 +99,6 @@ public class Game implements Runnable {
 				fps = 0;
 			}
 		}
-		sfx.close();
-		bgm.close();
 
 	}
 
@@ -129,107 +122,55 @@ public class Game implements Runnable {
 
 	public synchronized void stop() {
 		running = false;
+		close();
 		try {
 			thread.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
+	
+	private void close() {
+		if (server != null) server.close();
+		if (client != null) client.close();
+		if (sfx != null) sfx.close();
+		if (bgm != null) bgm.close();
+		frame.dispose();
+		System.exit(0);
+	}
 
 	private void tick() {
 		input.tick();
 		sfx.tick();
-		level.tick();
-		int i = 2;
-
-		if (input.isKeyPressed(Input.KEY_SHIFT)) i = 4;
-
-		if (input.isKeyPressed(Input.KEY_UP)) y -= i;
-		if (input.isKeyPressed(Input.KEY_DOWN)) y += i;
-		if (input.isKeyPressed(Input.KEY_LEFT)) x -= i;
-		if (input.isKeyPressed(Input.KEY_RIGHT)) x += i;
-		edit = input.isKeyPressed(Input.KEY_E);
-
-		int pointX = input.getPoint()[0];
-		int pointY = input.getPoint()[1];
-
-		boolean corner = (pointX < 74 && pointY < 74);
-		if (corner) volume.set(volume.get() + .05 * input.getWheel());
-		else if (input.getWheel() != 0) {
-			if (level.lighted()) color = (Tile.getTileIndexLength() * 2 + color + input.getWheel()) % Tile.getTileIndexLength();
-			else color = (Level.MAX_BRIGHTNESS * 2 + color + input.getWheel()) % Level.MAX_BRIGHTNESS;
-		}
-
-		pointX = (pointX / Screen.SCALE) + x >> 4;
-		pointY = (pointY / Screen.SCALE) + y >> 4;
-		xPos = level.getTileX(pointX);
-		yPos = level.getTileY(pointY);
-
-		if (edit && input.isKeyPressed(Input.KEY_PRESS)) {
-			if (xPos != lastX || yPos != lastY) {
-				if (corner) {
-					level.toggleLight();
-					color = 0;
-				} else {
-					if (level.lighted()) {
-						level.changeTile(xPos, yPos, Tile.getTileFromIndex(color).getColor(), input.isKeyPressed(Input.KEY_SHIFT));
-					} else {
-						level.changeLight(xPos, yPos, color);
-					}
-				}
-
-				level.getPacket().writeData(client);
-				lastX = level.getTileX(pointX);
-				lastY = level.getTileY(pointY);
-			}
-		}
-
-		if (!click && input.isKeyPressed(Input.KEY_PRESS)) {
-			click = true;
-		}
-		if (click && !input.isKeyPressed(Input.KEY_PRESS)) {
-			click = false;
-			lastX = -1;
-			lastY = -1;
-		}
-
-		if (input.isKeyPressed(Input.KEY_ESC)) {
-			level.save("save");
-		}
+		level.tick(input);
 	}
-
-	boolean click = false;
-	public static boolean edit = true;
-	int color = 0;
-	int x = 0, y = 0;
-	int xPos, yPos;
-	int lastX = -1, lastY = -1;
 
 	private void draw() {
 		screen.clear();
-		level.draw(x, y, screen);
-		if (edit) {
-			screen.drawSprite(x, y, Sprite.CONTAINER, 8);
-			String s = String.valueOf(color);
-			if (level.lighted()) {
-				Tile.getTileFromIndex(color).draw(x + 2, y + 2, screen);
-				if (Tile.getTileFromIndex(color).getClass().equals(RandomAnimatedTile.class)) s += "A";
-			} else {
-				level.getTile(xPos, yPos).draw(x + 2, y + 2, screen, color);
-			}
-			screen.drawString(x + 3, y + 12, s, Sprite.FONT_TINY, (level.lighted()) ? 0xFF000000 : 0xFFFFFFFF);
-
-		}
+		level.draw(screen);
 		screen.draw();
 	}
 
-	private void changeLevel(Level level) {
+	public void changeLevel(Level level) {
+		bgm.stop();
 		this.level = level;
-		level.init(bgm, sfx);
+		level.init(this, bgm, sfx);
 		if (server == null) new PacketLevelReq().writeData(client);
+	}
+	
+	public File getSave() {
+		return save;
 	}
 
 	public Level getLevel() {
 		return level;
+	}
+	
+	public Client getClient() {
+		return client;
+	}
+	
+	public Input getInput() {
+		return input;
 	}
 }

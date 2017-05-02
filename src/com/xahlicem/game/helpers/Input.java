@@ -9,14 +9,15 @@ import java.awt.event.MouseWheelListener;
 import javax.swing.event.MouseInputListener;
 
 public class Input implements KeyListener, MouseInputListener, MouseWheelListener {
-	public static final int KEY_UP = 	0b00000001;
-	public static final int KEY_DOWN =	0b00000010;
-	public static final int KEY_LEFT = 	0b00000100;
-	public static final int KEY_RIGHT =	0b00001000;
-	public static final int KEY_SHIFT =	0b00010000;
-	public static final int KEY_PRESS = 0b00100000;
-	public static final int KEY_E = 	0b01000000;
-	public static final int KEY_ESC = 	0b10000000;
+	public static final int KEY_UP = 	0b000000001;
+	public static final int KEY_DOWN =	0b000000010;
+	public static final int KEY_LEFT = 	0b000000100;
+	public static final int KEY_RIGHT =	0b000001000;
+	public static final int KEY_SHIFT =	0b000010000;
+	public static final int KEY_PRESS = 0b000100000;
+	public static final int KEY_E = 	0b001000000;
+	public static final int KEY_X = 	0b010000000;
+	public static final int KEY_ESC = 	0b100000000;
 
 	private int wheelPos = 0;
 	private boolean wheelMoved = false;
@@ -62,11 +63,15 @@ public class Input implements KeyListener, MouseInputListener, MouseWheelListene
 			case KeyEvent.VK_SHIFT:
 				bit = KEY_SHIFT;
 				break;
+			case KeyEvent.VK_E:
+			case KeyEvent.VK_ENTER:
+				bit = KEY_E;
+				break;
+			case KeyEvent.VK_X:
+				bit = KEY_X;
+				break;
 			case KeyEvent.VK_ESCAPE:
 				bit = KEY_ESC;
-				break;
-			case KeyEvent.VK_E:
-				bit = KEY_E;
 				break;
 			default:
 				return;

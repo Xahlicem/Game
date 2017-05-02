@@ -7,8 +7,7 @@ import com.xahlicem.game.helpers.net.Client;
 import com.xahlicem.game.helpers.net.Server;
 
 public class PacketLevelChange extends Packet {
-	private byte[] data;
-	private int width, height, time;
+	private int width, height;
 	private int[] tiles;
 
 	public PacketLevelChange(byte[] data) {
@@ -24,7 +23,6 @@ public class PacketLevelChange extends Packet {
 		bytes.get();
 		width = bytes.getInt();
 		height = bytes.getInt();
-		time = bytes.getInt();
 
 		tiles = new int[width * height];
 
@@ -32,18 +30,16 @@ public class PacketLevelChange extends Packet {
 			tiles[i] = bytes.getInt();
 	}
 
-	public PacketLevelChange(int width, int height, int time, int[] tiles) {
+	public PacketLevelChange(int width, int height, int[] tiles) {
 		super(PacketType.LEVEL_CHANGE);
 		this.width = width;
 		this.height = height;
-		this.time = time;
 		this.tiles = tiles;
 		
 		ByteBuffer bytes = ByteBuffer.allocate(10240);
 		bytes.put(packetId);
 		bytes.putInt(width);
 		bytes.putInt(height);
-		bytes.putInt(time);
 
 		for (int i = 0; i < tiles.length; i++)
 			bytes.putInt(tiles[i]);
@@ -76,10 +72,6 @@ public class PacketLevelChange extends Packet {
 
 	public int getHeight() {
 		return height;
-	}
-
-	public int getTime() {
-		return time;
 	}
 
 	public int[] getTiles() {

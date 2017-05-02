@@ -7,18 +7,21 @@ import com.xahlicem.game.level.Level;
 public class MobileThing extends Thing{
 	
 	protected Sprite sprite;
+	protected int levelWidth, levelHeight;
 
 	public MobileThing(Level level, Sprite sprite, int x, int y) {
 		super(level);
 		this.sprite = sprite;
 		this.x = x;
 		this.y = y;
+		levelWidth = level.width << 4;
+		levelHeight = level.height << 4;
 		//level.addMob(this);
 	}
 
 	@Override
 	public void tick() {
-		move(1, 1);
+		move(1, 0);
 	}
 	
 	public int getPos() {
@@ -37,10 +40,14 @@ public class MobileThing extends Thing{
 	@Override
 	public void draw(Screen screen) {
 		screen.drawSprite(x, y, sprite, 8);
-	}
-
-	public void draw(Screen screen, int x2, int y2, int[] lights) {
-		screen.drawSprite(x2, y2, sprite, 8);
+		screen.drawSprite(x-levelWidth, y-levelHeight, sprite, 8);
+		screen.drawSprite(x-levelWidth, y, sprite, 8);
+		screen.drawSprite(x-levelWidth, y+levelHeight, sprite, 8);
+		screen.drawSprite(x+levelWidth, y-levelHeight, sprite, 8);
+		screen.drawSprite(x+levelWidth, y, sprite, 8);
+		screen.drawSprite(x+levelWidth, y+levelHeight, sprite, 8);
+		screen.drawSprite(x, y-levelHeight, sprite, 8);
+		screen.drawSprite(x, y+levelHeight, sprite, 8);
 	}
 
 }

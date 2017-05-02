@@ -40,8 +40,8 @@ public class Sprite {
 			INVISIBLE_EDGE, DIRT_EDGE, PATH_EDGE, GRASS_EDGE
 	};
 
-	public static final Sprite[] FONT = loadFont(SpriteSheet.FONT);
-	public static final Sprite[] FONT_TINY = loadFont(SpriteSheet.FONT_TINY);
+	public static final Sprite[] FONT = loadFont(16, 16, SpriteSheet.FONT);
+	public static final Sprite[] FONT_TINY = loadFont(4, 6, SpriteSheet.FONT_TINY);
 
 	public Sprite(int size, int x, int y, SpriteSheet sheet) {
 		width = size;
@@ -124,11 +124,11 @@ public class Sprite {
 		return ret;
 	}
 
-	protected static Sprite[] loadFont(SpriteSheet sheet) {
+	protected static Sprite[] loadFont(int width, int height, SpriteSheet sheet) {
 		Sprite[] sprites = new Sprite['~'];
 
 		for (int i = 0; i < sprites.length; i++)
-			sprites[i] = new Sprite(4, 6, i % 32, i / 32, sheet);
+			sprites[i] = new Sprite(width, height, i % 32, i / 32, sheet);
 		return sprites;
 	}
 }
