@@ -41,8 +41,6 @@ public class Screen  extends Canvas {
 			return;
 		}
 
-		//screen.clear();
-
 		Graphics g = strategy.getDrawGraphics();
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, getWidth(), getHeight());

@@ -18,6 +18,7 @@ import com.xahlicem.game.level.Level;
 import com.xahlicem.game.level.MenuLevel;
 import com.xahlicem.game.level.tile.RandomAnimatedTile;
 import com.xahlicem.game.level.tile.Tile;
+import com.xahlicem.game.thing.MobileThing;
 
 public class Game implements Runnable {
 	private static final double TPS = 60D;
@@ -69,8 +70,8 @@ public class Game implements Runnable {
 		volume.set(0.05);
 
 		// if (save.exists()) changeLevel(new Level(save));
-		//changeLevel(new MenuLevel());
-		changeLevel(level.TITLE);
+		changeLevel(new MenuLevel());
+		//changeLevel(level.TITLE);
 
 		while (running) {
 			now = System.nanoTime();
@@ -161,8 +162,8 @@ public class Game implements Runnable {
 
 		pointX = (pointX / Screen.SCALE) + x >> 4;
 		pointY = (pointY / Screen.SCALE) + y >> 4;
-		xPos = level.getX(pointX);
-		yPos = level.getY(pointY);
+		xPos = level.getTileX(pointX);
+		yPos = level.getTileY(pointY);
 
 		if (edit && input.isKeyPressed(Input.KEY_PRESS)) {
 			if (xPos != lastX || yPos != lastY) {
@@ -178,8 +179,8 @@ public class Game implements Runnable {
 				}
 
 				level.getPacket().writeData(client);
-				lastX = level.getX(pointX);
-				lastY = level.getY(pointY);
+				lastX = level.getTileX(pointX);
+				lastY = level.getTileY(pointY);
 			}
 		}
 
@@ -205,6 +206,7 @@ public class Game implements Runnable {
 	int lastX = -1, lastY = -1;
 
 	private void draw() {
+		screen.clear();
 		level.draw(x, y, screen);
 		if (edit) {
 			screen.drawSprite(x, y, Sprite.CONTAINER, 8);

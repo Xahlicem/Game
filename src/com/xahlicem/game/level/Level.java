@@ -6,9 +6,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
+import javax.management.MBeanOperationInfo;
 
 import com.xahlicem.game.Game;
 import com.xahlicem.game.graphics.Screen;
@@ -19,6 +23,8 @@ import com.xahlicem.game.helpers.audio.BGMPlayer;
 import com.xahlicem.game.helpers.audio.SFXPlayer;
 import com.xahlicem.game.helpers.net.packet.PacketLevelChange;
 import com.xahlicem.game.level.tile.Tile;
+import com.xahlicem.game.thing.MobileThing;
+import com.xahlicem.game.thing.Thing;
 
 public class Level {
 	
@@ -101,6 +107,8 @@ public class Level {
 	private int bgmIndex = 0;
 	private BGMPlayer midi;
 	private SFXPlayer sfx;
+	protected List<Thing> things = new ArrayList<Thing>();
+	protected HashMap<Integer, ArrayList<MobileThing>> mobs;
 
 	public static final Level TITLE = new Level("/level/TITLE", BGM.BGM_TITLE);
 
@@ -108,6 +116,7 @@ public class Level {
 		this.width = width;
 		this.height = height;
 		tiles = new int[width * height];
+		mobs = new HashMap<Integer, ArrayList<MobileThing>>();
 		generateLevel();
 	}
 
@@ -157,13 +166,13 @@ public class Level {
 	}
 
 	private void calculateEdge(int x, int y) {
-		int i = getPos(x, y);
+		int i = getTilePos(x, y);
 		tiles[i] &= ~(BIT_EDGE);
 		int color = tiles[i] & BIT_TILETYPE;
-		if ((tiles[getPos(x, y+1)] & BIT_TILETYPE) != color) tiles[i] |= 0b0001;
-		if ((tiles[getPos(x, y-1)] & BIT_TILETYPE) != color) tiles[i] |= 0b0010;
-		if ((tiles[getPos(x+1, y)] & BIT_TILETYPE) != color) tiles[i] |= 0b0100;
-		if ((tiles[getPos(x-1, y)] & BIT_TILETYPE) != color) tiles[i] |= 0b1000;
+		if ((tiles[getTilePos(x, y+1)] & BIT_TILETYPE) != color) tiles[i] |= 0b0001;
+		if ((tiles[getTilePos(x, y-1)] & BIT_TILETYPE) != color) tiles[i] |= 0b0010;
+		if ((tiles[getTilePos(x+1, y)] & BIT_TILETYPE) != color) tiles[i] |= 0b0100;
+		if ((tiles[getTilePos(x-1, y)] & BIT_TILETYPE) != color) tiles[i] |= 0b1000;
 	}
 
 
@@ -192,8 +201,17 @@ public class Level {
 			midi.play();
 		}
 		time();
+		for (int i : getMobs().keySet()) mobs.get(i).clear();
 		for (int i = 0; i < Tile.getTileIndexLength(); i++)
 			Tile.getTileFromIndex(i).tick();
+		for (Thing thing : getThings()) {
+			thing.tick();
+			if (thing instanceof MobileThing) {
+				int pos = ((MobileThing)thing).getPos();
+				if (getMobs().get(pos) == null) getMobs().put(pos, new ArrayList<MobileThing>());
+				getMobs().get(pos).add((MobileThing)thing);
+			}
+		}
 	}
 
 	private void time() {
@@ -211,19 +229,39 @@ public class Level {
 	}
 
 	public void draw(int xScroll, int yScroll, Screen screen) {
+		xScroll = getX(xScroll);
+		yScroll = getY(yScroll);
 		screen.setOffset(xScroll, yScroll);
-		for (int y = yScroll >> 4; y <= (yScroll + Screen.HEIGHT + 32) >> 4; y++)
-			for (int x = xScroll >> 4; x <= (xScroll + Screen.WIDTH) >> 4; x++) {
-				int i = getPos(x, y);
-				int x2 = x << 4;
-				int y2 = y << 4;
-
-				int[] lights = getLights(x, y);
-
-				getTile(i).draw(x2, y2, screen, lights);
-				drawEdges(x, y, x2, y2, screen, lights);
-				if (Game.edit && (tiles[i] & BIT_RANDOM_T) != 0) screen.drawSprite(x2+7, y2+6, Sprite.FONT['R'], 8);
-			}
+//		for (int y = yScroll >> 4; y <= (yScroll + Screen.HEIGHT + 32) >> 4; y++)
+//			for (int x = xScroll >> 4; x <= (xScroll + Screen.WIDTH) >> 4; x++) {
+//				int i = getTilePos(x, y);
+//				int x2 = x << 4;
+//				int y2 = y << 4;
+//				
+//				int[] lights = getLights(x, y);
+//
+//				getTile(i).draw(x2, y2, screen, lights);
+//				drawEdges(x, y, x2, y2, screen, lights);
+//				if (Game.edit && (tiles[i] & BIT_RANDOM_T) != 0) screen.drawSprite(x2+7, y2+6, Sprite.FONT['R'], 8);
+//			}
+		for (int y = yScroll - 32; y <= (yScroll + Screen.HEIGHT + 32); y++)
+				for (int x = xScroll - 32; x <= (xScroll + Screen.WIDTH); x++) {
+					if (y % 16 == 0 && x % 16 == 0) {
+						int i = getTilePos(x>>4, y>>4);
+						int x2 = x;
+						int y2 = y;
+						
+						int[] lights = getLights(x>>4, y>>4);
+		
+						getTile(i).draw(x2, y2, screen, lights);
+						drawEdges(x, y, x2, y2, screen, lights);
+						if (Game.edit && (tiles[i] & BIT_RANDOM_T) != 0) screen.drawSprite(x2+7, y2+6, Sprite.FONT['R'], 8);
+					}
+					int pos = getPos(x, y);
+					if (getMobs().containsKey(pos))
+						for (MobileThing m : getMobs().get(pos)) 
+						m.draw(screen, x, y, getLights(x>>4, y>>4));
+				}
 	}
 
 	private int[] getLights(int x, int y) {
@@ -237,14 +275,14 @@ public class Level {
 	}
 
 	private void drawEdges(int x, int y, int x2, int y2, Screen screen, int... lights) {
-		int loc = getPos(x, y);
+		int loc = getTilePos(x, y);
 		int[] increaseY = new int[] {  1, -1, 0, 0 };
 		int[] increaseX = new int[] { 0, 0, 1, -1 };
 		int h = getTile(loc).getHeight();
 
 		for (int i = 0; i < 4; i++) {
 			if (((tiles[loc] >> i) & 0x1) == 0x1) {
-				int t = getTile(getPos(x + increaseX[i], y + increaseY[i])).getHeight();
+				int t = getTile(getTilePos(x + increaseX[i], y + increaseY[i])).getHeight();
 				if (t > h) screen.drawSprite(x2, y2, Sprite.EDGES[t][i], lights);
 			}
 		}
@@ -259,7 +297,7 @@ public class Level {
 	}
 
 	public void changeTile(int x, int y, int tile, boolean random) {
-		int i = getPos(x, y);
+		int i = getTilePos(x, y);
 		tiles[i] &= ~(BIT_TILETYPE | BIT_TILEVAR);
 
 		if (random) tiles[i] |= Tile.getRandomColor(tile) | BIT_RANDOM_T;
@@ -271,7 +309,6 @@ public class Level {
 		if (sfx != null) sfx.sound(127, 1);
 
 		calculateEdges(x, y);
-		System.out.println(x + ", " + y + " - " + Integer.toBinaryString(tiles[i]));
 	}
 
 	public void changeTile(int x, int y, int tile) {
@@ -281,12 +318,11 @@ public class Level {
 	public int getLight(int i) {
 		int l = ((tiles[i] >> 29) & 0x7);
 		if (lighted) l -= darkness;
-		// else l -= MAX_DARKNESS;
 		return l;
 	}
 
 	public int getLight(int x, int y) {
-		return getLight(getPos(x, y));
+		return getLight(getTilePos(x, y));
 	}
 
 	public void changeLight(int i, int light) {
@@ -303,21 +339,41 @@ public class Level {
 	}
 	
 	public int getX(int i) {
+		int w = width << 4;
+		if (i < w && i > 0) return i;
+		int x = i % w;
+		if (x < 0) return x+w;
+		return x;
+	}
+	
+	public int getY(int i) {
+		int h = height << 4;
+		if (i < h && i > 0) return i;
+		int y = i % h;
+		if (y < 0) return y+h;
+		return y;
+	}
+	
+	public int getPos(int x, int y) {
+		return getX(x) + getY(y) * (width << 4);
+	}
+	
+	public int getTileX(int i) {
 		if (i < width && i > 0) return i;
 		int x = i % width;
 		if (x < 0) return x+width;
 		return x;
 	}
 	
-	public int getY(int i) {
+	public int getTileY(int i) {
 		if (i < height && i > 0) return i;
 		int y = i % height;
 		if (y < 0) return y+height;
 		return y;
 	}
 	
-	public int getPos(int x, int y) {
-		return getX(x) + getY(y) * width;
+	public int getTilePos(int x, int y) {
+		return getTileX(x) + getTileY(y) * width;
 	}
 
 	public void addPacket(PacketLevelChange packet) {
@@ -337,6 +393,18 @@ public class Level {
 
 	public boolean lighted() {
 		return lighted;
+	}
+	
+	public void addThing(Thing Thing) {
+		getThings().add(Thing);
+	}
+	
+	protected synchronized List<Thing> getThings() {
+		return things;
+	}
+	
+	protected synchronized HashMap<Integer, ArrayList<MobileThing>> getMobs() {
+		return mobs;
 	}
 
 	public void save(String name) {
