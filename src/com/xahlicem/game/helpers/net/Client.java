@@ -10,6 +10,7 @@ import com.xahlicem.game.Game;
 import com.xahlicem.game.helpers.net.packet.Packet;
 import com.xahlicem.game.helpers.net.packet.PacketLevelChange;
 import com.xahlicem.game.helpers.net.packet.PacketLogin;
+import com.xahlicem.game.helpers.net.packet.PacketDisconnect;
 
 public class Client extends NetWorker {
 
@@ -21,25 +22,22 @@ public class Client extends NetWorker {
 			socket = new DatagramSocket();
 			this.ip = InetAddress.getByName(ip);
 		} catch (SocketException | UnknownHostException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	@Override
 	protected void parsePacket(byte[] data, InetSocketAddress address) {
-		Packet packet;
 		switch(Packet.getPacketType(data[0])) {
 		default:
 		case INVALID:
 			System.out.println("Invalid..." + data[0]);
 			break;
 		case LOGIN:
-			packet = new PacketLogin(data);
-			System.out.println(packet.readData(data) + " has started playing");
+			System.out.println(new PacketLogin(data).getUsername() + " has started playing");
 			break;
 		case DISCONNECT:
-			System.out.println("Disconnect");
+			System.out.println(new PacketDisconnect(data).getUsername() + " has left");
 			break;
 		case LEVEL_REQ:
 			//game.getLevel().sendChange(this);
@@ -56,5 +54,10 @@ public class Client extends NetWorker {
 	
 	public void sendData(String data) {
 		sendData(data.getBytes());
+	}
+	
+	public void close() {
+		new PacketDisconnect(Game.name).writeData(this);
+		super.close();
 	}
 }

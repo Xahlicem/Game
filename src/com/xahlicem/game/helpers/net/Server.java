@@ -10,6 +10,7 @@ import com.xahlicem.game.Game;
 import com.xahlicem.game.helpers.net.packet.Packet;
 import com.xahlicem.game.helpers.net.packet.PacketLevelChange;
 import com.xahlicem.game.helpers.net.packet.PacketLogin;
+import com.xahlicem.game.helpers.net.packet.PacketDisconnect;
 
 public class Server extends NetWorker {
 	private List<InetSocketAddress> clients = new ArrayList<InetSocketAddress>();
@@ -44,8 +45,10 @@ public class Server extends NetWorker {
 				System.out.println(packet.readData(data) + " has logged in from " + address);
 				break;
 			case DISCONNECT:
+				packet = new PacketDisconnect(data);
 				clients.remove(address);
-				System.out.println("Disconnect");
+				names.remove(((PacketDisconnect) packet).getUsername());
+				System.out.println(packet.readData(data) + " has disconnected in from " + address);
 				break;
 			case LEVEL_REQ:
 				game.getLevel().sendChangeTo(this, address);
@@ -60,5 +63,11 @@ public class Server extends NetWorker {
 	public void sendToAll(byte[] data) {
 		for (InetSocketAddress client : clients)
 			sendData(data, client);
+	}
+
+	public void close() {
+		for (String name : names)
+			new PacketDisconnect(name).writeData(this);
+		super.close();
 	}
 }
