@@ -81,10 +81,10 @@ public class MenuLevel extends TimeLevel {
 			down = false;
 		} else down = true;
 	}
-	
+
 	protected void changeTiles(Tile tile) {
 		for (int i = 0; i < name.length(); i++)
-			changeTile(4+i, y >> 4, tile.getBaseColor(), true);
+			changeTile(4 + i, y >> 4, tile.getBaseColor(), true);
 	}
 
 	public void draw(Screen screen) {
@@ -141,13 +141,13 @@ public class MenuLevel extends TimeLevel {
 			case "LOAD LEVEL":
 				game.changeLevel(new EditableLevel(game.getSave()));
 				break;
+			case "NAME":
+			case "JOIN GAME":
+				game.changeLevel(new InputMenuLevel(this, action));
+				break;
 			case "HOST SERVER":
 				game.changeLevel(prevLevel);
 				if (!game.hosting()) game.startServer();
-				break;
-			case "JOIN GAME":
-				game.changeLevel(new TimeLevel(1, 1));
-				if (game.getClient() == null) game.startClient("10.1.10.2");
 				break;
 			case "EXIT":
 				game.changeLevel(MAIN_MENU);
@@ -158,7 +158,7 @@ public class MenuLevel extends TimeLevel {
 			default:
 				break;
 		}
-		
+
 		if (sfx != null) sfx.sound(127, 1);
 		if (sfx != null) sfx.sound(127, 1);
 		if (sfx != null) sfx.sound(127, 1);
