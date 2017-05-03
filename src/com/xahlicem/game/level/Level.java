@@ -24,6 +24,7 @@ import com.xahlicem.game.helpers.net.Client;
 import com.xahlicem.game.helpers.net.Server;
 import com.xahlicem.game.helpers.net.packet.Packet;
 import com.xahlicem.game.helpers.net.packet.PacketLevelChange;
+import com.xahlicem.game.level.menu.MenuLevel;
 import com.xahlicem.game.level.tile.Tile;
 import com.xahlicem.game.thing.Thing;
 
@@ -96,11 +97,10 @@ public class Level {
 	protected BGMPlayer midi;
 	protected SFXPlayer sfx;
 	protected Game game;
-	protected boolean up, down, enter, esc;
+	protected boolean up, down, left, right, enter, esc;
 	protected List<Thing> things = new ArrayList<Thing>();
 
 	public static final Level TITLE = new TimeLevel("/level/TITLE", BGM.BGM_TITLE);
-	public static final Level MAIN_MENU = new MenuLevel(Game.TITLE, "Start Game", "Load", "Options", "Quit");
 
 	public Level(int width, int height, BGM... bgm) {
 		this.width = width;
@@ -175,17 +175,19 @@ public class Level {
 		this.sfx = sfx;
 		up = false;
 		down = false;
+		left = false;
+		right = false;
 		enter = false;
 		esc = false;
 	}
 
 	public void tick(Input input) {
 		move(input);
-		
+
 		if (input.isKeyPressed(Input.KEY_ESC)) {
-			if (esc)menu();
+			if (esc) menu();
 			esc = false;
-		}else esc = true;
+		} else esc = true;
 
 		if (bgm.length != 0 && !midi.isPlaying()) {
 			midi.setSound(bgm[bgmIndex++ % bgm.length]);
@@ -197,11 +199,11 @@ public class Level {
 			thing.tick();
 
 	}
-	
+
 	protected void menu() {
-		game.changeLevel(new MenuLevel(this, "Paused", "Resume", "Options", "Save", "Load", "Exit"));
+		game.changeLevel(MenuLevel.getPauseMenu(this));
 	}
-	
+
 	protected void move(Input input) {
 		int speed = 2;
 
@@ -276,9 +278,17 @@ public class Level {
 
 		calculateEdges(x, y);
 	}
+	
+	public void changeTile(int x, int y, Tile tile, boolean random) {
+		changeTile(x, y, tile.getColor(), random);
+	}
 
 	public void changeTile(int x, int y, int tile) {
 		changeTile(x, y, tile, false);
+	}
+	
+	public void changeTile(int x, int y, Tile tile) {
+		changeTile(x, y, tile.getColor());
 	}
 
 	public int getLight(int i) {
@@ -342,19 +352,19 @@ public class Level {
 	}
 
 	public void sendChangeTo(Server server, InetSocketAddress address) {
-		getPacket().writeSingleData(server, address);;
+		getPacket().writeSingleData(server, address);
 	}
 
-	private PacketLevelChange getPacket() {
+	protected PacketLevelChange getPacket() {
 		return new PacketLevelChange(width, height, tiles);
 	}
 
 	public void addPacket(Packet packet) {
 		switch (packet.gePacketType()) {
 			case LEVEL_CHANGE:
+				tiles = ((PacketLevelChange) packet).getTiles();
 				width = ((PacketLevelChange) packet).getWidth();
 				height = ((PacketLevelChange) packet).getHeight();
-				tiles = ((PacketLevelChange) packet).getTiles();
 				break;
 			default:
 				break;

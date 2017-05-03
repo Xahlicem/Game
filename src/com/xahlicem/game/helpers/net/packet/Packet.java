@@ -6,7 +6,7 @@ import com.xahlicem.game.helpers.net.Server;
 public abstract class Packet {
 
 	public static enum PacketType {
-		INVALID(-1), LOGIN(00), DISCONNECT(01), LEVEL_REQ(02), LEVEL_CHANGE(03), LEVEL_TIME(04);
+		INVALID(-1), LOGIN(00), DISCONNECT(01), LEVEL_REQ(02), LEVEL_CHANGE(03);
 
 		private byte id;
 

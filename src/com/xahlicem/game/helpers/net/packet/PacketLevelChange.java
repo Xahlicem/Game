@@ -7,7 +7,7 @@ import com.xahlicem.game.helpers.net.Client;
 import com.xahlicem.game.helpers.net.Server;
 
 public class PacketLevelChange extends Packet {
-	private int width, height;
+	private int width, height, time;
 	private int[] tiles;
 
 	public PacketLevelChange(byte[] data) {
@@ -18,9 +18,28 @@ public class PacketLevelChange extends Packet {
 		populateData();
 	}
 
+	public PacketLevelChange(int time, int width, int height, int[] tiles) {
+		super(PacketType.LEVEL_CHANGE);
+		this.width = width;
+		this.height = height;
+		this.tiles = tiles;
+		this.time = time;
+		putData();
+	}
+
+	public PacketLevelChange(int width, int height, int[] tiles) {
+		super(PacketType.LEVEL_CHANGE);
+		this.width = width;
+		this.height = height;
+		this.tiles = tiles;
+		this.time = 0;
+		putData();
+	}
+
 	private void populateData() {
 		ByteBuffer bytes = ByteBuffer.wrap(data);
 		bytes.get();
+		time = bytes.getInt();
 		width = bytes.getInt();
 		height = bytes.getInt();
 
@@ -30,21 +49,17 @@ public class PacketLevelChange extends Packet {
 			tiles[i] = bytes.getInt();
 	}
 
-	public PacketLevelChange(int width, int height, int[] tiles) {
-		super(PacketType.LEVEL_CHANGE);
-		this.width = width;
-		this.height = height;
-		this.tiles = tiles;
-		
+	private void putData() {
 		ByteBuffer bytes = ByteBuffer.allocate(10240);
 		bytes.put(packetId);
+		bytes.putInt(time);
 		bytes.putInt(width);
 		bytes.putInt(height);
 
 		for (int i = 0; i < tiles.length; i++)
 			bytes.putInt(tiles[i]);
-
 		data = bytes.array();
+
 	}
 
 	@Override
@@ -64,6 +79,10 @@ public class PacketLevelChange extends Packet {
 
 	public void writeSingleData(Server server, InetSocketAddress address) {
 		server.sendData(getData(), address);
+	}
+
+	public int getTime() {
+		return time;
 	}
 
 	public int getWidth() {

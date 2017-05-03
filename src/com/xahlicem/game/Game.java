@@ -2,28 +2,31 @@ package com.xahlicem.game;
 
 import java.io.File;
 
-import javax.swing.JOptionPane;
-
 import com.xahlicem.game.graphics.Screen;
+import com.xahlicem.game.helpers.GameProperties;
 import com.xahlicem.game.helpers.Input;
 import com.xahlicem.game.helpers.audio.BGMPlayer;
 import com.xahlicem.game.helpers.audio.SFXPlayer;
 import com.xahlicem.game.helpers.audio.Volume;
 import com.xahlicem.game.helpers.net.Client;
 import com.xahlicem.game.helpers.net.Server;
-import com.xahlicem.game.helpers.net.packet.PacketLevelReq;
 import com.xahlicem.game.helpers.net.packet.PacketLogin;
 import com.xahlicem.game.level.Level;
+import com.xahlicem.game.level.menu.MenuLevel;
 
 public class Game implements Runnable {
 	private static final double TPS = 60D;
 	private static final double NSPT = 1_000_000_000D / TPS;
 
 	public static final String TITLE = "Game";
-	public static final Volume volume = new Volume();
 
+	private static Volume volume = new Volume();
 	public static boolean running;
-	
+	public static String name;
+	public static String lastSave;
+	public static String lastIp;
+	public static int vol;
+
 	private Thread thread;
 	private Frame frame;
 	private Input input;
@@ -40,17 +43,15 @@ public class Game implements Runnable {
 
 		screen = new Screen();
 		input = new Input();
-		frame = new Frame(screen, input);
+		frame = new Frame(this, screen, input);
 
 		bgm = new BGMPlayer();
 		sfx = new SFXPlayer();
 	}
 
 	public static void main(String[] args) {
-		new File("save/").mkdir();
 		Game game = new Game();
 		game.frame.init();
-		game.save = new File("save/SAVE.PNG");
 
 		game.start();
 	}
@@ -62,11 +63,7 @@ public class Game implements Runnable {
 		double delta = 0;
 		int fps = 0, tps = 0;
 		boolean draw = false;
-		volume.set(0.05);
-
-		//if (save.exists()) changeLevel(new EditableLevel(save));
-		//else changeLevel(Level.TITLE);
-		changeLevel(Level.MAIN_MENU);
+		init();
 
 		while (running) {
 			now = System.nanoTime();
@@ -104,18 +101,6 @@ public class Game implements Runnable {
 
 	public synchronized void start() {
 		running = true;
-
-		String name = JOptionPane.showInputDialog("Please enter name");
-		String ip = "10.1.10.2";
-		if (JOptionPane.showConfirmDialog(frame, "Do you want to host?") == 0) {
-			server = new Server(this);
-			server.start();
-		} // else ip = JOptionPane.showInputDialog("Please enter server IP");
-		client = new Client(this, ip);
-		client.start();
-
-		new PacketLogin(name).writeData(client);
-
 		thread = new Thread(this, "Display");
 		thread.start();
 	}
@@ -129,13 +114,25 @@ public class Game implements Runnable {
 			e.printStackTrace();
 		}
 	}
-	
+
+	private void init() {
+		new File("save/").mkdir();
+		
+		GameProperties.load();
+		volume.set(vol);
+
+		changeLevel(MenuLevel.MAIN_MENU);
+		save = new File("save/SAVE.PNG");
+	}
+
 	private void close() {
-		if (server != null) server.close();
-		if (client != null) client.close();
+		if (server != null) server.close(); // TODO
+		if (client != null) client.close(); // TODO
 		if (sfx != null) sfx.close();
 		if (bgm != null) bgm.close();
-		frame.dispose();
+		frame.exit();
+		GameProperties.save();
+		System.out.println("Exit");
 		System.exit(0);
 	}
 
@@ -152,12 +149,11 @@ public class Game implements Runnable {
 	}
 
 	public void changeLevel(Level level) {
-		bgm.stop();
+		if (!(this.level instanceof MenuLevel && level instanceof MenuLevel)) bgm.stop();
 		this.level = level;
 		level.init(this, bgm, sfx);
-		if (server == null) new PacketLevelReq().writeData(client);
 	}
-	
+
 	public File getSave() {
 		return save;
 	}
@@ -165,12 +161,33 @@ public class Game implements Runnable {
 	public Level getLevel() {
 		return level;
 	}
-	
+
+	public Input getInput() {
+		return input;
+	}
+
+	public void startServer() {
+		System.out.println("Started server!");
+		server = new Server(this);
+		server.start();
+		startClient("localhost");
+	}
+
+	public boolean hosting() {
+		return server != null;
+	}
+
+	public void startClient(String ip) {
+		client = new Client(this, ip);
+		client.start();
+		new PacketLogin(name).writeData(client);
+	}
+
 	public Client getClient() {
 		return client;
 	}
 	
-	public Input getInput() {
-		return input;
+	public static void setVolume() {
+		volume.set(vol);
 	}
 }

@@ -21,7 +21,7 @@ public class BGMPlayer {
 	}
 
 	public void close() {
-		midiPlayer.stop();
+		if (midiPlayer.isOpen()) midiPlayer.stop();
 		midiPlayer.close();
 	}
 

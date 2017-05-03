@@ -2,7 +2,6 @@ package com.xahlicem.game.level;
 
 import java.io.File;
 
-import com.xahlicem.game.Game;
 import com.xahlicem.game.graphics.Screen;
 import com.xahlicem.game.graphics.Sprite;
 import com.xahlicem.game.helpers.Input;
@@ -39,8 +38,7 @@ public class EditableLevel extends TimeLevel {
 		int pointY = input.getPoint()[1];
 
 		boolean corner = (pointX < 74 && pointY < 74);
-		if (corner) Game.volume.set(Game.volume.get() + .05 * input.getWheel());
-		else if (input.getWheel() != 0) {
+		if (input.getWheel() != 0) {
 			if (lighted()) color = (Tile.getTileIndexLength() * 2 + color + input.getWheel()) % Tile.getTileIndexLength();
 			else color = (-DAY * 2 + color + input.getWheel()) % -DAY;
 		}
@@ -63,7 +61,7 @@ public class EditableLevel extends TimeLevel {
 					}
 				}
 
-				sendChange(game.getClient());
+				if (game.getClient() != null) sendChange(game.getClient());
 				lastX = getTileX(pointX);
 				lastY = getTileY(pointY);
 			}

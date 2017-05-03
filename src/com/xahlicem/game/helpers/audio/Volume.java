@@ -36,7 +36,7 @@ public class Volume {
 		}
 	}
 
-	public void set(double value) {
+	public void set(int value) {
 		try {
 			init();
 			line.open();
@@ -46,9 +46,9 @@ public class Volume {
 		} catch (LineUnavailableException e) {
 			e.printStackTrace();
 		}
-		if (value > 1.0) value = 1;
-		if (value < 0.0) value = 0;
-		volCtrl.setValue((float) value);
+		if (value > 10) value = 10;
+		if (value < 0) value = 0;
+		volCtrl.setValue((float) value/10F);
 		line.close();
 	}
 

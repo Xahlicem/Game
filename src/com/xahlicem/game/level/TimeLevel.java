@@ -1,15 +1,11 @@
 package com.xahlicem.game.level;
 
 import java.io.File;
-import java.net.InetSocketAddress;
 
 import com.xahlicem.game.helpers.Input;
 import com.xahlicem.game.helpers.audio.BGM;
-import com.xahlicem.game.helpers.net.Client;
-import com.xahlicem.game.helpers.net.Server;
 import com.xahlicem.game.helpers.net.packet.Packet;
 import com.xahlicem.game.helpers.net.packet.PacketLevelChange;
-import com.xahlicem.game.helpers.net.packet.PacketLevelTime;
 
 public class TimeLevel extends Level {
 
@@ -75,25 +71,18 @@ public class TimeLevel extends Level {
 		return lighted;
 	}
 
-	public void sendChange(Client client) {
-		super.sendChange(client);
-		new PacketLevelTime(time).writeData(client);
-	}
-
-	public void sendChangeTo(Server server, InetSocketAddress address) {
-		super.sendChangeTo(server, address);
-		new PacketLevelTime(time).writeSingleData(server, address);
+	protected PacketLevelChange getPacket() {
+		return new PacketLevelChange(time, width, height, tiles);
 	}
 
 	public void addPacket(Packet packet) {
 		switch (packet.gePacketType()) {
 			case LEVEL_CHANGE:
+				tiles = ((PacketLevelChange) packet).getTiles();
 				width = ((PacketLevelChange) packet).getWidth();
 				height = ((PacketLevelChange) packet).getHeight();
-				tiles = ((PacketLevelChange) packet).getTiles();
+				time = ((PacketLevelChange) packet).getTime();
 				break;
-			case LEVEL_TIME:
-				time = ((PacketLevelTime) packet).getTime();
 			default:
 				break;
 		}

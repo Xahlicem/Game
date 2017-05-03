@@ -1,47 +1,53 @@
-package com.xahlicem.game.level;
+package com.xahlicem.game.level.menu;
 
+import com.xahlicem.game.Game;
 import com.xahlicem.game.graphics.Screen;
 import com.xahlicem.game.graphics.Sprite;
 import com.xahlicem.game.helpers.Input;
 import com.xahlicem.game.helpers.audio.BGM;
+import com.xahlicem.game.level.EditableLevel;
+import com.xahlicem.game.level.Level;
+import com.xahlicem.game.level.TimeLevel;
 import com.xahlicem.game.level.tile.Tile;
 import com.xahlicem.game.thing.Thing;
 
 public class MenuLevel extends TimeLevel {
-	
-	protected static final String[] OPTIONS ={"Back", "Profile", "Host Server", "Join Game", "Volume"};
-	protected static final String[] OPTIONS_PROFILE ={"Back", "Name", "Hair", "Clothes"};
+
+	protected static final String[] MAIN = { Game.TITLE, "Start Game", "Load", "Join Game", "Options", "Quit" };
+	protected static final String[] OPTIONS = { "Options", "Back", "Profile", "Volume", "Etc" };
+	protected static final String[] OPTIONS_PROFILE = { "Profile", "Back", "Name", "Hair", "Clothes" };
+	protected static final String[] PAUSED = { "Paused", "Resume", "Host Server", "Options", "Save", "Load", "Exit" };
+
+	public static final Level MAIN_MENU = new MenuLevel(MAIN);
 
 	protected Level prevLevel;
 	protected String name;
 	protected String[] options;
 	protected int index = 0;
 
-	public MenuLevel(String name, String... options) {
-		super(16, 3 * options.length, BGM.BGM_TITLE);
-		for (int y = 0; y < height; y++)
-			for (int x = 0; x < width; x++) {
-				if (y % 3 == 0) changeTile(x, y, Tile.DIRT.getColor(), true);
-				else changeTile(x, y, Tile.GRASS.getColor(), true);
-				changeLight(x, y, 1);
-			}
-		this.name = name;
-		this.options = options;
-		y = -32;
+	public MenuLevel(String... options) {
+		super(20, 3 * (options.length - 1), BGM.BGM_TITLE);
+		init(options);
 	}
 
-	public MenuLevel(Level level, String name, String... options) {
-		super(16, 3 * options.length, BGM.BGM_TITLE);
+	public MenuLevel(Level level, String... options) {
+		super(20, 3 * (options.length - 1), BGM.BGM_TITLE);
 		prevLevel = level;
+		init(options);
+	}
+
+	protected void init(String[] options) {
 		for (int y = 0; y < height; y++)
 			for (int x = 0; x < width; x++) {
-				if (y % 3 == 0) changeTile(x, y, Tile.DIRT.getColor(), true);
+				if (y % 3 == 0 && x > 1 && x < 17) changeTile(x, y, Tile.DIRT.getColor(), true);
 				else changeTile(x, y, Tile.GRASS.getColor(), true);
 				changeLight(x, y, 1);
 			}
-		this.name = name;
-		this.options = options;
+		this.name = options[0];
+		this.options = new String[options.length - 1];
+		System.arraycopy(options, 1, this.options, 0, this.options.length);
 		y = -32;
+		changeTiles(Tile.WATER);
 	}
 
 	@Override
@@ -49,7 +55,7 @@ public class MenuLevel extends TimeLevel {
 		super.tick(input);
 
 		if (input.isKeyPressed(Input.KEY_E)) {
-			if (enter)parseAction(options[index]);
+			if (enter) parseAction(options[index]);
 			enter = false;
 		} else enter = true;
 	}
@@ -59,13 +65,26 @@ public class MenuLevel extends TimeLevel {
 		int speed = 48;
 
 		if (input.isKeyPressed(Input.KEY_UP)) {
-			if (up) y = getY(y - speed);
+			if (up) {
+				changeTiles(Tile.GRASS);
+				y = getY(y - speed);
+				changeTiles(Tile.WATER);
+			}
 			up = false;
 		} else up = true;
 		if (input.isKeyPressed(Input.KEY_DOWN)) {
-			if (down) y = getY(y + speed);
+			if (down) {
+				changeTiles(Tile.GRASS);
+				y = getY(y + speed);
+				changeTiles(Tile.WATER);
+			}
 			down = false;
 		} else down = true;
+	}
+	
+	protected void changeTiles(Tile tile) {
+		for (int i = 0; i < name.length(); i++)
+			changeTile(4+i, y >> 4, tile.getBaseColor(), true);
 	}
 
 	public void draw(Screen screen) {
@@ -90,7 +109,6 @@ public class MenuLevel extends TimeLevel {
 		screen.drawString(64, y, name, Sprite.FONT, 0);
 	}
 
-	
 	private void setIndex() {
 		index -= 3;
 		if (index < options.length && index > 0) return;
@@ -99,20 +117,18 @@ public class MenuLevel extends TimeLevel {
 	}
 
 	protected void parseAction(String action) {
-		System.out.println(action);
 		switch (action.toUpperCase()) {
 			case "START GAME":
 				game.changeLevel(TITLE);
 				break;
 			case "OPTIONS":
-				game.changeLevel(new MenuLevel(this, "Options", OPTIONS));
+				game.changeLevel(new MenuLevel(this, OPTIONS));
 				break;
 			case "PROFILE":
-				game.changeLevel(new MenuLevel(this, "Profile", OPTIONS_PROFILE));
+				game.changeLevel(new MenuLevel(this, OPTIONS_PROFILE));
 				break;
-			case "LOAD":
-			case "LOAD LEVEL":
-				game.changeLevel(new EditableLevel(game.getSave()));
+			case "VOLUME":
+				game.changeLevel(new SliderMenuLevel(this, Game.vol, 10));
 				break;
 			case "BACK":
 			case "RESUME":
@@ -120,6 +136,18 @@ public class MenuLevel extends TimeLevel {
 				break;
 			case "SAVE":
 				prevLevel.save("save");
+				break;
+			case "LOAD":
+			case "LOAD LEVEL":
+				game.changeLevel(new EditableLevel(game.getSave()));
+				break;
+			case "HOST SERVER":
+				game.changeLevel(prevLevel);
+				if (!game.hosting()) game.startServer();
+				break;
+			case "JOIN GAME":
+				game.changeLevel(new TimeLevel(1, 1));
+				if (game.getClient() == null) game.startClient("10.1.10.2");
 				break;
 			case "EXIT":
 				game.changeLevel(MAIN_MENU);
@@ -130,8 +158,14 @@ public class MenuLevel extends TimeLevel {
 			default:
 				break;
 		}
+		
+		if (sfx != null) sfx.sound(127, 1);
+		if (sfx != null) sfx.sound(127, 1);
+		if (sfx != null) sfx.sound(127, 1);
+		if (sfx != null) sfx.sound(127, 1);
+		if (sfx != null) sfx.sound(127, 1);
 	}
-	
+
 	@Override
 	protected void menu() {
 		boolean back = false;
@@ -141,6 +175,10 @@ public class MenuLevel extends TimeLevel {
 		}
 		if (back) parseAction("BACK");
 		else parseAction("QUIT");
+	}
+
+	public static MenuLevel getPauseMenu(Level level) {
+		return new MenuLevel(level, PAUSED);
 	}
 
 }

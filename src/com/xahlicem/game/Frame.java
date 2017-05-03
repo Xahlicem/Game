@@ -8,10 +8,12 @@ import com.xahlicem.game.helpers.Input;
 public class Frame extends JFrame {
 	private static final long serialVersionUID = -5902218571111718013L;
 
+	private Game game;
 	private Screen screen;
 	private Input input;
 
-	public Frame(Screen screen, Input input) {
+	public Frame(Game game, Screen screen, Input input) {
+		this.game = game;
 		this.screen = screen;
 		this.input = input;
 	}
@@ -21,7 +23,7 @@ public class Frame extends JFrame {
 		setTitle(Game.TITLE);
 		add(screen);
 		pack();
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setLocationRelativeTo(null);
 		setVisible(true);
 
@@ -29,5 +31,14 @@ public class Frame extends JFrame {
 		screen.addMouseListener(input);
 		screen.addMouseWheelListener(input);
 		screen.addMouseMotionListener(input);
+	}
+	
+	@Override
+	public void dispose() {
+		game.stop();
+	}
+	
+	public void exit() {
+	super.dispose();
 	}
 }

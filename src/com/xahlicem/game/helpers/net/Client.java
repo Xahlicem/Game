@@ -9,7 +9,6 @@ import java.net.UnknownHostException;
 import com.xahlicem.game.Game;
 import com.xahlicem.game.helpers.net.packet.Packet;
 import com.xahlicem.game.helpers.net.packet.PacketLevelChange;
-import com.xahlicem.game.helpers.net.packet.PacketLevelTime;
 import com.xahlicem.game.helpers.net.packet.PacketLogin;
 
 public class Client extends NetWorker {
@@ -43,12 +42,10 @@ public class Client extends NetWorker {
 			System.out.println("Disconnect");
 			break;
 		case LEVEL_REQ:
-			game.getLevel().sendChange(this);
+			//game.getLevel().sendChange(this);
 			break;
 		case LEVEL_CHANGE:
 			game.getLevel().addPacket(new PacketLevelChange(data));
-		case LEVEL_TIME:
-			game.getLevel().addPacket(new PacketLevelTime(data));
 			break;
 		}
 	}
