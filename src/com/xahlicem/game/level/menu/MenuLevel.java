@@ -9,7 +9,6 @@ import com.xahlicem.game.level.EditableLevel;
 import com.xahlicem.game.level.Level;
 import com.xahlicem.game.level.TimeLevel;
 import com.xahlicem.game.level.tile.Tile;
-import com.xahlicem.game.thing.Thing;
 
 public class MenuLevel extends TimeLevel {
 
@@ -87,8 +86,8 @@ public class MenuLevel extends TimeLevel {
 			changeTile(4 + i, y >> 4, tile.getBaseColor(), true);
 	}
 
-	public void draw(Screen screen) {
-		screen.setOffset(x, y);
+	@Override
+	protected void drawTiles(Screen screen) {
 		for (int yPos = y >> 4; yPos <= (y + Screen.HEIGHT + 32) >> 4; yPos++)
 			for (int xPos = x >> 4; xPos <= (x + Screen.WIDTH) >> 4; xPos++) {
 				int i = getTilePos(xPos, yPos);
@@ -99,14 +98,24 @@ public class MenuLevel extends TimeLevel {
 
 				getTile(i).draw(x2, y2, screen, lights);
 				drawEdges(xPos, yPos, x2, y2, screen, lights);
-				if (getTileX(xPos) == 15 && getTileY(yPos) % 3 == 0) screen.drawString(getX(x2 - 192), y2, options[index = getTileY(yPos) / 3], Sprite.FONT, 0);
+				if (getTileX(xPos) == 15 && getTileY(yPos) % 3 == 0) drawOption(x2, yPos, screen);
 			}
 		setIndex();
-		for (Thing t : things)
-			t.draw(screen);
+	}
 
+	@Override
+	protected void drawThings(Screen screen) {
+		super.drawThings(screen);
+		drawOtherStuff(screen);
+	}
+
+	protected void drawOtherStuff(Screen screen) {
 		screen.drawSprite(32, 32 + y, Sprite.FONT[16], 0);
 		screen.drawString(64, y, name, Sprite.FONT, 0);
+	}
+
+	protected void drawOption(int x, int y, Screen screen) {
+		screen.drawString(getX(x - 192), y << 4, options[index = getTileY(y) / 3], Sprite.FONT, 0);
 	}
 
 	private void setIndex() {
@@ -117,6 +126,12 @@ public class MenuLevel extends TimeLevel {
 	}
 
 	protected void parseAction(String action) {
+		if (sfx != null) sfx.sound(127, 1);
+		if (sfx != null) sfx.sound(127, 1);
+		if (sfx != null) sfx.sound(127, 1);
+		if (sfx != null) sfx.sound(127, 1);
+		if (sfx != null) sfx.sound(127, 1);
+		
 		switch (action.toUpperCase()) {
 			case "START GAME":
 				game.changeLevel(TITLE);
@@ -158,12 +173,6 @@ public class MenuLevel extends TimeLevel {
 			default:
 				break;
 		}
-
-		if (sfx != null) sfx.sound(127, 1);
-		if (sfx != null) sfx.sound(127, 1);
-		if (sfx != null) sfx.sound(127, 1);
-		if (sfx != null) sfx.sound(127, 1);
-		if (sfx != null) sfx.sound(127, 1);
 	}
 
 	@Override

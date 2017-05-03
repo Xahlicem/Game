@@ -1,8 +1,10 @@
 package com.xahlicem.game.helpers.net;
 
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,5 +71,14 @@ public class Server extends NetWorker {
 		for (String name : names)
 			new PacketDisconnect(name).writeData(this);
 		super.close();
+	}
+	
+	public String getIP() {
+		try {
+			return InetAddress.getLocalHost().getHostAddress();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		return "";
 	}
 }

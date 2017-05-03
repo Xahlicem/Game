@@ -8,7 +8,6 @@ import com.xahlicem.game.helpers.Input;
 import com.xahlicem.game.helpers.audio.BGM;
 import com.xahlicem.game.level.tile.RandomAnimatedTile;
 import com.xahlicem.game.level.tile.Tile;
-import com.xahlicem.game.thing.Thing;
 
 public class EditableLevel extends TimeLevel {
 	protected boolean click = false;
@@ -76,24 +75,10 @@ public class EditableLevel extends TimeLevel {
 			lastY = -1;
 		}
 	}
-
+	
 	@Override
-	public void draw(Screen screen) {
-		screen.setOffset(x, y);
-		for (int yPos = y >> 4; yPos <= (y + Screen.HEIGHT + 32) >> 4; yPos++)
-			for (int xPos = x >> 4; xPos <= (x + Screen.WIDTH) >> 4; xPos++) {
-				int i = getTilePos(xPos, yPos);
-				int x2 = xPos << 4;
-				int y2 = yPos << 4;
-
-				int[] lights = getLights(xPos, yPos);
-
-				getTile(i).draw(x2, y2, screen, lights);
-				drawEdges(xPos, yPos, x2, y2, screen, lights);
-				if (edit && (tiles[i] & BIT_RANDOM_T) != 0) screen.drawString(x2 + 6, y2 + 5, "R", Sprite.FONT_TINY, 0xFFFFFF);
-			}
-		for (Thing t : things)
-			t.draw(screen);
+	protected void drawThings(Screen screen) {
+		super.drawThings(screen);
 		if (edit) {
 			screen.drawSprite(x, y, Sprite.CONTAINER, 8);
 			String s = String.valueOf(color);

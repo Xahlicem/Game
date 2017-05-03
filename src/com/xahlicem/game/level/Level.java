@@ -217,6 +217,12 @@ public class Level {
 
 	public void draw(Screen screen) {
 		screen.setOffset(x, y);
+		drawTiles(screen);
+		drawThings(screen);
+		if (game.hosting()) screen.drawString(x+24,  y, game.getIp(), Sprite.FONT_TINY, 0);
+	}
+
+	protected void drawTiles(Screen screen) {
 		for (int yPos = y >> 4; yPos <= (y + Screen.HEIGHT + 32) >> 4; yPos++)
 			for (int xPos = x >> 4; xPos <= (x + Screen.WIDTH) >> 4; xPos++) {
 				int i = getTilePos(xPos, yPos);
@@ -228,6 +234,9 @@ public class Level {
 				getTile(i).draw(x2, y2, screen, lights);
 				drawEdges(xPos, yPos, x2, y2, screen, lights);
 			}
+	}
+
+	protected void drawThings(Screen screen) {
 		for (Thing t : things)
 			t.draw(screen);
 	}

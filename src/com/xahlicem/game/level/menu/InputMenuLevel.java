@@ -7,7 +7,6 @@ import com.xahlicem.game.helpers.Input;
 import com.xahlicem.game.level.Level;
 import com.xahlicem.game.level.TimeLevel;
 import com.xahlicem.game.level.tile.Tile;
-import com.xahlicem.game.thing.Thing;
 
 public class InputMenuLevel extends MenuLevel {
 
@@ -49,26 +48,13 @@ public class InputMenuLevel extends MenuLevel {
 	}
 
 	@Override
-	public void draw(Screen screen) {
-		screen.setOffset(x, y);
-		for (int yPos = y >> 4; yPos <= (y + Screen.HEIGHT + 32) >> 4; yPos++)
-			for (int xPos = x >> 4; xPos <= (x + Screen.WIDTH) >> 4; xPos++) {
-				int i = getTilePos(xPos, yPos);
-				int x2 = xPos << 4;
-				int y2 = yPos << 4;
-
-				int[] lights = getLights(xPos, yPos);
-
-				getTile(i).draw(x2, y2, screen, lights);
-				drawEdges(xPos, yPos, x2, y2, screen, lights);
-			}
-		for (Thing t : things)
-			t.draw(screen);
-
+	protected void drawOtherStuff(Screen screen) {
 		screen.drawSprite(32 + pos * 16, 80 + y, Sprite.FONT[30], 0);
 		screen.drawString(32, 64 + y, new String(string), Sprite.FONT, 0);
 		screen.drawString(64, y, name, Sprite.FONT, 0);
 	}
+
+	protected void drawOption(int x, int y, Screen screen) {}
 
 	@Override
 	protected void move(Input input) {
@@ -103,11 +89,23 @@ public class InputMenuLevel extends MenuLevel {
 	private void changeChar(int i) {
 		char x = (char) (string[pos] + i);
 		if (x >= 0 && x < 126) string[pos] = x;
+		
+		if (sfx != null) sfx.sound(127, 1);
+		if (sfx != null) sfx.sound(127, 1);
+		if (sfx != null) sfx.sound(127, 1);
+		if (sfx != null) sfx.sound(127, 1);
+		if (sfx != null) sfx.sound(127, 1);
 	}
 
 	private void changePos(int i) {
 		int x = pos + i;
 		if (x >= 0 && x < string.length) pos = x;
+		
+		if (sfx != null) sfx.sound(127, 1);
+		if (sfx != null) sfx.sound(127, 1);
+		if (sfx != null) sfx.sound(127, 1);
+		if (sfx != null) sfx.sound(127, 1);
+		if (sfx != null) sfx.sound(127, 1);
 	}
 
 	@Override

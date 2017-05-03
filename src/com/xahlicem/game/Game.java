@@ -176,6 +176,10 @@ public class Game implements Runnable {
 	public boolean hosting() {
 		return server != null;
 	}
+	
+	public String getIp() {
+		return server.getIP();
+	}
 
 	public void startClient(String ip) {
 		client = new Client(this, ip);

@@ -6,10 +6,10 @@ import com.xahlicem.game.graphics.Sprite;
 import com.xahlicem.game.helpers.Input;
 import com.xahlicem.game.level.Level;
 import com.xahlicem.game.level.tile.Tile;
-import com.xahlicem.game.thing.Thing;
 
 public class SliderMenuLevel extends MenuLevel {
 	protected int value, maxValue;
+
 	public SliderMenuLevel(Level level, int value, int maxValue) {
 		super(level, "Volume", "Back");
 		this.value = value;
@@ -35,25 +35,13 @@ public class SliderMenuLevel extends MenuLevel {
 	}
 
 	@Override
-	public void draw(Screen screen) {
-		screen.setOffset(x, y);
-		for (int yPos = y >> 4; yPos <= (y + Screen.HEIGHT + 32) >> 4; yPos++)
-			for (int xPos = x >> 4; xPos <= (x + Screen.WIDTH) >> 4; xPos++) {
-				int i = getTilePos(xPos, yPos);
-				int x2 = xPos << 4;
-				int y2 = yPos << 4;
-
-				int[] lights = getLights(xPos, yPos);
-
-				getTile(i).draw(x2, y2, screen, lights);
-				drawEdges(xPos, yPos, x2, y2, screen, lights);
-			}
-		for (Thing t : things)
-			t.draw(screen);
-
+	protected void drawOtherStuff(Screen screen) {
 		screen.drawSprite(48, 64 + y, Sprite.FONT[16], 0);
 		screen.drawString(64, y, name, Sprite.FONT, 0);
 	}
+
+	@Override
+	protected void drawOption(int x, int y, Screen screen) {}
 
 	@Override
 	protected void move(Input input) {
