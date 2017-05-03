@@ -99,8 +99,8 @@ public class Level {
 	protected boolean up, down, enter, esc;
 	protected List<Thing> things = new ArrayList<Thing>();
 
-	public static final Level TITLE = new TimeLevel("/level/TITLE");//, BGM.BGM_TITLE);
-	public static final Level MAIN_MENU = new MenuLevel("Start Game", "Load", "Options", "Quit");
+	public static final Level TITLE = new TimeLevel("/level/TITLE", BGM.BGM_TITLE);
+	public static final Level MAIN_MENU = new MenuLevel(Game.TITLE, "Start Game", "Load", "Options", "Quit");
 
 	public Level(int width, int height, BGM... bgm) {
 		this.width = width;
@@ -199,7 +199,7 @@ public class Level {
 	}
 	
 	protected void menu() {
-		game.changeLevel(new MenuLevel(this, "Resume", "Save", "Load", "Exit"));
+		game.changeLevel(new MenuLevel(this, "Paused", "Resume", "Options", "Save", "Load", "Exit"));
 	}
 	
 	protected void move(Input input) {
@@ -370,6 +370,7 @@ public class Level {
 	}
 
 	public void save(String name) {
+		System.out.println("Saved!");
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 		try {

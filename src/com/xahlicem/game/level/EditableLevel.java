@@ -77,10 +77,6 @@ public class EditableLevel extends TimeLevel {
 			lastX = -1;
 			lastY = -1;
 		}
-
-		if (input.isKeyPressed(Input.KEY_ESC)) {
-			save("save");
-		}
 	}
 
 	@Override

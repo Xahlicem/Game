@@ -8,12 +8,16 @@ import com.xahlicem.game.level.tile.Tile;
 import com.xahlicem.game.thing.Thing;
 
 public class MenuLevel extends TimeLevel {
+	
+	protected static final String[] OPTIONS ={"Back", "Profile", "Host Server", "Join Game", "Volume"};
+	protected static final String[] OPTIONS_PROFILE ={"Back", "Name", "Hair", "Clothes"};
 
 	protected Level prevLevel;
+	protected String name;
 	protected String[] options;
 	protected int index = 0;
 
-	public MenuLevel(String... options) {
+	public MenuLevel(String name, String... options) {
 		super(16, 3 * options.length, BGM.BGM_TITLE);
 		for (int y = 0; y < height; y++)
 			for (int x = 0; x < width; x++) {
@@ -21,11 +25,12 @@ public class MenuLevel extends TimeLevel {
 				else changeTile(x, y, Tile.GRASS.getColor(), true);
 				changeLight(x, y, 1);
 			}
+		this.name = name;
 		this.options = options;
 		y = -32;
 	}
 
-	public MenuLevel(Level level, String... options) {
+	public MenuLevel(Level level, String name, String... options) {
 		super(16, 3 * options.length, BGM.BGM_TITLE);
 		prevLevel = level;
 		for (int y = 0; y < height; y++)
@@ -34,6 +39,7 @@ public class MenuLevel extends TimeLevel {
 				else changeTile(x, y, Tile.GRASS.getColor(), true);
 				changeLight(x, y, 1);
 			}
+		this.name = name;
 		this.options = options;
 		y = -32;
 	}
@@ -81,6 +87,7 @@ public class MenuLevel extends TimeLevel {
 			t.draw(screen);
 
 		screen.drawSprite(32, 32 + y, Sprite.FONT[16], 0);
+		screen.drawString(64, y, name, Sprite.FONT, 0);
 	}
 
 	
@@ -97,13 +104,17 @@ public class MenuLevel extends TimeLevel {
 			case "START GAME":
 				game.changeLevel(TITLE);
 				break;
-			case "QUIT":
-				game.stop();
+			case "OPTIONS":
+				game.changeLevel(new MenuLevel(this, "Options", OPTIONS));
+				break;
+			case "PROFILE":
+				game.changeLevel(new MenuLevel(this, "Profile", OPTIONS_PROFILE));
 				break;
 			case "LOAD":
 			case "LOAD LEVEL":
 				game.changeLevel(new EditableLevel(game.getSave()));
 				break;
+			case "BACK":
 			case "RESUME":
 				game.changeLevel(prevLevel);
 				break;
@@ -113,6 +124,9 @@ public class MenuLevel extends TimeLevel {
 			case "EXIT":
 				game.changeLevel(MAIN_MENU);
 				break;
+			case "QUIT":
+				game.stop();
+				break;
 			default:
 				break;
 		}
@@ -120,11 +134,12 @@ public class MenuLevel extends TimeLevel {
 	
 	@Override
 	protected void menu() {
-		boolean exit = false;
+		boolean back = false;
 		for (String s : options) {
-			if (s.equalsIgnoreCase("EXIT")) exit = true;
+			if (s.equalsIgnoreCase("BACK")) back = true;
+			if (s.equalsIgnoreCase("RESUME")) back = true;
 		}
-		if (exit) parseAction("EXIT");
+		if (back) parseAction("BACK");
 		else parseAction("QUIT");
 	}
 
