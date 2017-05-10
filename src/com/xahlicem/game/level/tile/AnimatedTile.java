@@ -15,12 +15,27 @@ public class AnimatedTile extends Tile {
 		this.sprites = sprites;
 		this.delay = delay;
 	}
+	
+	public AnimatedTile(TileType type, AnimatedSprite sprites, int[] delay, boolean solid) {
+		super(type, sprites);
+		this.sprites = sprites;
+		this.delay = delay;
+		this.solid = solid;
+	}
 
 	public AnimatedTile(TileType type, AnimatedSprite sprites, int delay) {
 		super(type, sprites);
 		this.sprites = sprites;
 		if (delay <= 0) delay = 1;
 		this.delay = new int[] { delay };
+	}
+
+	public AnimatedTile(TileType type, AnimatedSprite sprites, int delay, boolean solid) {
+		super(type, sprites);
+		this.sprites = sprites;
+		if (delay <= 0) delay = 1;
+		this.delay = new int[] { delay };
+		this.solid = solid;
 	}
 
 	public void tick() {

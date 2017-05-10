@@ -13,9 +13,21 @@ public class RandomAnimatedTile extends AnimatedTile {
 		this.chance = chance;
 	}
 
+	public RandomAnimatedTile(TileType type, AnimatedSprite sprites, int[] delay, int chance, boolean solid) {
+		super(type, sprites, delay);
+		this.chance = chance;
+		this.solid = solid;
+	}
+
 	public RandomAnimatedTile(TileType type, AnimatedSprite sprites, int delay, int chance) {
 		super(type, sprites, delay);
 		this.chance = chance;
+	}
+
+	public RandomAnimatedTile(TileType type, AnimatedSprite sprites, int delay, int chance, boolean solid) {
+		super(type, sprites, delay);
+		this.chance = chance;
+		this.solid = solid;
 	}
 
 	public void tick() {

@@ -1,5 +1,6 @@
 package com.xahlicem.game.level;
 
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.File;
@@ -219,7 +220,7 @@ public class Level {
 		screen.setOffset(x, y);
 		drawTiles(screen);
 		drawThings(screen);
-		if (game.hosting()) screen.drawString(x+24,  y, game.getIp(), Sprite.FONT_TINY, 0);
+		if (game.hosting()) screen.drawString(x + 24, y, game.getIp(), Sprite.FONT_TINY, 0);
 	}
 
 	protected void drawTiles(Screen screen) {
@@ -238,7 +239,7 @@ public class Level {
 
 	protected void drawThings(Screen screen) {
 		for (Thing t : things)
-			t.draw(screen);
+			t.draw(screen, getLights(t.getX() >> 4, t.getY() >> 4));
 	}
 
 	protected int[] getLights(int x, int y) {
@@ -265,6 +266,23 @@ public class Level {
 		}
 	}
 
+	public boolean intersects(Rectangle rect, Thing thing) {
+		for (Thing t : things)
+			if (t != thing) if (t.getBounds().intersects(rect)) return true;
+		Rectangle tile = new Rectangle(0, 0, 16, 16);
+		for (int y = -1; y < 2; y++) {
+			int tileY = getTileY((thing.getY() >> 4) + y);
+			for (int x = -1; x < 2; x++) {
+				int tileX = getTileX((thing.getX() >> 4) + x);
+				if (getTile(tileX, tileY).isSolid()) {
+					tile.setLocation(tileX << 4, tileY << 4);
+					if (tile.intersects(rect)) return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	public Tile getTile(int x, int y) {
 		return getTile(x + y * width);
 	}
@@ -287,7 +305,7 @@ public class Level {
 
 		calculateEdges(x, y);
 	}
-	
+
 	public void changeTile(int x, int y, Tile tile, boolean random) {
 		changeTile(x, y, tile.getColor(), random);
 	}
@@ -295,7 +313,7 @@ public class Level {
 	public void changeTile(int x, int y, int tile) {
 		changeTile(x, y, tile, false);
 	}
-	
+
 	public void changeTile(int x, int y, Tile tile) {
 		changeTile(x, y, tile.getColor());
 	}
@@ -380,8 +398,8 @@ public class Level {
 		}
 	}
 
-	public void addThing(Thing Thing) {
-		getThings().add(Thing);
+	public void addThing(Thing thing) {
+		getThings().add(thing);
 	}
 
 	protected synchronized List<Thing> getThings() {

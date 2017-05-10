@@ -50,9 +50,9 @@ public class Tile {
 
 	public static final Tile NULL = new Tile(TileType.SPECIAL, Sprite.NULL);
 
-	public static final Tile WATER = new Tile(TileType.WATER, Sprite.WATER);
-	public static final Tile WATER_SHINE = new AnimatedTile(TileType.WATER, Sprite.WATER, new int[] { 300, 10, 5, 15 });
-	public static final Tile R_WATER_SHINE = new RandomAnimatedTile(TileType.WATER, Sprite.WATER, new int[] { 5, 10, 5, 15 }, 500);
+	public static final Tile WATER = new Tile(TileType.WATER, Sprite.WATER, true);
+	public static final Tile WATER_SHINE = new AnimatedTile(TileType.WATER, Sprite.WATER, new int[] { 300, 10, 5, 15 }, true);
+	public static final Tile R_WATER_SHINE = new RandomAnimatedTile(TileType.WATER, Sprite.WATER, new int[] { 5, 10, 5, 15 }, 500, true);
 
 	public static final Tile DIRT = new Tile(TileType.DIRT, Sprite.DIRT);
 	public static final Tile DIRT_GRASS = new Tile(TileType.DIRT, Sprite.DIRT_GRASS);
@@ -162,5 +162,10 @@ public class Tile {
 
 	public void draw(int x2, int y2, Screen screen, int... lights) {
 		screen.drawSprite(x2, y2, sprite, lights);
+	}
+
+	public boolean isSolid() {
+		return solid;
+		
 	}
 }

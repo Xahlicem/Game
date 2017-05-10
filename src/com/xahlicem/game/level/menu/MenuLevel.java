@@ -9,6 +9,7 @@ import com.xahlicem.game.level.EditableLevel;
 import com.xahlicem.game.level.Level;
 import com.xahlicem.game.level.TimeLevel;
 import com.xahlicem.game.level.tile.Tile;
+import com.xahlicem.game.thing.Rabbit;
 
 public class MenuLevel extends TimeLevel {
 
@@ -27,12 +28,22 @@ public class MenuLevel extends TimeLevel {
 	public MenuLevel(String... options) {
 		super(20, 3 * (options.length - 1), BGM.BGM_TITLE);
 		init(options);
+		addCritters();
 	}
 
 	public MenuLevel(Level level, String... options) {
 		super(20, 3 * (options.length - 1), BGM.BGM_TITLE);
 		prevLevel = level;
 		init(options);
+		addCritters();
+		
+	}
+
+	protected void addCritters() {
+		for (int y = 0; y < height; y++)
+			for (int x = 0; x < width; x++) {
+				if (R.nextInt(8) == 0) things.add(new Rabbit(this, x << 4, y << 4));
+			}
 	}
 
 	protected void init(String[] options) {
@@ -131,7 +142,7 @@ public class MenuLevel extends TimeLevel {
 		if (sfx != null) sfx.sound(127, 1);
 		if (sfx != null) sfx.sound(127, 1);
 		if (sfx != null) sfx.sound(127, 1);
-		
+
 		switch (action.toUpperCase()) {
 			case "START GAME":
 				game.changeLevel(TITLE);
