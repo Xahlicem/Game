@@ -7,6 +7,8 @@ public class Rabbit extends Critter {
 
 	public Rabbit(Level level, int x, int y) {
 		super(level, SpriteSheet.THING_RABBIT, x, y);
+		boundsOffset = -4;
+		yOffset = 2;
 	}
 
 }

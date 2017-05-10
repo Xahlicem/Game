@@ -10,7 +10,7 @@ public class MobileThing extends Thing {
 
 	protected Sprite sprite;
 	protected int levelWidth, levelHeight;
-	protected int direction = 0;
+	protected int direction = 2;
 
 	public MobileThing(Level level, Sprite sprite, int x, int y) {
 		super(level);
@@ -19,7 +19,7 @@ public class MobileThing extends Thing {
 		this.y = level.getY(y);
 		levelWidth = level.width << 4;
 		levelHeight = level.height << 4;
-		bounds = new Rectangle(this.x, this.y, sprite.width, sprite.height);
+		bounds = new Rectangle(this.x + xOffset, this.y + xOffset, sprite.width + boundsOffset, sprite.height + boundsOffset);
 	}
 
 	@Override
@@ -33,14 +33,15 @@ public class MobileThing extends Thing {
 			if (x > 0) direction = 1;
 			else direction = 3;
 		}
-		
-		bounds.setLocation(level.getX(this.x + x), level.getY(this.y + y));
+		moveBounds(0, y);
+		moveBounds(0, -y);
+		if (level.intersects(this)) y = 0;
+		moveBounds(x, 0);
+		moveBounds(-x, 0);
+		if (level.intersects(this)) x = 0;
 
-		if (!level.intersects(bounds, this)) {
-			this.x = level.getX(this.x + x);
-			this.y = level.getY(this.y + y);
-		}
-		bounds.setLocation(this.x, this.y);
+		this.x = level.getX(this.x + x);
+		this.y = level.getY(this.y + y);
 	}
 
 	@Override

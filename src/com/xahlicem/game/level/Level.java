@@ -196,9 +196,13 @@ public class Level {
 		}
 		for (int i = 0; i < Tile.getTileIndexLength(); i++)
 			Tile.getTileFromIndex(i).tick();
+		tickThings();
+
+	}
+
+	protected void tickThings() {
 		for (Thing thing : getThings())
 			thing.tick();
-
 	}
 
 	protected void menu() {
@@ -266,9 +270,9 @@ public class Level {
 		}
 	}
 
-	public boolean intersects(Rectangle rect, Thing thing) {
+	public boolean intersects(Thing thing) {
 		for (Thing t : things)
-			if (t != thing) if (t.getBounds().intersects(rect)) return true;
+			if (t != thing) if (t.getBounds().intersects(thing.getBounds())) return true;
 		Rectangle tile = new Rectangle(0, 0, 16, 16);
 		for (int y = -1; y < 2; y++) {
 			int tileY = getTileY((thing.getY() >> 4) + y);
@@ -276,7 +280,7 @@ public class Level {
 				int tileX = getTileX((thing.getX() >> 4) + x);
 				if (getTile(tileX, tileY).isSolid()) {
 					tile.setLocation(tileX << 4, tileY << 4);
-					if (tile.intersects(rect)) return true;
+					if (tile.intersects(thing.getBounds())) return true;
 				}
 			}
 		}

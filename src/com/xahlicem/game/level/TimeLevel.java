@@ -32,7 +32,7 @@ public class TimeLevel extends Level {
 	protected static final int PITCH = 0;
 
 	private int time, darkness;
-	private boolean lighted = true;
+	protected boolean lighted = true;
 
 	private void time() {
 		time++;

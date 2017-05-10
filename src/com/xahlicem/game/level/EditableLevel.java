@@ -4,15 +4,22 @@ import java.io.File;
 
 import com.xahlicem.game.graphics.Screen;
 import com.xahlicem.game.graphics.Sprite;
+import com.xahlicem.game.graphics.SpriteSheet;
 import com.xahlicem.game.helpers.Input;
 import com.xahlicem.game.helpers.audio.BGM;
 import com.xahlicem.game.level.tile.RandomAnimatedTile;
 import com.xahlicem.game.level.tile.Tile;
+import com.xahlicem.game.thing.Rabbit;
 
 public class EditableLevel extends TimeLevel {
+	protected static enum State {
+		TILE, LIGHT, THING
+	}
+
+	protected State currentState = State.TILE;
 	protected boolean click = false;
 	protected boolean edit = true;
-	protected int color = 0;
+	protected int index = 0;
 	protected int xPos, yPos;
 	protected int lastX = -1, lastY = -1;
 
@@ -38,8 +45,17 @@ public class EditableLevel extends TimeLevel {
 
 		boolean corner = (pointX < 74 && pointY < 74);
 		if (input.getWheel() != 0) {
-			if (lighted()) color = (Tile.getTileIndexLength() * 2 + color + input.getWheel()) % Tile.getTileIndexLength();
-			else color = (-DAY * 2 + color + input.getWheel()) % -DAY;
+			switch (currentState) {
+				case TILE:
+					index = (Tile.getTileIndexLength() * 2 + index + input.getWheel()) % Tile.getTileIndexLength();
+					break;
+				case LIGHT:
+					index = (-DAY * 2 + index + input.getWheel()) % -DAY;
+					break;
+				case THING:
+					index = 0;
+					break;
+			}
 		}
 
 		pointX = (pointX / Screen.SCALE) + x >> 4;
@@ -50,13 +66,35 @@ public class EditableLevel extends TimeLevel {
 		if (edit && input.isKeyPressed(Input.KEY_PRESS)) {
 			if (xPos != lastX || yPos != lastY) {
 				if (corner) {
-					toggleLight();
-					color = 0;
+					switch (currentState) {
+						case TILE:
+							lighted = false;
+
+							currentState = State.LIGHT;
+							break;
+						case LIGHT:
+							lighted = true;
+
+							currentState = State.THING;
+							break;
+						case THING:
+							lighted = true;
+
+							currentState = State.TILE;
+							break;
+					}
+					index = 0;
 				} else {
-					if (lighted()) {
-						changeTile(xPos, yPos, Tile.getTileFromIndex(color).getColor(), input.isKeyPressed(Input.KEY_SHIFT));
-					} else {
-						changeLight(xPos, yPos, color);
+					switch (currentState) {
+						case TILE:
+							changeTile(xPos, yPos, Tile.getTileFromIndex(index).getColor(), input.isKeyPressed(Input.KEY_SHIFT));
+							break;
+						case LIGHT:
+							changeLight(xPos, yPos, index);
+							break;
+						case THING:
+							addThing(new Rabbit(this, xPos << 4, yPos << 4));
+							break;
 					}
 				}
 
@@ -75,18 +113,29 @@ public class EditableLevel extends TimeLevel {
 			lastY = -1;
 		}
 	}
-	
+
+	@Override
+	protected void tickThings() {
+		if (!edit) super.tickThings();
+	}
+
 	@Override
 	protected void drawThings(Screen screen) {
 		super.drawThings(screen);
 		if (edit) {
 			screen.drawSprite(x, y, Sprite.CONTAINER, 8);
-			String s = String.valueOf(color);
-			if (lighted()) {
-				Tile.getTileFromIndex(color).draw(x + 2, y + 2, screen);
-				if (Tile.getTileFromIndex(color).getClass().equals(RandomAnimatedTile.class)) s += "A";
-			} else {
-				getTile(xPos, yPos).draw(x + 2, y + 2, screen, color);
+			String s = String.valueOf(index);
+			switch (currentState) {
+				case TILE:
+					Tile.getTileFromIndex(index).draw(x + 2, y + 2, screen);
+					if (Tile.getTileFromIndex(index).getClass().equals(RandomAnimatedTile.class)) s += "A";
+					break;
+				case LIGHT:
+					getTile(xPos, yPos).draw(x + 2, y + 2, screen, index);
+					break;
+				case THING:
+					screen.drawSprite(x + 2, y + 2, new Sprite(16, 0, 2, SpriteSheet.THING_RABBIT), 8);
+					break;
 			}
 			screen.drawString(x + 3, y + 12, s, Sprite.FONT_TINY, (lighted()) ? 0xFF000000 : 0xFFFFFFFF);
 
