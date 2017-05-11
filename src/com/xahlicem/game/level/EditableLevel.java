@@ -9,6 +9,7 @@ import com.xahlicem.game.helpers.Input;
 import com.xahlicem.game.helpers.audio.BGM;
 import com.xahlicem.game.level.tile.RandomAnimatedTile;
 import com.xahlicem.game.level.tile.Tile;
+import com.xahlicem.game.thing.Mouse;
 import com.xahlicem.game.thing.Rabbit;
 
 public class EditableLevel extends TimeLevel {
@@ -53,7 +54,7 @@ public class EditableLevel extends TimeLevel {
 					index = (-DAY * 2 + index + input.getWheel()) % -DAY;
 					break;
 				case THING:
-					index = 0;
+					index = (4 + index + input.getWheel()) % 2;
 					break;
 			}
 		}
@@ -93,7 +94,14 @@ public class EditableLevel extends TimeLevel {
 							changeLight(xPos, yPos, index);
 							break;
 						case THING:
-							addThing(new Rabbit(this, xPos << 4, yPos << 4));
+							switch (index) {
+								case 0:
+									addThing(new Rabbit(this, xPos << 4, yPos << 4));
+									break;
+								case 1:
+									addThing(new Mouse(this, xPos << 4, yPos << 4));
+									break;
+							}
 							break;
 					}
 				}
@@ -134,7 +142,14 @@ public class EditableLevel extends TimeLevel {
 					getTile(xPos, yPos).draw(x + 2, y + 2, screen, index);
 					break;
 				case THING:
-					screen.drawSprite(x + 2, y + 2, new Sprite(16, 0, 2, SpriteSheet.THING_RABBIT), 8);
+					switch (index) {
+						case 0:
+							screen.drawSprite(x + 2, y + 2, new Sprite(16, 0, 2, SpriteSheet.THING_RABBIT), 8);
+							break;
+						case 1:
+							screen.drawSprite(x + 2, y + 2, new Sprite(16, 0, 2, SpriteSheet.THING_MOUSE), 8);
+							break;
+					}
 					break;
 			}
 			screen.drawString(x + 3, y + 12, s, Sprite.FONT_TINY, (lighted()) ? 0xFF000000 : 0xFFFFFFFF);

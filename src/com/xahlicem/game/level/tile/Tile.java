@@ -71,7 +71,7 @@ public class Tile {
 	public static final Tile R_GRASS_TALL = new RandomAnimatedTile(TileType.GRASS, Sprite.GRASS_TALL, new int[] { 5, 30, 45, 15 }, 2000);
 	public static final Tile FLOWERS = new AnimatedTile(TileType.GRASS, Sprite.FLOWERS, 60);
 	public static final Tile R_FLOWERS = new RandomAnimatedTile(TileType.GRASS, Sprite.FLOWERS, 5, 1500);
-	public static final Tile TREE = new TallTile(TileType.TREE, Sprite.TREE_TRUNK, Sprite.TREE_MIDDLE, Sprite.TREE_TOP);
+	public static final Tile TREE = new TallTile(TileType.TREE, true, Sprite.TREE_TRUNK, Sprite.TREE_MIDDLE, Sprite.TREE_TOP);
 
 	public Tile(TileType type, Sprite sprite) {
 		this.type = type;

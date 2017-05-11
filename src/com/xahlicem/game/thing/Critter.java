@@ -9,11 +9,14 @@ import com.xahlicem.game.level.Level;
 public class Critter extends MobileThing {
 
 	protected static final Random R = new Random();
-	protected static final int MOVE_TIME = 15;
-	protected static final int MOVE_TIME_DIV = (MOVE_TIME / 3);
+	
+	protected int size = 16;
 
 	protected Sprite[][] sprites;
-	protected int moveTime = MOVE_TIME;
+	protected float moveChance = 0.02f;
+	protected int moveTimeMax = 15;
+	protected int moveTime = moveTimeMax;
+	protected int moveTimeDiv = (moveTimeMax / 3);
 	protected int lastX, lastY;
 	protected boolean tick = false;
 
@@ -22,24 +25,24 @@ public class Critter extends MobileThing {
 		loadSprites(spriteSheet);
 	}
 
-	private void loadSprites(SpriteSheet spriteSheet) {
+	protected void loadSprites(SpriteSheet spriteSheet) {
 		sprites = new Sprite[4][3];
 		for (int y = 0; y < 4; y++)
 			for (int x = 0; x < 3; x++) {
-				sprites[y][x] = new Sprite(16, x, y, spriteSheet);
+				sprites[y][x] = new Sprite(size, x, y, spriteSheet);
 			}
 		sprite = sprites[direction][0];
 	}
 
 	public void tick() {
 		if (tick) {
-			if (moveTime < MOVE_TIME) {
-				sprite = sprites[direction][moveTime / MOVE_TIME_DIV];
+			if (moveTime < moveTimeMax) {
+				sprite = sprites[direction][moveTime / moveTimeDiv];
 				move(lastX, lastY);
 				moveTime++;
 			} else {
 				sprite = sprites[direction][0];
-				if (R.nextInt(32) == 0) {
+				if (R.nextFloat() <= moveChance) {
 					lastX = R.nextInt(3) - 1;
 					lastY = R.nextInt(3) - 1;
 					if (lastX != 0 || lastY != 0) moveTime = 0;

@@ -7,8 +7,8 @@ public class TallTile extends Tile {
 	
 	protected Sprite[] sprites;
 
-	public TallTile(TileType type, Sprite...sprites) {
-		super(type, sprites[0]);
+	public TallTile(TileType type, boolean solid, Sprite...sprites) {
+		super(type, sprites[0], solid);
 		this.sprites = sprites;
 	}
 	
@@ -19,7 +19,7 @@ public class TallTile extends Tile {
 	
 	public void draw(int x, int y, Screen screen, int... lights) {
 		screen.drawSprite(x, y, sprite, lights[0], lights[0], lights[2], lights[3], lights[4]);
-		for (int i = 1; i < sprites.length; i++) screen.drawSprite(x, y - sprite.height * i, sprites[i], lights[0], lights[0], lights[0], lights[3], lights[4]);
+		for (int i = 1; i < sprites.length; i++) screen.drawFrontSprite(x, y - sprite.height * i, sprites[i], lights[0], lights[0], lights[0], lights[3], lights[4]);
 	}
 
 }

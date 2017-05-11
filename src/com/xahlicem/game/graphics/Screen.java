@@ -7,7 +7,6 @@ import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.util.Arrays;
 
 public class Screen  extends Canvas {
 	private static final long serialVersionUID = 2489505347406779762L;
@@ -18,6 +17,7 @@ public class Screen  extends Canvas {
 
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 	private int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+	private int[] frontPixels = new int[pixels.length];
 
 	private static final int INVISIBLE = 0xFF88FF;
 	private int xOffset, yOffset;
@@ -31,7 +31,8 @@ public class Screen  extends Canvas {
 	}
 
 	public void clear() {
-		Arrays.fill(pixels, 0);
+		fill(pixels, 0);
+		fill(frontPixels, 0);
 	}
 	
 	public void draw() {
@@ -43,6 +44,9 @@ public class Screen  extends Canvas {
 
 		Graphics g = strategy.getDrawGraphics();
 		g.setColor(Color.BLACK);
+		for (int i = 0; i < pixels.length; i++) {
+			if (frontPixels[i] != 0) pixels[i] = frontPixels[i]; 
+		}
 		g.fillRect(0, 0, getWidth(), getHeight());
 		g.drawImage(image, 0, 0, getWidth(), getHeight(), this);
 		g.dispose();
@@ -95,6 +99,35 @@ public class Screen  extends Canvas {
 		}
 	}
 	
+	public void drawFrontSprite(int xPos, int yPos, Sprite sprite, int... lights) {
+		float top = (float) (lights[1]+lights[0] / (sprite.width >> 1)) * .5F;
+		float bottom = (float) (lights[2]+lights[0] / (sprite.width >> 1)) * .5F;
+		float left = (float) (lights[3]+lights[0] / (sprite.width >> 1)) * .5F;
+		float right = (float) (lights[4]+lights[0] / (sprite.width >> 1)) * .5F;
+		float light = top;
+
+		xPos -= xOffset;
+		yPos -= yOffset;
+		int h = sprite.height >> 1;
+		int w = sprite.width >> 1;
+		for (int y = -h + 1; y < h + 1; y++) {
+			int ya = y + h - 1 + yPos;
+			if (ya < 0 || ya >= HEIGHT) continue;
+			for (int x = -w + 1; x < w + 1; x++) {
+				int xa = x + h - 1 + xPos;
+				int color = sprite.pixels[x + w - 1 + (y + h - 1) * sprite.width];
+				if (xa < 0 || xa >= WIDTH || color == INVISIBLE) continue;
+				
+				if (y <= 0) light = top;
+				if (y > 0) light = bottom;
+				if (x <= 0) light += left;
+				if (x > 0) light += right;
+				
+				frontPixels[xa + ya * WIDTH] = makeDarker(color, (lights[0] + light));
+			}
+		}
+	}
+	
 	public void drawFont(int xPos, int yPos, Sprite sprite, int color) {
 		xPos -= xOffset;
 		yPos -= yOffset;
@@ -137,5 +170,17 @@ public class Screen  extends Canvas {
 	public void setOffset(int x, int y) {
 		xOffset = x;
 		yOffset = y;
+	}
+	
+	private static void fill(int[] array, int value) {
+	  int len = array.length;
+
+	  if (len > 0){
+	    array[0] = value;
+	  }
+
+	  for (int i = 1; i < len; i += i) {
+	    System.arraycopy(array, 0, array, i, ((len - i) < i) ? (len - i) : i);
+	  }
 	}
 }
