@@ -8,7 +8,7 @@ import com.xahlicem.game.level.Level;
 public abstract class Thing {
 	protected int x, y;
 	protected Rectangle bounds;
-	protected int boundsOffset;
+	protected int widthOffset, heightOffset;
 	protected int xOffset, yOffset;
 	protected Level level;
 

@@ -9,10 +9,11 @@ import com.xahlicem.game.level.Level;
 public class Critter extends MobileThing {
 
 	protected static final Random R = new Random();
-	protected static final int MOVE_TIME = 16;
+	protected static final int MOVE_TIME = 15;
+	protected static final int MOVE_TIME_DIV = (MOVE_TIME / 3);
 
 	protected Sprite[][] sprites;
-	protected int moveTime = 16;
+	protected int moveTime = MOVE_TIME;
 	protected int lastX, lastY;
 	protected boolean tick = false;
 
@@ -33,7 +34,7 @@ public class Critter extends MobileThing {
 	public void tick() {
 		if (tick) {
 			if (moveTime < MOVE_TIME) {
-				sprite = sprites[direction][moveTime / 6];
+				sprite = sprites[direction][moveTime / MOVE_TIME_DIV];
 				move(lastX, lastY);
 				moveTime++;
 			} else {
@@ -41,11 +42,10 @@ public class Critter extends MobileThing {
 				if (R.nextInt(32) == 0) {
 					lastX = R.nextInt(3) - 1;
 					lastY = R.nextInt(3) - 1;
-					if (lastX != 0 && lastY != 0) moveTime = 0;
+					if (lastX != 0 || lastY != 0) moveTime = 0;
 				}
 			}
 		}
 		tick = !tick;
 	}
-
 }

@@ -15,6 +15,7 @@ public class SpriteSheet {
 	public static final SpriteSheet FONT = new SpriteSheet("/textures/FONT.PNG");
 	public static final SpriteSheet FONT_TINY = new SpriteSheet("/textures/FONT_TINY.PNG");
 	public static final SpriteSheet THING_RABBIT = new SpriteSheet("/textures/things/RABBIT.PNG");
+	public static final SpriteSheet THING_MOUSE = new SpriteSheet("/textures/things/MOUSE.PNG");
 
 	public SpriteSheet(String path) {
 		this.path = path;

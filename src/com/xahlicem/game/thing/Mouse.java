@@ -3,16 +3,16 @@ package com.xahlicem.game.thing;
 import com.xahlicem.game.graphics.SpriteSheet;
 import com.xahlicem.game.level.Level;
 
-public class Rabbit extends Critter {
+public class Mouse extends Critter {
 
-	public Rabbit(Level level, int x, int y) {
-		super(level, SpriteSheet.THING_RABBIT, x, y);
+	public Mouse(Level level, int x, int y) {
+		super(level, SpriteSheet.THING_MOUSE, x, y);
 	}
 	
 	public void init() {
 		widthOffset = -6;
-		heightOffset = -7;
-		yOffset = 7;
+		heightOffset = -6;
+		yOffset = 5;
 		xOffset = 3;
 		super.init();
 	}

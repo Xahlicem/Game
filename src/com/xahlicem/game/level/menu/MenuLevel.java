@@ -9,6 +9,7 @@ import com.xahlicem.game.level.EditableLevel;
 import com.xahlicem.game.level.Level;
 import com.xahlicem.game.level.TimeLevel;
 import com.xahlicem.game.level.tile.Tile;
+import com.xahlicem.game.thing.Mouse;
 import com.xahlicem.game.thing.Rabbit;
 
 public class MenuLevel extends TimeLevel {
@@ -36,13 +37,16 @@ public class MenuLevel extends TimeLevel {
 		prevLevel = level;
 		init(options);
 		addCritters();
-		
+
 	}
 
 	protected void addCritters() {
 		for (int y = 0; y < height; y++)
 			for (int x = 0; x < width; x++) {
-				if (R.nextInt(8) == 0) things.add(new Rabbit(this, x << 4, y << 4));
+				if (R.nextInt(8) == 0) {
+					if (R.nextBoolean()) things.add(new Rabbit(this, x << 4, y << 4));
+					else things.add(new Mouse(this, x << 4, y << 4));
+				}
 			}
 	}
 
